@@ -619,28 +619,31 @@ body {
         </div>
         <div class="spring-section" style="margin-top:10px">
           <h3>🌀 弹簧规格</h3>
-          <div class="spring-row"><label>软线径</label>
+          <div class="spring-row"><label>软线径 <span style="color:#999;font-size:10px">（≤1.8mm）</span></label>
             <select id="softWire" onchange="updateSpringLayout()">
-              <option value="钢线1.8">钢线1.8 (¥5.2/kg)</option>
-              <option value="钢线2.0" selected>钢线2.0 (¥5.1/kg)</option>
-              <option value="钢线2.2">钢线2.2 (¥5.0/kg)</option>
+              <option value="钢线1.2">钢线1.2</option>
+              <option value="钢线1.4">钢线1.4</option>
+              <option value="钢线1.6">钢线1.6</option>
+              <option value="钢线1.8" selected>钢线1.8 (¥5.2/kg)</option>
             </select>
           </div>
-          <div class="spring-row"><label>硬线径</label>
+          <div class="spring-row"><label>硬线径 <span style="color:#999;font-size:10px">（>1.8mm）</span></label>
             <select id="hardWire" onchange="updateSpringLayout()">
-              <option value="钢线1.8">钢线1.8 (¥5.2/kg)</option>
-              <option value="钢线2.0">钢线2.0 (¥5.1/kg)</option>
-              <option value="钢线2.2" selected>钢线2.2 (¥5.0/kg)</option>
+              <option value="钢线2.0" selected>钢线2.0 (¥5.1/kg)</option>
+              <option value="钢线2.2">钢线2.2 (¥5.0/kg)</option>
+              <option value="钢线2.4">钢线2.4</option>
             </select>
           </div>
           <div class="spring-row" style="grid-template-columns:1fr"><label>分区方式</label>
             <select id="zoneType" onchange="updateZoneInputs()" style="width:100%">
               <option value="full">整网（全软）</option>
               <option value="border">四周加硬</option>
-              <option value="3zone">三分区</option>
+              <option value="3zone">三分区（硬软硬）</option>
               <option value="3zone_border">三分区+四周加硬</option>
-              <option value="5zone">五分区</option>
+              <option value="5zone">五分区（硬软硬软硬）</option>
               <option value="5zone_border">五分区+四周加硬</option>
+              <option value="7zone">七分区（硬软硬软硬软硬）</option>
+              <option value="7zone_border">七分区+四周加硬</option>
             </select>
           </div>
           <div id="zoneRowsContainer"></div>
@@ -727,6 +730,86 @@ function getProcessingFee(mattressType, widthCm) {
   if (w <= 160)  return entry.fees[1];
   if (w <= 185)  return entry.fees[2];
   return entry.fees[3];
+}
+
+/* ============================================================
+   胶水+包材 默认用量计算（按尺寸自动算，可手动覆盖）
+   对齐Excel各Sheet的标准用量公式
+   ============================================================ */
+const GLUE_DEFAULTS = {
+  // 各款式胶水条数（热熔胶350A用于护边，热熔胶5804用于棉毡/裥绵）
+  '套子款（外购）':  { pur:1, glue350A:6, glue5804:4, glueFactor:1 },
+  'OT-洁之宝款式1': { pur:1, glue350A:6, glue5804:4, glueFactor:1 },
+  'OT-洁之宝款式2': { pur:1, glue350A:6, glue5804:4, glueFactor:1 },
+  'QT-两边款':      { pur:1, glue350A:6, glue5804:4, glueFactor:1 },
+  'PT-虎口款':      { pur:1, glue350A:6, glue5804:4, glueFactor:1.2 }, // 虎口多一层
+  'ET-真三边款':    { pur:1, glue350A:6, glue5804:4, glueFactor:1.2 },
+  'ET-假三边款':    { pur:1, glue350A:6, glue5804:4, glueFactor:1 }
+};
+
+// 包材用量公式（w=宽cm, l=长cm, h=高cm）
+function calcPackagingDefaults(mattressType, w, l, h) {
+  const W=parseFloat(w)||180, L=parseFloat(l)||200, H=parseFloat(h)||25;
+  const perimeter = (W+L)*2/100; // 周长（m）
+
+  // 边带系数：QT=2圈，PT/ET=3圈，其余=0
+  const edgeTapeRounds = mattressType==='QT-两边款'?2 : (mattressType.startsWith('PT')||mattressType.startsWith('ET'))?3 : 0;
+
+  // 纸箱尺寸（平卷）：压缩后高度 ≈ H*0.8，宽≈L*0.85+6，长≈W+6
+  const boxH = Math.round(H*0.8+2);
+  const boxL = Math.round(L*0.85+6);
+  const boxW = Math.round(W+6);
+  // 纸箱双平方 = (boxL+boxW)*2*(boxH+boxW)*2 / 10000 (双平方)
+  const boxSqm = ((boxL+boxH)*2 + (boxW+boxH)*2) / 100 * (boxL+boxW+boxH*2)/100;
+
+  // PE压缩膜用量（米）：长+宽+高约
+  const peFilmQty = parseFloat(((W+H*2)/100/0.255 + 0.5).toFixed(2));
+
+  // 缠绕膜用量（米）：固定约4m
+  const wrapFilmQty = parseFloat((L/100*2+0.5).toFixed(2));
+
+  return {
+    '拉链':        { qty: parseFloat((perimeter+0.1).toFixed(2)), unit:'米', note:'周长+余量' },
+    '边带':        { qty: edgeTapeRounds>0 ? parseFloat((perimeter*edgeTapeRounds*(1+0.03)).toFixed(2)) : 0, unit:'米', note:`${edgeTapeRounds}圈×周长×1.03` },
+    '拉手':        { qty: 1, unit:'件' },
+    '平卷纸箱':    { qty: parseFloat((boxSqm).toFixed(3)), unit:'双平方', note:`${boxW}×${boxL}×${boxH}` },
+    'PE压缩膜':    { qty: peFilmQty, unit:'米' },
+    '缠绕膜':      { qty: wrapFilmQty, unit:'米' },
+    '标签':        { qty: 1, unit:'件' },
+    '开包器':      { qty: 1, unit:'件' },
+    '干燥剂':      { qty: 3, unit:'个', note:'3包/张' },
+    '透明胶带':    { qty: parseFloat((7*(1+0.02)).toFixed(2)), unit:'米' },
+    '裥棉面线':    { qty: 2550, unit:'米', note:'固定2500×1.02' },
+    '裥棉底线':    { qty: 2550, unit:'米', note:'固定' },
+    '边布面线':    { qty: 510, unit:'米', note:'固定500×1.02' },
+    '缝纫底线':    { qty: 510, unit:'米' },
+    '拷边线':      { qty: 510, unit:'米' },
+    '包边线':      { qty: 612, unit:'米', note:'固定600×1.02' },
+    '绣花线':      { qty: 510, unit:'米' }
+  };
+}
+
+// 胶水用量计算（w=宽cm, l=长cm）
+function calcGlueDefaults(mattressType, w, l) {
+  const W=parseFloat(w)||180, L=parseFloat(l)||200;
+  const area = W*L/10000; // m²
+  const cfg = GLUE_DEFAULTS[mattressType] || { pur:1, glue350A:6, glue5804:4, glueFactor:1 };
+
+  // PUR胶：海绵/乳胶间粘合，20g/m²
+  const purQty = parseFloat((area * 0.020 * (1+0.02)).toFixed(4));
+
+  // 热熔胶350A：护边用，6条×长度×0.017kg/m
+  const glue350ALen = L/100; // 单条长度=床长
+  const glue350AQty = parseFloat((glue350ALen * cfg.glue350A * 0.017 * (1+0.02) * cfg.glueFactor).toFixed(4));
+
+  // 热熔胶5804：棉毡/裥棉用，4条×长度×0.016kg/m
+  const glue5804Qty = parseFloat((glue350ALen * cfg.glue5804 * 0.016 * (1+0.02) * cfg.glueFactor).toFixed(4));
+
+  return {
+    'PUR胶':      { qty: purQty,     unit:'公斤', note:'20g/m²×面积×1.02' },
+    '热熔胶-350A': { qty: glue350AQty, unit:'公斤', note:`6条×${(L/100).toFixed(2)}m×17g×1.02` },
+    '热熔胶-5804': { qty: glue5804Qty, unit:'公斤', note:`4条×${(L/100).toFixed(2)}m×16g×1.02` }
+  };
 }
 
 /* ============================================================
@@ -1175,10 +1258,16 @@ function onMattressTypeChange() {
   currentMattress = JSON.parse(JSON.stringify(MATTRESS_STRUCTURES[t]));
   currentMattress.layers.forEach(layer => {
     layer._fabricSel = '';
+    layer._fabricQty = 1;
+    layer._fabricManual = false;
+    layer._fabricManualName = '';
+    layer._fabricManualPrice = 0;
+    layer._fabricSrc = 'fabric';
     layer._materials = layer.materials.map(m => ({ label:m, sel:'', qty:1 }));
   });
   autoMatchFee();
   autoSelectInnerSleeve();
+  autoFillGlueAndPackaging();
   renderStructure();
   renderBOM();
 }
@@ -1186,7 +1275,7 @@ function onMattressTypeChange() {
 function onSizeChange() {
   autoMatchFee();
   autoSelectInnerSleeve();
-  if (currentMattress) renderBOM();
+  if (currentMattress) { autoFillGlueAndPackaging(); renderBOM(); }
 }
 
 /* 工费自动匹配 */
@@ -1216,6 +1305,53 @@ function autoSelectInnerSleeve() {
   const qty = l > 190 ? 2.7 : 2.6;
   tip.style.display = 'inline-flex';
   tip.textContent = `建议内套：${spec}，用量 ${qty}m`;
+}
+
+// 胶水+包材标签匹配表（结构层label → 默认值key）
+const MATERIAL_LABEL_MAP = {
+  'PUR胶':       'PUR胶',
+  '热熔胶-350A': '热熔胶-350A',
+  '热熔胶-5804': '热熔胶-5804',
+  '拉链':        '拉链',
+  '边带':        '边带',
+  '拉手':        '拉手',
+  '平卷纸箱':    '平卷纸箱',
+  '标签':        '标签',
+  '开包器':      '开包器',
+  '干燥剂':      '干燥剂',
+  '透明胶带':    '透明胶带',
+  '缝纫线-裥棉面线': '裥棉面线',
+  '缝纫线-裥棉底线': '裥棉底线',
+  '缝纫线-边布面线': '边布面线',
+  '缝纫线-缝纫底线': '缝纫底线',
+  '缝纫线-拷边线':   '拷边线',
+  '缝纫线-包边线':   '包边线',
+  '缝纫线-绣花线':   '绣花线',
+  'PE压缩膜':    'PE压缩膜',
+  '缠绕膜':      '缠绕膜'
+};
+
+function autoFillGlueAndPackaging() {
+  if (!currentMattress || !currentMattressType) return;
+  const w = document.getElementById('mWidth').value;
+  const l = document.getElementById('mLength').value;
+  const h = document.getElementById('mHeight').value;
+
+  const glueDefaults = calcGlueDefaults(currentMattressType, w, l);
+  const pkgDefaults  = calcPackagingDefaults(currentMattressType, w, l, h);
+  const allDefaults  = {...glueDefaults, ...pkgDefaults};
+
+  currentMattress.layers.forEach(layer => {
+    layer._materials.forEach(m => {
+      const key = MATERIAL_LABEL_MAP[m.label];
+      if (key && allDefaults[key] && !m._manualQty) {
+        // 只有未手动修改过的才自动填入
+        m.qty = allDefaults[key].qty;
+        m._autoDefault = true;
+        m._defaultNote = allDefaults[key].note || '';
+      }
+    });
+  });
 }
 
 /* ============================================================
@@ -1248,6 +1384,10 @@ function renderStructure() {
           <input type="number" placeholder="单价¥" value="${manualPrice||''}"
             style="font-size:12px;border:1px solid #ffd591;background:#fffbe6"
             oninput="onFabricManualPrice(${li},this.value)">
+          <input type="number" placeholder="用量" value="${layer._fabricQty||1}"
+            style="font-size:12px;border:1px solid #ffd591;background:#fffbe6"
+            onchange="onFabricQtyChange(${li},this.value)"
+            title="面料用量（米）">
           <button onclick="toggleFabricManual(${li},false)"
             style="font-size:11px;padding:3px 6px;border:1px solid #d9d9d9;border-radius:3px;cursor:pointer;background:#fff;white-space:nowrap">
             搜索
@@ -1269,7 +1409,10 @@ function renderStructure() {
               autocomplete="off">
             <div class="search-dropdown" style="display:none"></div>
           </div>
-          <input type="number" value="1" disabled style="background:#f5f5f5;font-size:11px">
+          <input type="number" value="${layer._fabricQty||1}" min="0" step="0.01"
+            style="font-size:11px;border:1px solid #d9d9d9;border-radius:3px;padding:4px 6px"
+            onchange="onFabricQtyChange(${li},this.value)"
+            title="面料用量（米）">
           <button onclick="toggleFabricManual(${li},true)"
             style="font-size:11px;padding:3px 6px;border:1px solid #d9d9d9;border-radius:3px;cursor:pointer;background:#fff;white-space:nowrap">
             手动
@@ -1452,12 +1595,23 @@ function onFabricManualName(li, val) {
   renderBOM();
 }
 
+function onFabricQtyChange(li, val) {
+  currentMattress.layers[li]._fabricQty = parseFloat(val) || 1;
+  renderBOM();
+}
+
 function onFabricManualPrice(li, val) {
   currentMattress.layers[li]._fabricManualPrice = parseFloat(val) || 0;
   renderBOM();
 }
 function onMaterialSelect(li,mi,val){ currentMattress.layers[li]._materials[mi].sel=val; renderBOM(); }
-function onQtyChange(li,mi,v){ currentMattress.layers[li]._materials[parseInt(mi)].qty=parseFloat(v)||0; currentMattress.layers[li]._materials[parseInt(mi)]._auto=false; renderBOM(); }
+function onQtyChange(li,mi,v){ 
+  const m = currentMattress.layers[li]._materials[parseInt(mi)];
+  m.qty = parseFloat(v)||0; 
+  m._auto = false; 
+  m._manualQty = true; // 标记已手动修改，不再自动覆盖
+  renderBOM(); 
+}
 function addMaterialRow(li){ currentMattress.layers[li]._materials.push({label:'自定义', sel:'', qty:1}); renderStructure(); }
 
 /* ============================================================
@@ -1477,12 +1631,13 @@ function renderBOM() {
         // 手动录入模式
         const mName  = layer._fabricManualName || '';
         const mPrice = layer._fabricManualPrice || 0;
+        const mQty   = layer._fabricQty || 1;
         if (mName && mPrice > 0) {
-          const untaxed = mPrice / 1.13;
-          bomData.push({layer:layer.name, label:layer.fabric, name:mName, qty:1, unit:'m', price:mPrice, untaxedAmt:untaxed});
+          const untaxed = mPrice * mQty / 1.13;
+          bomData.push({layer:layer.name, label:layer.fabric, name:mName, qty:mQty, unit:'m', price:mPrice, untaxedAmt:untaxed});
           html += `<tr>
             <td>${escHtml(layer.fabric)}<span class="category-badge badge-fabric" style="margin-left:4px">面料</span><span style="font-size:10px;color:#fa8c16;margin-left:4px">手动</span></td>
-            <td>${escHtml(mName)}</td><td>1</td><td>m</td>
+            <td>${escHtml(mName)}</td><td>${mQty}</td><td>m</td>
             <td>¥${mPrice.toFixed(2)}</td><td style="color:#389e0d"><strong>¥${untaxed.toFixed(2)}</strong></td>
           </tr>`;
         } else {
@@ -1492,13 +1647,15 @@ function renderBOM() {
         }
       } else {
         // 搜索选择模式
-        const f = DB.fabric.find(x => x.name === layer._fabricSel);
+        const f = DB.fabric.find(x => x.name === layer._fabricSel)
+               || DB.price.find(x => x.name === layer._fabricSel);
         if (f) {
-          const untaxed = f.price / 1.13;
-          bomData.push({layer:layer.name, label:layer.fabric, name:f.name, qty:1, unit:f.unit||'m', price:f.price, untaxedAmt:untaxed});
+          const qty = layer._fabricQty || 1;
+          const untaxed = f.price * qty / 1.13;
+          bomData.push({layer:layer.name, label:layer.fabric, name:f.name, qty, unit:f.unit||'m', price:f.price, untaxedAmt:untaxed});
           html += `<tr>
             <td>${escHtml(layer.fabric)}<span class="category-badge badge-fabric" style="margin-left:4px">面料</span></td>
-            <td>${escHtml(f.name)}</td><td>1</td><td>${f.unit||'m'}</td>
+            <td>${escHtml(f.name)}</td><td>${qty}</td><td>${f.unit||'m'}</td>
             <td>¥${f.price.toFixed(2)}</td><td style="color:#389e0d"><strong>¥${untaxed.toFixed(2)}</strong></td>
           </tr>`;
         } else {
@@ -1753,6 +1910,7 @@ function updateZoneInputs() {
   let zones = 0;
   if(t.startsWith('3zone')) zones=3;
   else if(t.startsWith('5zone')) zones=5;
+  else if(t.startsWith('7zone')) zones=7;
   if(zones===0){c.innerHTML='';updateZoneVisual();return;}
   let html=`<div style="font-size:11px;color:#666;margin-top:8px">分区行数（共${lc}行）：</div><div class="zone-rows-input" style="grid-template-columns:repeat(${zones},1fr)">`;
   for(let i=0;i<zones;i++) html+=`<input type="number" id="zoneRow${i}" value="${Math.floor(lc/zones)}" oninput="updateZoneVisual()" placeholder="区${i+1}">`;
@@ -1766,7 +1924,7 @@ function suggestZoneRows() {
   const lc=parseInt(document.getElementById('lengthCount').textContent)||0;
   const zones=t.startsWith('3zone')?3:t.startsWith('5zone')?5:0;
   if(!zones){alert('当前分区无需设置');return;}
-  const dists=zones===3?[0.3,0.4,0.3]:[0.18,0.22,0.2,0.22,0.18];
+  const dists=zones===3?[0.3,0.4,0.3]:zones===5?[0.18,0.22,0.2,0.22,0.18]:[0.12,0.14,0.14,0.12,0.14,0.14,0.12];
   dists.forEach((d,i)=>{const el=document.getElementById('zoneRow'+i);if(el)el.value=Math.round(lc*d);});
   updateZoneVisual();
 }
@@ -1776,8 +1934,8 @@ function updateZoneVisual() {
   const v=document.getElementById('zoneVisual');
   if(!t.includes('zone')){v.style.display='none';return;}
   v.style.display='block';
-  const zones=t.startsWith('5zone')?5:3;
-  const pattern=zones===3?['hard','soft','hard']:['hard','soft','hard','soft','hard'];
+  const zones=t.startsWith('7zone')?7:t.startsWith('5zone')?5:3;
+  const pattern=zones===3?['hard','soft','hard']:zones===5?['hard','soft','hard','soft','hard']:['hard','soft','hard','soft','hard','soft','hard'];
   let total=0; const rows=[];
   for(let i=0;i<zones;i++){const r=parseInt((document.getElementById('zoneRow'+i)||{}).value)||0;rows.push(r);total+=r;}
   if(!total)total=1;
@@ -1800,9 +1958,9 @@ function calculateSpring() {
   if(zone==='full'){ softCount=total; }
   else if(zone==='border'){ hardCount=wc*2+(lc-2)*2; softCount=total-hardCount; }
   else {
-    const zones=zone.startsWith('5zone')?5:3;
+    const zones=zone.startsWith('7zone')?7:zone.startsWith('5zone')?5:3;
     const hasBorder=zone.includes('border');
-    const pattern=zones===3?['hard','soft','hard']:['hard','soft','hard','soft','hard'];
+    const pattern=zones===3?['hard','soft','hard']:zones===5?['hard','soft','hard','soft','hard']:['hard','soft','hard','soft','hard','soft','hard'];
     const zRows=[];
     for(let i=0;i<zones;i++) zRows.push(parseInt((document.getElementById('zoneRow'+i)||{}).value)||0);
     const sumR=zRows.reduce((a,b)=>a+b,0);
