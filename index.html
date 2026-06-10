@@ -17,924 +17,2985 @@ body {
   box-shadow:0 4px 12px rgba(0,0,0,0.1);
   display:flex; align-items:center; justify-content:space-between;
 }
-.header h1 { font-size:24px; font-weight:600; }
-.header .sub { font-size:14px; opacity:0.9; margin-top:4px; }
+.header h1 { font-size:24px; margin-bottom:5px; }
+.header p { font-size:13px; opacity:0.85; }
+.sync-status {
+  display:flex; flex-direction:column; align-items:flex-end; gap:6px;
+}
+.sync-badge {
+  display:inline-flex; align-items:center; gap:5px;
+  padding:4px 12px; border-radius:12px; font-size:12px; font-weight:500;
+}
+.sync-badge.online { background:rgba(82,196,26,0.2); color:#95de64; border:1px solid rgba(82,196,26,0.4); }
+.sync-badge.offline { background:rgba(255,77,79,0.2); color:#ff7875; border:1px solid rgba(255,77,79,0.4); }
+.sync-badge.syncing { background:rgba(24,144,255,0.2); color:#69c0ff; border:1px solid rgba(24,144,255,0.4); }
+.sync-time { font-size:11px; opacity:0.7; }
 
 .toolbar {
-  background:#fff; padding:16px 20px; border-radius:8px; margin-bottom:20px;
-  box-shadow:0 2px 8px rgba(0,0,0,0.05); display:flex; gap:12px; flex-wrap:wrap; align-items:center;
+  background:#fff; padding:15px 20px; border-radius:8px; margin-bottom:15px;
+  display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+  box-shadow:0 2px 8px rgba(0,0,0,0.05);
 }
-.toolbar button, .toolbar select, .toolbar input {
-  padding:8px 12px; border:1px solid #d9d9d9; border-radius:4px; font-size:14px;
-  background:#fff; cursor:pointer; transition:all 0.2s;
+.btn {
+  padding:8px 16px; border:none; border-radius:4px; cursor:pointer;
+  font-size:13px; font-weight:500; transition:all 0.2s;
+  display:inline-flex; align-items:center; gap:5px;
 }
-.toolbar button { background:#1890ff; color:#fff; border-color:#1890ff; }
-.toolbar button:hover { background:#40a9ff; border-color:#40a9ff; }
-.toolbar button:active { background:#096dd9; }
-.toolbar .btn-danger { background:#ff4d4f; border-color:#ff4d4f; }
-.toolbar .btn-danger:hover { background:#ff7875; }
-.toolbar .btn-success { background:#52c41a; border-color:#52c41a; }
-.toolbar .btn-success:hover { background:#73d13d; }
-.toolbar .btn-warning { background:#faad14; border-color:#faad14; }
-.toolbar .btn-warning:hover { background:#ffc53d; }
+.btn-primary{ background:#1890ff; color:#fff; }
+.btn-primary:hover{ background:#40a9ff; }
+.btn-success{ background:#52c41a; color:#fff; }
+.btn-success:hover{ background:#73d13d; }
+.btn-warning{ background:#fa8c16; color:#fff; }
+.btn-warning:hover{ background:#ffa940; }
+.btn-default{ background:#fff; color:#333; border:1px solid #d9d9d9; }
+.btn-default:hover{ border-color:#40a9ff; color:#40a9ff; }
+.btn-danger{ background:#ff4d4f; color:#fff; }
+.btn-danger:hover{ background:#ff7875; }
+.btn-sm{ padding:4px 10px; font-size:12px; }
+.btn:disabled { opacity:0.5; cursor:not-allowed; }
 
-.main {
-  display:grid; grid-template-columns:420px 1fr; gap:20px;
+.main-layout {
+  display:grid; grid-template-columns: 560px 1fr; gap:15px;
+  margin-bottom:15px;
 }
+
 .panel {
-  background:#fff; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.05); overflow:hidden;
+  background:#fff; border-radius:8px; padding:20px;
+  box-shadow:0 2px 8px rgba(0,0,0,0.05);
 }
-.panel-header {
-  padding:16px 20px; border-bottom:1px solid #f0f0f0; font-size:16px; font-weight:500; color:#262626;
-  display:flex; align-items:center; justify-content:space-between;
-}
-.panel-body {
-  padding:20px; max-height:calc(100vh - 220px); overflow-y:auto;
-}
-
-/* 结构面板 */
-.structure-list {
-  display:flex; flex-direction:column; gap:12px;
-}
-.layer-item {
-  background:#fafafa; border:1px solid #e8e8e8; border-radius:6px; padding:12px;
-  cursor:move; position:relative; transition:all 0.2s;
-}
-.layer-item:hover { border-color:#1890ff; box-shadow:0 0 0 2px rgba(24,144,255,0.1); }
-.layer-item.active { border-color:#1890ff; background:#e6f7ff; }
-.layer-item.dragging { opacity:0.5; transform:scale(0.98); }
-.layer-item .drag-handle {
-  position:absolute; left:8px; top:50%; transform:translateY(-50%);
-  color:#bfbfbf; cursor:grab;
-}
-.layer-item .drag-handle:active { cursor:grabbing; }
-.layer-item .title {
-  font-weight:500; margin-bottom:8px; padding-left:20px;
-  display:flex; align-items:center; gap:8px;
-}
-.layer-item .title .index { font-size:12px; color:#8c8c8c; background:#e8e8e8; padding:2px 6px; border-radius:4px; }
-.layer-item .fields {
-  display:grid; grid-template-columns:1fr 1fr; gap:8px; padding-left:20px;
-}
-.field-group {
-  display:flex; flex-direction:column; gap:4px;
-}
-.field-group label {
-  font-size:12px; color:#8c8c8c;
-}
-.field-group input, .field-group select {
-  padding:6px 8px; border:1px solid #d9d9d9; border-radius:4px; font-size:13px;
-  width:100%;
-}
-.field-group input:focus, .field-group select:focus {
-  outline:none; border-color:#1890ff; box-shadow:0 0 0 2px rgba(24,144,255,0.1);
+.panel-title {
+  font-size:15px; font-weight:600; color:#1e3c72;
+  margin-bottom:15px; padding-bottom:8px;
+  border-bottom:2px solid #f0f0f0;
+  display:flex; align-items:center; gap:6px;
 }
 
-/* BOM面板 */
-.bom-table-container {
-  overflow-x:auto;
+.form-row { margin-bottom:12px; }
+.form-row label { font-size:13px; color:#666; display:block; margin-bottom:4px; }
+.form-row input, .form-row select, .form-row textarea {
+  width:100%; padding:6px 10px; border:1px solid #d9d9d9; border-radius:4px;
+  font-size:13px; transition:border-color 0.2s;
 }
-table {
-  width:100%; border-collapse:collapse; min-width:1000px;
+.form-row input:focus, .form-row select:focus, .form-row textarea:focus {
+  outline:none; border-color:#40a9ff; box-shadow:0 0 0 2px rgba(24,144,255,0.1);
 }
-th, td {
-  padding:12px 8px; text-align:left; border-bottom:1px solid #f0f0f0; font-size:13px;
-}
-th {
-  background:#fafafa; font-weight:500; color:#262626; position:sticky; top:0; z-index:1;
-}
-td { background:#fff; }
-tr:hover td { background:#f5f5f5; }
-td input, td select {
-  width:100%; padding:6px 8px; border:1px solid #d9d9d9; border-radius:4px; font-size:13px;
-  background:#fff;
-}
-td input:focus, td select:focus {
-  outline:none; border-color:#1890ff; box-shadow:0 0 0 2px rgba(24,144,255,0.1);
-}
-.bom-total {
-  background:#fffbe6; font-weight:500; color:#faad14;
-}
-.bom-total td { border-top:2px solid #faad14; }
+.form-row textarea { resize:vertical; font-family:inherit; }
 
-/* 搜索下拉框 */
-.search-wrapper {
-  position:relative;
+.size-row { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; }
+
+.info-tag {
+  display:inline-flex; align-items:center; gap:4px;
+  background:#e6f7ff; color:#1890ff; border:1px solid #91d5ff;
+  padding:2px 8px; border-radius:4px; font-size:12px; margin-top:4px;
 }
-.search-results {
-  position:absolute; z-index:1000; background:#fff; border:1px solid #d9d9d9;
-  border-radius:4px; box-shadow:0 4px 12px rgba(0,0,0,0.15); max-height:240px;
-  overflow-y:auto; width:100%; margin-top:4px; display:none;
-}
-.search-result-item {
-  padding:8px 12px; cursor:pointer; border-bottom:1px solid #f0f0f0;
-  display:flex; align-items:center; gap:8px;
-}
-.search-result-item:hover { background:#e6f7ff; }
-.search-result-item:last-child { border-bottom:none; }
-.search-result-item .thumb {
-  width:32px; height:32px; background:#f0f0f0; border-radius:4px;
-  display:flex; align-items:center; justify-content:center; font-size:12px; color:#8c8c8c;
-  overflow:hidden;
-}
-.search-result-item .thumb img {
-  width:100%; height:100%; object-fit:cover;
-}
-.search-result-item .info {
-  flex:1; display:flex; flex-direction:column; gap:2px;
-}
-.search-result-item .name {
-  font-size:13px; font-weight:500; color:#262626;
-}
-.search-result-item .desc {
-  font-size:11px; color:#8c8c8c;
+.warn-tag {
+  background:#fff7e6; color:#fa8c16; border:1px solid #ffd591;
 }
 
-/* 弹窗 */
-.modal-overlay {
-  position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.45);
-  display:flex; align-items:center; justify-content:center; z-index:2000; display:none;
+.structure-group {
+  background:#fafafa; border:1px solid #e8e8e8; border-radius:6px;
+  margin-bottom:10px; padding:12px 12px 8px;
 }
+.structure-group-title {
+  font-size:13px; font-weight:600; color:#1890ff;
+  margin-bottom:8px; padding-bottom:6px;
+  border-bottom:1px dashed #d9d9d9;
+  display:flex; align-items:center; gap:5px;
+}
+.structure-row {
+  display:grid; grid-template-columns:90px 44px 1fr 72px 54px;
+  gap:5px; margin-bottom:4px; align-items:center;
+}
+.structure-row .label-text {
+  font-size:12px; color:#555;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.structure-row select, .structure-row input {
+  padding:4px 6px; font-size:12px; border:1px solid #d9d9d9; border-radius:3px;
+  width:100%; min-width:0;
+}
+.structure-row select:focus, .structure-row input:focus {
+  outline:none; border-color:#40a9ff;
+}
+/* 参数行（厚度/密度/克重等）*/
+.calc-param-row {
+  font-size:11px; background:#f0f7ff; border-radius:4px;
+  padding:5px 8px; margin-top:2px; margin-bottom:4px;
+  display:flex; gap:6px; align-items:center; flex-wrap:wrap;
+}
+.calc-param-row label { color:#888; white-space:nowrap; }
+.calc-param-row input {
+  width:52px; padding:2px 4px; font-size:11px;
+  border:1px solid #91d5ff; border-radius:3px;
+}
+.calc-param-row .result {
+  color:#1890ff; font-weight:600; margin-left:4px; white-space:nowrap;
+}
+.qty-auto { background:#f6ffed !important; border-color:#b7eb8f !important; }
+.unit-select {
+  padding:3px 2px; font-size:11px; border:1px solid #d9d9d9; border-radius:3px;
+  width:100%; background:#fff; color:#555;
+}
+
+/* 搜索输入框 */
+.search-wrap { position:relative; width:100%; }
+.search-input {
+  width:100%; padding:4px 8px; font-size:12px;
+  border:1px solid #d9d9d9; border-radius:3px;
+  background:#fff; box-sizing:border-box;
+}
+.search-input:focus { outline:none; border-color:#40a9ff; }
+.search-input::placeholder { color:#bbb; }
+
+/* 搜索结果下拉 */
+.search-dropdown {
+  position:absolute; top:100%; left:0;
+  width:320px; max-height:240px; overflow-y:auto;
+  background:#fff; border:1px solid #d9d9d9; border-radius:4px;
+  box-shadow:0 4px 16px rgba(0,0,0,0.12);
+  z-index:9999; margin-top:2px;
+}
+.sdrop-item {
+  padding:6px 10px; cursor:pointer; font-size:12px;
+  display:flex; align-items:center; gap:6px;
+  border-bottom:1px solid #f5f5f5;
+}
+.sdrop-item:last-child { border-bottom:none; }
+.sdrop-item:hover { background:#e6f7ff; }
+.sdrop-name { flex:1; color:#333; font-weight:500; }
+.sdrop-sub { color:#999; font-size:11px; }
+.sdrop-price { color:#52c41a; font-size:11px; white-space:nowrap; margin-left:auto; }
+.sdrop-empty { padding:12px; text-align:center; color:#bbb; font-size:12px; }
+
+.category-badge {
+  display:inline-block; padding:1px 6px; border-radius:8px;
+  font-size:10px; font-weight:500; white-space:nowrap;
+}
+.badge-fabric { background:#ffe9f0; color:#eb2f96; }
+.badge-material { background:#e6f7ff; color:#1890ff; }
+
+.add-btn {
+  background:#fff; border:1px dashed #d9d9d9; color:#666;
+  padding:4px 12px; border-radius:3px; font-size:12px;
+  cursor:pointer; width:100%; margin-top:4px;
+}
+.add-btn:hover { border-color:#40a9ff; color:#40a9ff; }
+
+.bom-table { width:100%; border-collapse:collapse; font-size:13px; }
+.bom-table th {
+  background:#fafafa; padding:10px; text-align:left;
+  border-bottom:2px solid #e8e8e8; color:#666; font-weight:500;
+}
+.bom-table td { padding:8px 10px; border-bottom:1px solid #f0f0f0; }
+.bom-table tr:hover td { background:#f5faff; }
+.group-row td { background:#e6f7ff !important; font-weight:600; color:#1890ff; }
+.unmatched { background:#fffbe6 !important; }
+
+.cost-summary {
+  background:linear-gradient(135deg,#f6ffed 0%,#d9f7be 100%);
+  border:1px solid #b7eb8f; border-radius:6px;
+  padding:15px; margin-top:15px;
+}
+.cost-row {
+  display:flex; justify-content:space-between; padding:5px 0; font-size:13px;
+}
+.cost-row.total {
+  border-top:1px solid #b7eb8f; margin-top:5px;
+  padding-top:10px; font-size:16px; font-weight:600; color:#389e0d;
+}
+
+.fob-panel {
+  background:linear-gradient(135deg,#fff7e6 0%,#ffe7ba 100%);
+  border:1px solid #ffd591; border-radius:6px;
+  padding:15px; margin-top:10px;
+}
+.fob-row {
+  display:grid; grid-template-columns:1fr 100px; gap:10px;
+  align-items:center; margin-bottom:8px; font-size:13px;
+}
+.fob-row input, .fob-row select {
+  padding:4px 8px; font-size:12px; border:1px solid #d9d9d9; border-radius:3px;
+  text-align:right;
+}
+.fob-total {
+  background:#fa541c; color:#fff; padding:10px; border-radius:4px;
+  text-align:center; font-size:18px; font-weight:bold; margin-top:10px;
+}
+.fob-breakdown {
+  background:#fff; padding:10px; border-radius:4px;
+  margin-top:10px; font-size:12px; line-height:1.9;
+}
+.fob-breakdown .row { display:flex; justify-content:space-between; }
+.fob-breakdown .row.sep { border-top:1px dashed #e8e8e8; margin-top:4px; padding-top:4px; }
+
+/* Loading overlay */
+.loading-overlay {
+  display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+  background:rgba(0,0,0,0.4); z-index:999999;
+  justify-content:center; align-items:center; flex-direction:column; gap:16px;
+}
+.loading-overlay.show { display:flex; }
+.loading-spinner {
+  width:48px; height:48px; border:5px solid rgba(255,255,255,0.3);
+  border-top-color:#fff; border-radius:50%; animation:spin 0.8s linear infinite;
+}
+.loading-text { color:#fff; font-size:16px; font-weight:500; }
+@keyframes spin { to { transform:rotate(360deg); } }
+
+/* Modal */
 .modal {
-  background:#fff; border-radius:8px; padding:24px; width:480px; max-width:90vw;
-  box-shadow:0 8px 24px rgba(0,0,0,0.15);
+  display:none; position:fixed; top:0; left:0;
+  width:100%; height:100%;
+  background:rgba(0,0,0,0.5); z-index:99999;
+  justify-content:center; align-items:flex-start; padding-top:30px;
+}
+.modal.show { display:flex; }
+.modal-content {
+  background:#fff; border-radius:8px; padding:25px;
+  width:90%; max-width:1200px; max-height:90vh;
+  overflow-y:auto; box-shadow:0 8px 24px rgba(0,0,0,0.2);
+  position:relative; z-index:100000;
 }
 .modal-header {
-  font-size:18px; font-weight:500; margin-bottom:16px; padding-bottom:12px; border-bottom:1px solid #f0f0f0;
-  display:flex; align-items:center; justify-content:space-between;
+  display:flex; justify-content:space-between; align-items:center;
+  margin-bottom:20px; padding-bottom:12px; border-bottom:2px solid #f0f0f0;
 }
-.modal-close { cursor:pointer; font-size:20px; color:#8c8c8c; }
-.modal-body { margin-bottom:24px; }
-.modal-footer { display:flex; justify-content:flex-end; gap:12px; }
-.modal-footer button { padding:8px 16px; border-radius:4px; cursor:pointer; }
-.modal-footer .btn-cancel { background:#fff; border:1px solid #d9d9d9; color:#595959; }
-.modal-footer .btn-confirm { background:#1890ff; border:1px solid #1890ff; color:#fff; }
-
-/* 状态提示 */
-.toast {
-  position:fixed; top:20px; right:20px; background:#52c41a; color:#fff;
-  padding:12px 20px; border-radius:4px; box-shadow:0 4px 12px rgba(0,0,0,0.15);
-  z-index:3000; transform:translateX(120%); transition:transform 0.3s;
-  display:none;
+.modal-header h2 { font-size:18px; color:#1e3c72; }
+.close-btn {
+  background:none; border:none; font-size:24px; cursor:pointer;
+  color:#999; padding:0 8px; line-height:1;
 }
-.toast.show { transform:translateX(0); }
-.toast.error { background:#ff4d4f; }
+.close-btn:hover { color:#333; }
 
-/* 空状态 */
-.empty-state {
-  text-align:center; padding:40px 20px; color:#8c8c8c;
+.tabs {
+  display:flex; gap:5px; border-bottom:2px solid #f0f0f0;
+  margin-bottom:15px; flex-wrap:wrap;
 }
-.empty-state .icon { font-size:48px; margin-bottom:12px; opacity:0.5; }
-.empty-state p { font-size:14px; }
+.tab {
+  padding:8px 16px; cursor:pointer; font-size:13px;
+  border-bottom:2px solid transparent; margin-bottom:-2px; transition:all 0.2s;
+}
+.tab:hover { color:#1890ff; }
+.tab.active { color:#1890ff; border-bottom-color:#1890ff; font-weight:500; }
 
-/* 拖拽占位符 */
-.drop-placeholder {
-  height:4px; background:#1890ff; border-radius:2px; margin:4px 0;
+.tab-content { display:none; }
+.tab-content.active { display:block; }
+
+.tab-desc {
+  background:#e6f7ff; padding:10px 15px; border-radius:4px;
+  font-size:12px; color:#555; margin-bottom:12px; border-left:3px solid #1890ff;
 }
 
-/* 隐藏列 */
-.hidden-col { display:none; }
+.db-table { width:100%; border-collapse:collapse; font-size:12px; margin-top:10px; }
+.db-table th {
+  background:#fafafa; padding:8px; text-align:left;
+  border-bottom:1px solid #e8e8e8; font-weight:500; color:#666; position:sticky; top:0;
+}
+.db-table td { padding:6px 8px; border-bottom:1px solid #f5f5f5; }
+.db-table tr:hover td { background:#fafafa; }
+
+/* Spring calculator */
+.spring-form { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+.spring-section { background:#fafafa; padding:15px; border-radius:6px; }
+.spring-section h3 {
+  font-size:14px; color:#1e3c72; margin-bottom:12px;
+  padding-bottom:6px; border-bottom:1px solid #e8e8e8;
+}
+.spring-row {
+  display:grid; grid-template-columns:1fr 1fr; gap:8px;
+  margin-bottom:8px; font-size:12px; align-items:center;
+}
+.spring-row label { color:#666; }
+.spring-row input, .spring-row select {
+  padding:4px 8px; font-size:12px; border:1px solid #d9d9d9; border-radius:3px;
+}
+.spring-summary {
+  background:#e6f7ff; padding:10px; border-radius:4px;
+  font-size:13px; line-height:1.8; margin-top:10px;
+}
+.zone-visual { background:#fff; border:1px solid #e8e8e8; border-radius:4px; padding:10px; margin-top:10px; }
+.zone-bar { display:flex; height:30px; border-radius:3px; overflow:hidden; margin-bottom:6px; }
+.zone-segment {
+  display:flex; align-items:center; justify-content:center;
+  color:#fff; font-size:11px; font-weight:500;
+  border-right:1px solid rgba(255,255,255,0.3);
+}
+.zone-segment:last-child { border-right:none; }
+.zone-hard { background:#fa541c; }
+.zone-soft { background:#1890ff; }
+.zone-rows-input { display:grid; gap:6px; margin-top:8px; }
+.zone-rows-input input {
+  padding:3px 6px; font-size:11px; border:1px solid #d9d9d9; border-radius:3px;
+  text-align:center; width:100%;
+}
+.empty-tip { text-align:center; color:#bbb; padding:30px; font-size:13px; }
+
+/* Feishu config panel */
+.feishu-config {
+  background:#f0f7ff; border:1px solid #91d5ff; border-radius:6px;
+  padding:15px; margin-bottom:15px;
+}
+.feishu-config h4 { color:#1890ff; margin-bottom:10px; font-size:14px; }
+.feishu-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.feishu-grid label { font-size:12px; color:#666; display:block; margin-bottom:2px; }
+.feishu-grid input {
+  width:100%; padding:4px 8px; font-size:12px;
+  border:1px solid #d9d9d9; border-radius:3px;
+}
 </style>
 </head>
 <body>
 <div class="container">
-  <div class="header">
-    <div>
-      <h1>床垫BOM自动报价系统</h1>
-      <div class="sub">版本 3.0 · 支持自动计算 · 飞书同步 · 结构可视化</div>
-    </div>
-    <div class="toolbar">
-      <button onclick="addLayer()">+ 添加层</button>
-      <button onclick="removeLayer()">- 删除层</button>
-      <button onclick="duplicateLayer()">复制层</button>
-      <select id="mattressType" onchange="onTypeChange()">
-        <option value="mattress">床垫</option>
-        <option value="topper">薄垫</option>
-        <option value="pad">床褥</option>
+
+<!-- 加载遮罩 -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-spinner"></div>
+  <div class="loading-text" id="loadingText">正在从飞书同步数据...</div>
+</div>
+
+<div class="header">
+  <div>
+    <h1>🛏️ 床垫BOM自动报价系统 v3.0</h1>
+    <p>飞书多维表实时同步 · 6款真实结构 · 工费自动匹配 · 标准FOB公式</p>
+  </div>
+  <div class="sync-status">
+    <span class="sync-badge offline" id="syncBadge">⭕ 未同步</span>
+    <span class="sync-time" id="syncTime">点击「同步飞书」加载数据</span>
+  </div>
+</div>
+
+<div class="toolbar">
+  <button class="btn btn-primary" onclick="syncFeishu()" id="syncBtn">🔄 同步飞书数据</button>
+  <button class="btn btn-default" onclick="openDBManager()">📚 本地数据库</button>
+  <button class="btn btn-warning" onclick="openSpringCalculator()">⚙️ 床芯计算器</button>
+  <button class="btn btn-success" onclick="exportBOM()">📤 导出BOM</button>
+  <button class="btn btn-default" onclick="resetAll()">🗑️ 重置</button>
+  <button class="btn btn-default btn-sm" onclick="openFeishuConfig()" style="margin-left:auto">⚙️ 飞书配置</button>
+</div>
+
+<div class="main-layout">
+
+  <!-- 左侧 -->
+  <div class="panel">
+    <div class="panel-title">📋 床垫基本信息</div>
+
+    <div class="form-row">
+      <label>床垫款式</label>
+      <select id="mattressType" onchange="onMattressTypeChange()">
+        <option value="">-- 请选择 --</option>
       </select>
-      <input type="text" id="mattressName" placeholder="床垫名称" value="标准双人床垫">
-      <button class="btn-success" onclick="calculateAll()">重新计算</button>
-      <button class="btn-warning" onclick="exportBOM()">导出Excel</button>
-      <button class="btn-danger" onclick="clearAll()">清空</button>
-      <button class="btn-success" onclick="syncFeishu()">同步飞书</button>
     </div>
-  </div>
 
-  <div class="main">
-    <!-- 左侧：结构编辑 -->
-    <div class="panel">
-      <div class="panel-header">
-        <span>结构层级</span>
-        <small>拖拽调整顺序 · 点击编辑</small>
+    <div class="form-row">
+      <label>尺寸 (宽 × 长 × 高 cm)</label>
+      <div class="size-row">
+        <input type="number" id="mWidth" value="180" placeholder="宽" oninput="onSizeChange()">
+        <input type="number" id="mLength" value="200" placeholder="长" oninput="onSizeChange()">
+        <input type="number" id="mHeight" value="25" placeholder="高" oninput="onSizeChange()">
       </div>
-      <div class="panel-body">
-        <div class="structure-list" id="structureList">
-          <!-- 动态渲染 -->
-        </div>
-        <div class="empty-state" id="emptyState">
-          <div class="icon">🛏️</div>
-          暂无结构，点击添加层开始
-        </div>
+      <div id="innerSleeveTip" class="info-tag" style="display:none"></div>
+    </div>
+
+    <div class="form-row">
+      <label>加工费 <span style="color:#999;font-weight:normal;font-size:11px">（按款式+宽度自动匹配）</span></label>
+      <div style="display:flex;gap:8px;align-items:center">
+        <input type="number" id="processingFee" value="100" step="1" oninput="recalcFOB()" style="flex:1">
+        <span id="feeMatchTip" style="font-size:11px;color:#52c41a;white-space:nowrap"></span>
       </div>
     </div>
 
-    <!-- 右侧：BOM表 -->
-    <div class="panel">
-      <div class="panel-header">
-        <span>BOM物料清单</span>
-        <small>自动计算用量 · 支持手动覆盖</small>
-      </div>
-      <div class="panel-body">
-        <div class="bom-table-container">
-          <table id="bomTable">
-            
-              
-                物料编码
-                物料名称
-                规格/参数
-                单位
-                理论用量
-                损耗率
-                实际用量
-                单价
-                金额
-                备注
-                <th class="hidden-col">分类
-              
-            
-            
-              <tr class="bom-total">
-                <td ="10">合计<td ="10">-<td ="10">-<td ="10">-<td ="10">-td ="10">-td ="10">-td ="10">-td ="10" style="color:#faad14; font-weight:bold; font-size:16px;" id="totalAmount">0.00
-            
-          
-        
-        <div class="empty-state" id="bomEmptyState">
-          <div class="icon">📋</div>
-          暂无BOM数据，请先构建结构或导入
-        </div>
-      </div>
+    <div class="panel-title" style="margin-top:20px">🏗️ 结构层配置</div>
+    <div id="structureContainer">
+      <div class="empty-tip">请先选择床垫款式</div>
     </div>
   </div>
+
+  <!-- 右侧 -->
+  <div class="panel">
+    <div class="panel-title">📊 BOM明细 & 成本汇总</div>
+
+    <div id="springCostDisplay" style="background:#e6fffb;padding:10px;border-radius:4px;margin-bottom:10px;font-size:13px">
+      床芯成本：<strong style="color:#f5222d">¥0.00</strong>
+      <span style="float:right;font-size:11px;color:#999">通过【床芯计算器】计算后点击"应用"</span>
+    </div>
+
+    <table class="bom-table">
+      <thead>
+        <tr>
+          <th style="width:16%">结构层</th>
+          <th>物料名称</th>
+          <th style="width:9%">用量</th>
+          <th style="width:7%">单位</th>
+          <th style="width:10%">含税单价</th>
+          <th style="width:10%">去税金额</th>
+        </tr>
+      </thead>
+      <tbody id="bomBody">
+        <tr><td colspan="6" style="text-align:center;color:#999;padding:30px">请先选择床垫款式</td></tr>
+      </tbody>
+    </table>
+
+    <div class="cost-summary">
+      <div class="cost-row">
+        <span>面料+物料去税成本</span>
+        <span id="totalMaterial">¥0.00</span>
+      </div>
+      <div class="cost-row">
+        <span>床芯成本（去税）</span>
+        <span id="totalSpring">¥0.00</span>
+      </div>
+      <div class="cost-row">
+        <span>加工费</span>
+        <span id="totalFee">¥0.00</span>
+      </div>
+      <div class="cost-row total">
+        <span>未税材料合计</span>
+        <span id="grandTotal">¥0.00</span>
+      </div>
+    </div>
+
+    <div class="fob-panel">
+      <div style="font-weight:600;color:#d46b08;margin-bottom:10px">💰 FOB报价测算</div>
+      <div class="fob-row">
+        <label>汇率 (CNY/USD)</label>
+        <input type="number" id="fobRate" value="7.2" step="0.01" oninput="recalcFOB()">
+      </div>
+      <div class="fob-row">
+        <label>综合利润系数</label>
+        <input type="number" id="profitCoef" value="0.795" step="0.001" oninput="recalcFOB()">
+      </div>
+
+      <div class="fob-breakdown">
+        <div class="row"><span>面料+物料去税成本</span><span id="fb1">¥0.00</span></div>
+        <div class="row"><span>床芯成本（去税）</span><span id="fb2">¥0.00</span></div>
+        <div class="row"><span>加工费</span><span id="fb3">¥0.00</span></div>
+        <div class="row sep"><span><strong>未税总成本</strong></span><span id="fb4" style="color:#1890ff;font-weight:600">¥0.00</span></div>
+        <div class="row" style="margin-top:4px"><span>÷ 汇率 ÷ 利润系数</span><span style="color:#999;font-size:11px">按Excel标准公式</span></div>
+      </div>
+
+      <div class="fob-total" id="fobFinal">$0.00</div>
+    </div>
+  </div>
+
+</div>
 </div>
 
-<!-- 搜索弹窗 -->
-<div class="modal-overlay" id="searchModal">
-  <div class="modal">
+<!-- ====== 飞书配置 弹窗 ====== -->
+<div class="modal" id="feishuModal">
+  <div class="modal-content" style="max-width:600px">
     <div class="modal-header">
-      <span>选择物料</span>
-      <span class="modal-close" onclick="closeSearchModal()">×</span>
+      <h2>⚙️ 飞书多维表配置</h2>
+      <button class="close-btn" onclick="closeFeishuConfig()">×</button>
     </div>
-    <div class="modal-body">
-      <div class="search-wrapper">
-        <input type="text" id="searchInput" placeholder="输入关键词搜索..." oninput="doSearch(this.value)">
-        <div class="search-results" id="searchResults"></div>
+    <div class="feishu-config">
+      <h4>🔑 应用凭据</h4>
+      <div class="feishu-grid">
+        <div>
+          <label>App ID</label>
+          <input type="text" id="cfgAppId" placeholder="cli_xxx">
+        </div>
+        <div>
+          <label>App Secret</label>
+          <input type="password" id="cfgAppSecret" placeholder="••••••••">
+        </div>
+        <div style="grid-column:1/3">
+          <label>App Token（多维表应用Token）</label>
+          <input type="text" id="cfgAppToken" placeholder="OImvbDndCaCGRPsIiEDcLOKhnob">
+        </div>
       </div>
     </div>
-    <div class="modal-footer">
-      <button class="btn-cancel" onclick="closeSearchModal()">取消</button>
-      <button class="btn-confirm" onclick="confirmSearch()">确认选择</button>
+    <div style="background:#fafafa;border:1px solid #e8e8e8;border-radius:6px;padding:15px;margin-bottom:15px">
+      <h4 style="color:#1e3c72;font-size:14px;margin-bottom:10px">📋 Table ID 配置</h4>
+      <div class="feishu-grid">
+        <div><label>弹簧标准</label><input type="text" id="cfgSpringTable" placeholder="tbl5aQo2nWlJJSFz"></div>
+        <div><label>物料清单</label><input type="text" id="cfgMaterialTable" placeholder="tbl5ABFMH9wtZ69j"></div>
+        <div><label>棉种清单</label><input type="text" id="cfgCottonTable" placeholder="tbl6j6TatRgI3l0T"></div>
+        <div><label>面料清单</label><input type="text" id="cfgFabricTable" placeholder="tblUZdt70X0tvcYs"></div>
+        <div><label>工费标准</label><input type="text" id="cfgFeeTable" placeholder="tbl1HMW0g7Et5ZZh"></div>
+        <div><label>胶水及内套标准</label><input type="text" id="cfgGlueTable" placeholder="tbl6skTLdyrrBjxF"></div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-primary" style="flex:1" onclick="saveFeishuConfig()">💾 保存配置</button>
+      <button class="btn btn-success" style="flex:1" onclick="saveFeishuConfig();syncFeishu()">💾 保存并立即同步</button>
+    </div>
+    <div style="margin-top:12px;background:#fff7e6;border:1px solid #ffd591;border-radius:4px;padding:10px;font-size:12px;color:#874d00;line-height:1.7">
+      ⚠️ <strong>跨域说明：</strong>浏览器直接请求飞书API会被CORS拦截。解决方案：<br>
+      1. 将此HTML文件部署到<strong>同域服务器</strong>并配置代理<br>
+      2. 或使用 <strong>Chrome插件「Allow CORS」</strong>临时开启（仅限本地测试）<br>
+      3. 或使用飞书提供的<strong>H5页面SDK</strong>嵌入飞书内部<br>
+      当前版本：CORS失败时自动降级使用<strong>本地缓存数据</strong>
     </div>
   </div>
 </div>
 
-<!-- 计算弹窗 -->
-<div class="modal-overlay" id="calcModal">
-  <div class="modal">
+<!-- ====== 数据库管理 弹窗 ====== -->
+<div class="modal" id="dbModal">
+  <div class="modal-content">
     <div class="modal-header">
-      <span>参数设置</span>
-      <span class="modal-close" onclick="closeCalcModal()">×</span>
+      <h2>📚 本地数据库（飞书同步后的缓存）</h2>
+      <button class="close-btn" onclick="closeDBManager()">×</button>
     </div>
-    <div class="modal-body">
-      <div class="field-group">
-        <label>厚度 (mm)</label>
-        <input type="number" id="paramThick" step="0.1">
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab(event,'tab-fabric')">🎨 面料库</div>
+      <div class="tab" onclick="switchTab(event,'tab-price')">📦 物料库</div>
+      <div class="tab" onclick="switchTab(event,'tab-cotton')">🌿 棉种清单</div>
+      <div class="tab" onclick="switchTab(event,'tab-spring')">🌀 弹簧参照</div>
+      <div class="tab" onclick="switchTab(event,'tab-fee')">💴 工费标准</div>
+      <div class="tab" onclick="switchTab(event,'tab-structure')">🏗️ 款式结构</div>
+    </div>
+
+    <!-- 面料库 -->
+    <div class="tab-content active" id="tab-fabric">
+      <div class="tab-desc">🎨 <strong>面料库</strong>：来自飞书「面料清单」表，共 <strong id="fabricCount">0</strong> 条 · 更新：<span id="fabricUpdate">--</span></div>
+      <div style="display:flex;gap:8px;margin-bottom:10px">
+        <button class="btn btn-primary btn-sm" onclick="downloadDB('fabric')">📥 导出CSV</button>
+        <label class="btn btn-success btn-sm" style="cursor:pointer">📤 导入CSV<input type="file" accept=".csv" style="display:none" onchange="uploadDB(event,'fabric')"></label>
       </div>
-      <div class="field-group">
-        <label>密度 (kg/m³)</label>
-        <input type="number" id="paramDensity" step="0.1">
-      </div>
-      <div class="field-group">
-        <label>克重 (g/m²)</label>
-        <input type="number" id="paramGsm" step="1">
-      </div>
-      <div class="field-group">
-        <label>系数</label>
-        <input type="number" id="paramCoef" step="0.01" value="1">
+      <div style="max-height:400px;overflow:auto">
+        <table class="db-table"><thead><tr><th>面料名称</th><th>单位</th><th>含税单价</th><th>备注</th></tr></thead>
+        <tbody id="fabricBody"></tbody></table>
       </div>
     </div>
-    <div class="modal-footer">
-      <button class="btn-cancel" onclick="closeCalcModal()">取消</button>
-      <button class="btn-confirm" onclick="confirmCalc()">确认</button>
+
+    <!-- 物料库 -->
+    <div class="tab-content" id="tab-price">
+      <div class="tab-desc">📦 <strong>物料库</strong>：来自飞书「物料清单」表，共 <strong id="priceCount">0</strong> 条 · 更新：<span id="priceUpdate">--</span></div>
+      <div style="display:flex;gap:8px;margin-bottom:10px">
+        <button class="btn btn-primary btn-sm" onclick="downloadDB('price')">📥 导出CSV</button>
+        <label class="btn btn-success btn-sm" style="cursor:pointer">📤 导入CSV<input type="file" accept=".csv" style="display:none" onchange="uploadDB(event,'price')"></label>
+      </div>
+      <div style="max-height:400px;overflow:auto">
+        <table class="db-table"><thead><tr><th>物料名称</th><th>单位</th><th>形态</th><th>含税单价</th><th>备注</th></tr></thead>
+        <tbody id="priceBody"></tbody></table>
+      </div>
+    </div>
+
+    <!-- 棉种清单 -->
+    <div class="tab-content" id="tab-cotton">
+      <div class="tab-desc">🌿 <strong>棉种清单</strong>：来自飞书「棉种清单」表，共 <strong id="cottonCount">0</strong> 条</div>
+      <div style="max-height:400px;overflow:auto">
+        <table class="db-table"><thead><tr><th>编码</th><th>名称</th><th>大类</th><th>颜色</th><th>状态</th></tr></thead>
+        <tbody id="cottonBody"></tbody></table>
+      </div>
+    </div>
+
+    <!-- 弹簧参照 -->
+    <div class="tab-content" id="tab-spring">
+      <div class="tab-desc">🌀 <strong>弹簧参照表</strong>：共 <strong id="springCount">0</strong> 条</div>
+      <div style="max-height:400px;overflow:auto">
+        <table class="db-table"><thead><tr><th>高度</th><th>线径</th><th>无纺布门幅</th><th>单个弹簧克重(g)</th><th>单个无纺布克重(g)</th></tr></thead>
+        <tbody id="springBody"></tbody></table>
+      </div>
+    </div>
+
+    <!-- 工费标准 -->
+    <div class="tab-content" id="tab-fee">
+      <div class="tab-desc">💴 <strong>工费标准</strong>：按款式+宽度自动匹配</div>
+      <div style="max-height:400px;overflow:auto">
+        <table class="db-table"><thead><tr><th>款式</th><th>≤1.2m</th><th>1.2~1.6m</th><th>1.6~1.85m</th><th>>1.85m</th></tr></thead>
+        <tbody id="feeBody"></tbody></table>
+      </div>
+    </div>
+
+    <!-- 款式结构 -->
+    <div class="tab-content" id="tab-structure">
+      <div class="tab-desc">🏗️ <strong>款式结构</strong>：共 <strong id="structureCount">0</strong> 个款式（内置，与Excel对齐）</div>
+      <div id="structureView" style="max-height:400px;overflow:auto"></div>
     </div>
   </div>
 </div>
 
-<!-- 提示 -->
-<div class="toast" id="toast"></div>
+<!-- ====== 床芯计算器 弹窗 ====== -->
+<div class="modal" id="springModal">
+  <div class="modal-content" style="max-width:1100px">
+    <div class="modal-header">
+      <h2>⚙️ 床芯成本计算器</h2>
+      <button class="close-btn" onclick="closeSpringCalculator()">×</button>
+    </div>
+    <div class="spring-form">
+      <!-- 左：床芯参数 + 分区方式 + 线径 -->
+      <div>
+        <div class="spring-section">
+          <h3>📐 床芯参数</h3>
+
+          <!-- 从床垫尺寸自动填入提示 -->
+          <div style="background:#e6f7ff;border:1px solid #91d5ff;border-radius:4px;padding:6px 10px;margin-bottom:10px;font-size:12px;color:#1890ff;display:flex;justify-content:space-between;align-items:center">
+            <span>📋 自动读取床垫尺寸</span>
+            <button onclick="syncFromMattressSize()" class="btn btn-primary btn-sm" style="padding:3px 10px;font-size:11px">重新同步</button>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <div>
+              <label style="font-size:12px;color:#666;display:block;margin-bottom:3px">床芯宽 (cm)</label>
+              <input type="number" id="sWidth" value="178"
+                style="width:100%;padding:6px 8px;font-size:13px;border:1px solid #d9d9d9;border-radius:4px"
+                oninput="updateSpringLayout()">
+              <div style="font-size:10px;color:#999;margin-top:2px">床垫宽 - 2cm</div>
+            </div>
+            <div>
+              <label style="font-size:12px;color:#666;display:block;margin-bottom:3px">床芯长 (cm)</label>
+              <input type="number" id="sLength" value="198"
+                style="width:100%;padding:6px 8px;font-size:13px;border:1px solid #d9d9d9;border-radius:4px"
+                oninput="updateSpringLayout()">
+              <div style="font-size:10px;color:#999;margin-top:2px">床垫长 - 2cm</div>
+            </div>
+            <div>
+              <label style="font-size:12px;color:#666;display:block;margin-bottom:3px">床网高度 (cm)</label>
+              <select id="sHeight" onchange="updateSpringLayout()"
+                style="width:100%;padding:6px 8px;font-size:13px;border:1px solid #d9d9d9;border-radius:4px">
+                <option value="16">16cm</option><option value="18">18cm</option>
+                <option value="20">20cm</option><option value="22" selected>22cm</option>
+                <option value="24">24cm</option>
+              </select>
+            </div>
+            <div>
+              <label style="font-size:12px;color:#666;display:block;margin-bottom:3px">节距 (cm)</label>
+              <input type="number" id="sPitch" value="6.3" step="0.1"
+                style="width:100%;padding:6px 8px;font-size:13px;border:1px solid #d9d9d9;border-radius:4px"
+                oninput="updateSpringLayout()">
+            </div>
+          </div>
+
+          <!-- 排列数 -->
+          <div style="background:#fff;border-radius:4px;padding:10px;margin-top:10px;border:1px solid #f0f0f0">
+            <div style="font-size:12px;color:#666;margin-bottom:8px;font-weight:500">弹簧排列数
+              <span style="font-weight:400;color:#999">（自动计算，可手动修改）</span>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+              <div>
+                <label style="font-size:11px;color:#666;display:block;margin-bottom:3px">宽排数</label>
+                <input type="number" id="widthCountInput" value="0" min="1"
+                  style="width:100%;padding:5px 8px;font-size:13px;border:1px solid #d9d9d9;border-radius:4px"
+                  oninput="onManualLayout()">
+              </div>
+              <div>
+                <label style="font-size:11px;color:#666;display:block;margin-bottom:3px">长排数</label>
+                <input type="number" id="lengthCountInput" value="0" min="1"
+                  style="width:100%;padding:5px 8px;font-size:13px;border:1px solid #d9d9d9;border-radius:4px"
+                  oninput="onManualLayout()">
+              </div>
+            </div>
+            <div style="margin-top:8px;padding:6px 8px;background:#f0f7ff;border-radius:3px;font-size:12px;display:flex;gap:16px;align-items:center">
+              <span>计算总数：<strong id="calcTotal" style="color:#1890ff">0</strong></span>
+              <span>输入总数：<strong id="inputTotal" style="color:#fa8c16">0</strong></span>
+              <span id="totalCheck"></span>
+            </div>
+          </div>
+
+          <!-- 分区方式（紧接尺寸后）-->
+          <div style="margin-top:10px">
+            <label style="font-size:12px;color:#666;display:block;margin-bottom:4px;font-weight:500">🗂️ 分区方式</label>
+            <select id="zoneType" onchange="updateZoneInputs()"
+              style="width:100%;padding:6px 8px;font-size:13px;border:1px solid #d9d9d9;border-radius:4px">
+              <option value="full">整网（全软）</option>
+              <option value="border">四周加硬</option>
+              <option value="3zone">三分区（硬软硬）</option>
+              <option value="3zone_border">三分区+四周加硬</option>
+              <option value="5zone">五分区（硬软硬软硬）</option>
+              <option value="5zone_border">五分区+四周加硬</option>
+              <option value="7zone">七分区（硬软硬软硬软硬）</option>
+              <option value="7zone_border">七分区+四周加硬</option>
+            </select>
+          </div>
+
+          <!-- 分区行数输入 + 可视化 -->
+          <div id="zoneRowsContainer" style="margin-top:6px"></div>
+          <div class="zone-visual" id="zoneVisual" style="display:none;margin-top:6px">
+            <div class="zone-bar" id="zoneBar"></div>
+            <div style="font-size:11px;color:#666;text-align:center" id="zoneInfo"></div>
+          </div>
+          <button class="btn btn-default btn-sm" style="margin-top:6px;width:100%" onclick="suggestZoneRows()">📊 智能建议分区</button>
+
+          <!-- 弹簧数量明细 -->
+          <div id="springBreakdown" style="margin-top:8px;font-size:12px;background:#fff;border-radius:4px;padding:8px;display:none;border:1px solid #f0f0f0">
+            <div style="color:#666;margin-bottom:4px;font-weight:500">弹簧数量明细：</div>
+            <div id="springBreakdownContent"></div>
+          </div>
+        </div>
+
+        <!-- 线径 -->
+        <div class="spring-section" style="margin-top:10px">
+          <h3>🌀 弹簧线径</h3>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <div>
+              <label style="font-size:12px;color:#666;display:block;margin-bottom:3px">软线径 <span style="color:#999;font-size:10px">≤1.8mm</span></label>
+              <select id="softWire" onchange="updateZoneInputs()"
+                style="width:100%;padding:5px 8px;font-size:12px;border:1px solid #d9d9d9;border-radius:4px">
+                <option value="钢线1.2">钢线1.2</option>
+                <option value="钢线1.4">钢线1.4</option>
+                <option value="钢线1.6">钢线1.6</option>
+                <option value="钢线1.8" selected>钢线1.8 (¥5.2/kg)</option>
+              </select>
+            </div>
+            <div>
+              <label style="font-size:12px;color:#666;display:block;margin-bottom:3px">硬线径 <span style="color:#999;font-size:10px">&gt;1.8mm（分区用）</span></label>
+              <select id="hardWire" onchange="updateZoneInputs()"
+                style="width:100%;padding:5px 8px;font-size:12px;border:1px solid #d9d9d9;border-radius:4px">
+                <option value="钢线2.0" selected>钢线2.0 (¥5.1/kg)</option>
+                <option value="钢线2.2">钢线2.2 (¥5.0/kg)</option>
+                <option value="钢线2.4">钢线2.4</option>
+              </select>
+            </div>
+          </div>
+          <!-- 四周加硬线径：只在有border时显示 -->
+          <div id="borderWireRow" style="margin-top:8px;display:none">
+            <label style="font-size:12px;color:#fa8c16;display:block;margin-bottom:3px">🟠 四周加硬线径 <span style="color:#999;font-size:10px">（单独指定，默认同硬线径）</span></label>
+            <select id="borderWire"
+              style="width:100%;padding:5px 8px;font-size:12px;border:1px solid #ffd591;border-radius:4px;background:#fffbe6">
+              <option value="">同硬线径</option>
+              <option value="钢线2.0">钢线2.0 (¥5.1/kg)</option>
+              <option value="钢线2.2" selected>钢线2.2 (¥5.0/kg)</option>
+              <option value="钢线2.4">钢线2.4</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- 右：辅料参数（实时计算） -->
+      <div>
+        <div class="spring-section">
+          <h3>🧪 胶水（棉毡颗粒热熔胶）</h3>
+          <div style="background:#e6f7ff;border-radius:4px;padding:6px 10px;margin-bottom:8px;font-size:12px;color:#1890ff">
+            胶水条数 = 长排数，每条长度 = 床芯长(m)
+            <span id="glueAutoTip" style="float:right;font-weight:600"></span>
+          </div>
+          <div class="spring-row"><label>胶水长度 (m)</label>
+            <input type="number" id="glueLen" value="2.00" step="0.01" oninput="autoCalcAccessories()">
+          </div>
+          <div class="spring-row"><label>胶水条数</label>
+            <input type="number" id="glueCount" value="25" oninput="autoCalcAccessories()">
+          </div>
+          <div class="spring-row"><label>每米克重 (g)</label>
+            <input type="number" id="glueWeight" value="100" step="1" oninput="autoCalcAccessories()">
+          </div>
+          <div class="spring-row"><label>损耗率</label>
+            <input type="number" id="glueLoss" value="0.02" step="0.01" oninput="autoCalcAccessories()">
+          </div>
+          <div class="spring-row"><label>含税单价 (¥/kg)</label>
+            <input type="number" id="gluePrice" value="16" step="0.1" oninput="autoCalcAccessories()">
+          </div>
+          <div style="font-size:12px;color:#52c41a;margin-top:4px">
+            用量：<strong id="glueKgDisplay">-</strong> kg &nbsp;|&nbsp; 去税金额：<strong id="glueCostDisplay">-</strong>
+          </div>
+        </div>
+
+        <div class="spring-section" style="margin-top:10px">
+          <h3>🎁 无纺布袋</h3>
+          <div style="background:#f6ffed;border-radius:4px;padding:6px 10px;margin-bottom:8px;font-size:12px;color:#52c41a">
+            🔵 白色=软区 &nbsp; 🔴 有色=硬区+四周加硬 &nbsp;
+            <span id="bagAutoLabel" style="color:#fa8c16"></span>
+          </div>
+          <div class="spring-row">
+            <label>🔵 白色袋数（软区）</label>
+            <input type="number" id="whiteBagCount" value="0"
+              style="background:#e6f7ff" oninput="autoCalcAccessories()">
+          </div>
+          <div class="spring-row">
+            <label>🔴 有色袋数（硬+加硬）</label>
+            <input type="number" id="colorBagCount" value="0"
+              style="background:#fff2e8" oninput="autoCalcAccessories()">
+          </div>
+          <div class="spring-row"><label>单袋克重 (g)</label>
+            <input type="number" id="bagUnitWeight" value="4.451" step="0.001" oninput="autoCalcAccessories()">
+          </div>
+          <div class="spring-row"><label>损耗率</label>
+            <input type="number" id="bagLoss" value="0.03" step="0.01" oninput="autoCalcAccessories()">
+          </div>
+          <div class="spring-row"><label>白袋单价 (¥/kg)</label>
+            <input type="number" id="whiteBagPrice" value="9.5" step="0.1" oninput="autoCalcAccessories()">
+          </div>
+          <div class="spring-row"><label>有色袋单价 (¥/kg)</label>
+            <input type="number" id="colorBagPrice" value="10" step="0.1" oninput="autoCalcAccessories()">
+          </div>
+          <div style="font-size:12px;color:#52c41a;margin-top:4px">
+            用量：<strong id="bagKgDisplay">-</strong> kg &nbsp;|&nbsp; 去税金额：<strong id="bagCostDisplay">-</strong>
+          </div>
+        </div>
+
+        <div class="spring-section" style="margin-top:10px">
+          <h3>📦 包面无纺布（70克）</h3>
+          <div style="background:#f9f0ff;border-radius:4px;padding:6px 10px;margin-bottom:8px;font-size:12px;color:#722ed1">
+            门幅宽(m) × 床芯长(m) × 克重 = 用量
+            <span id="nwAutoTip" style="float:right;font-weight:600"></span>
+          </div>
+          <div class="spring-row"><label>门幅 (cm)</label>
+            <input type="number" id="nwWidth" value="210" oninput="autoCalcAccessories()">
+          </div>
+          <div class="spring-row"><label>克重 (g/m²)</label>
+            <input type="number" id="nwGsm" value="70" oninput="autoCalcAccessories()">
+          </div>
+          <div class="spring-row"><label>用量宽 (m) <span style="color:#999;font-size:10px">自动计算</span></label>
+            <input type="number" id="nwLen" value="2.00" step="0.01" oninput="autoCalcAccessories()"
+              style="background:#f6ffed">
+          </div>
+          <div class="spring-row"><label>损耗率</label>
+            <input type="number" id="nwLoss" value="0.02" step="0.01" oninput="autoCalcAccessories()">
+          </div>
+          <div class="spring-row"><label>含税单价 (¥/kg)</label>
+            <input type="number" id="nwPrice" value="9.5" step="0.1" oninput="autoCalcAccessories()">
+          </div>
+          <div style="font-size:12px;color:#52c41a;margin-top:4px">
+            用量：<strong id="nwKgDisplay">-</strong> kg &nbsp;|&nbsp; 去税金额：<strong id="nwCostDisplay">-</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:15px;display:flex;gap:10px">
+      <button class="btn btn-primary" style="flex:1" onclick="calculateSpring()">🧮 开始计算</button>
+      <button class="btn btn-success" style="flex:1" onclick="applySpringCost()">✅ 应用到BOM</button>
+    </div>
+    <div id="springCostResult" class="spring-summary" style="display:none;margin-top:15px"></div>
+  </div>
+</div>
 
 <script>
-// 全局数据
-let currentMattress = {
-  type: 'mattress',
-  name: '标准双人床垫',
-  layers: []
+/* ============================================================
+   飞书配置（已预填）
+   ============================================================ */
+const FEISHU_DEFAULT = {
+  appId:         'cli_aaac64081a389bd6',
+  appSecret:     'zL32n3LBgd3pKcM9oAZXBlI6drWW7q8D',
+  appToken:      'OImvbDndCaCGRPsIiEDcLOKhnob',
+  tables: {
+    spring:    'tbl5aQo2nWlJJSFz',
+    material:  'tbl5ABFMH9wtZ69j',
+    cotton:    'tbl6j6TatRgI3l0T',
+    fabric:    'tblUZdt70X0tvcYs',
+    fee:       'tbl1HMW0g7Et5ZZh',
+    glue:      'tbl6skTLdyrrBjxF'
+  }
 };
 
-// 物料数据库（模拟）
-const materialDB = [
-  { id: 'M001', name: '针织面料 1.5m', spec: '宽幅1.5m', unit: '米', price: 35, category: '面料', type: 'fabric' },
-  { id: 'M002', name: '针织面料 1.8m', spec: '宽幅1.8m', unit: '米', price: 38, category: '面料', type: 'fabric' },
-  { id: 'M003', name: '3D网布', spec: '厚度3mm', unit: '米', price: 28, category: '面料', type: 'fabric' },
-  { id: 'M004', name: '乳胶 85D', spec: '厚度20mm 密度85D', unit: '平方米', price: 180, category: '填充', type: 'foam' },
-  { id: 'M005', name: '记忆棉 50D', spec: '厚度15mm 密度50D', unit: '平方米', price: 120, category: '填充', type: 'foam' },
-  { id: 'M006', name: '高弹海绵 35D', spec: '厚度30mm 密度35D', unit: '平方米', price: 65, category: '填充', type: 'foam' },
-  { id: 'M007', name: '椰棕芯', spec: '厚度50mm', unit: '平方米', price: 95, category: '支撑', type: 'other' },
-  { id: 'M008', name: '弹簧包', spec: '独立袋装 21cm', unit: '套', price: 450, category: '支撑', type: 'other' },
-  { id: 'M009', name: '无纺布', spec: '60g/m²', unit: '米', price: 8, category: '辅料', type: 'felt' },
-  { id: 'M010', name: '热熔胶膜', spec: '厚度0.1mm', unit: '米', price: 12, category: '辅料', type: 'other' },
-  { id: 'M011', name: '包边带', spec: '宽度3cm', unit: '米', price: 5, category: '辅料', type: 'other' },
-  { id: 'M012', name: '魔术贴', spec: '宽度2cm', unit: '米', price: 6, category: '辅料', type: 'other' },
-  { id: 'M013', name: '防滑底布', spec: 'PVC涂层', unit: '平方米', price: 25, category: '面料', type: 'fabric' },
-  { id: 'M014', name: '拉链 3#', spec: '长度15cm', unit: '个', price: 2, category: '辅料', type: 'other' },
-  { id: 'M015', name: '标签', spec: '洗水标', unit: '个', price: 1, category: '辅料', type: 'other' },
-];
+/* ============================================================
+   工费标准（内置，对齐Excel）
+   ============================================================ */
+const FEE_STANDARD = {
+  '套子款（自制）':   { coef:1.0, fees:[85,100,110,130] },
+  '套子款（外购）':   { coef:0.7, fees:[59.5,70,77,91] },
+  'OT-洁之宝款式1':  { coef:1.0, fees:[85,100,110,130] },
+  'OT-洁之宝款式2':  { coef:1.0, fees:[85,100,110,130] },
+  'QT-两边款':       { coef:0.8, fees:[68,80,88,104] },
+  'PT-虎口款':       { coef:1.2, fees:[102,120,132,156] },
+  'ET-假三边款':     { coef:1.0, fees:[85,100,110,130] },
+  'ET-真三边款':     { coef:1.2, fees:[102,120,132,156] }
+};
 
-// 计算参数缓存
-const calcCache = {};
-
-// 初始化
-document.addEventListener('DOMContentLoaded', () => {
-  loadData();
-  renderStructure();
-  renderBOM();
-});
-
-// 添加层
-function addLayer() {
-  const layer = {
-    id: Date.now(),
-    type: 'fill',
-    name: '新层',
-    thick: 0,
-    material: null,
-    _materialLabel: '',
-    _fabricSel: '',
-    _fabricManual: false,
-    _fabricManualName: '',
-    _fabricManualPrice: 0,
-    _fabricWidth: 0,
-    _calcParams: {}
-  };
-  currentMattress.layers.push(layer);
-  renderStructure();
-  renderBOM();
+function getProcessingFee(mattressType, widthCm) {
+  const entry = FEE_STANDARD[mattressType];
+  if (!entry) return null;
+  const w = parseFloat(widthCm) || 0;
+  if (w <= 120)  return entry.fees[0];
+  if (w <= 160)  return entry.fees[1];
+  if (w <= 185)  return entry.fees[2];
+  return entry.fees[3];
 }
 
-// 删除层
-function removeLayer() {
-  const list = document.querySelectorAll('#structureList .layer-item');
-  if (list.length === 0) return;
-  const index = Array.from(list).findIndex(el => el.classList.contains('active'));
-  if (index !== -1) {
-    currentMattress.layers.splice(index, 1);
-    renderStructure();
-    renderBOM();
-  }
-}
+/* ============================================================
+   胶水+包材 默认用量计算（按尺寸自动算，可手动覆盖）
+   对齐Excel各Sheet的标准用量公式
+   ============================================================ */
+const GLUE_DEFAULTS = {
+  // 各款式胶水条数（热熔胶350A用于护边，热熔胶5804用于棉毡/裥绵）
+  '套子款（外购）':  { pur:1, glue350A:6, glue5804:4, glueFactor:1 },
+  'OT-洁之宝款式1': { pur:1, glue350A:6, glue5804:4, glueFactor:1 },
+  'OT-洁之宝款式2': { pur:1, glue350A:6, glue5804:4, glueFactor:1 },
+  'QT-两边款':      { pur:1, glue350A:6, glue5804:4, glueFactor:1 },
+  'PT-虎口款':      { pur:1, glue350A:6, glue5804:4, glueFactor:1.2 }, // 虎口多一层
+  'ET-真三边款':    { pur:1, glue350A:6, glue5804:4, glueFactor:1.2 },
+  'ET-假三边款':    { pur:1, glue350A:6, glue5804:4, glueFactor:1 }
+};
 
-// 复制层
-function duplicateLayer() {
-  const list = document.querySelectorAll('#structureList .layer-item');
-  if (list.length === 0) return;
-  const index = Array.from(list).findIndex(el => el.classList.contains('active'));
-  if (index !== -1) {
-    const original = currentMattress.layers[index];
-    const copy = JSON.parse(JSON.stringify(original));
-    copy.id = Date.now();
-    copy.name = original.name + ' (复制)';
-    currentMattress.layers.splice(index + 1, 0, copy);
-    renderStructure();
-    renderBOM();
-  }
-}
-
-// 类型切换
-function onTypeChange() {
-  const type = document.getElementById('mattressType').value;
-  currentMattress.type = type;
-  // 根据类型调整默认层
-  if (type === 'topper') {
-    currentMattress.layers = [
-      { id: 1, type: 'cover', name: '上层面料', thick: 0, material: 'M001', _materialLabel: '针织面料 1.5m' },
-      { id: 2, type: 'fill', name: '填充层', thick: 20, material: 'M005', _materialLabel: '记忆棉 50D' },
-      { id: 3, type: 'cover', name: '下层面料', thick: 0, material: 'M001', _materialLabel: '针织面料 1.5m' }
-    ];
-  } else if (type === 'pad') {
-    currentMattress.layers = [
-      { id: 1, type: 'cover', name: '面料层', thick: 0, material: 'M001', _materialLabel: '针织面料 1.5m' },
-      { id: 2, type: 'fill', name: '填充层', thick: 30, material: 'M006', _materialLabel: '高弹海绵 35D' },
-      { id: 3, type: 'cover', name: '底层面料', thick: 0, material: 'M001', _materialLabel: '针织面料 1.5m' }
-    ];
-  } else {
-    currentMattress.layers = [
-      { id: 1, type: 'cover', name: '上层面料', thick: 0, material: 'M001', _materialLabel: '针织面料 1.5m' },
-      { id: 2, type: 'fill', name: '舒适层', thick: 50, material: 'M004', _materialLabel: '乳胶 85D' },
-      { id: 3, type: 'fill', name: '支撑层', thick: 150, material: 'M007', _materialLabel: '椰棕芯' },
-      { id: 4, type: 'cover', name: '下层面料', thick: 0, material: 'M001', _materialLabel: '针织面料 1.5m' }
-    ];
-  }
-  renderStructure();
-  renderBOM();
-}
-
-// 渲染结构列表
-function renderStructure() {
-  const list = document.getElementById('structureList');
-  const empty = document.getElementById('emptyState');
-  
-  if (currentMattress.layers.length === 0) {
-    list.style.display = 'none';
-    empty.style.display = 'block';
-    return;
-  }
-  
-  list.style.display = 'flex';
-  empty.style.display = 'none';
-  
-  list.innerHTML = currentMattress.layers.map((layer, index) => `
-    <div class="layer-item ${layer.id === (currentMattress.layers.find(l => l.id === currentLayerId)?.id || currentMattress.layers[0]?.id) ? 'active' : ''}" 
-         data-id="${layer.id}" draggable="true" onclick="selectLayer(${index})">
-      <div class="drag-handle">⋮⋮</div>
-      <div class="title">
-        <span class="index">${index + 1}</span>
-        <span>${layer.name || '未命名'}</span>
-        <span style="font-size:12px; color:#8c8c8c;">${getLayerTypeName(layer.type)}</span>
-      </div>
-      <div class="fields">
-        <div class="field-group">
-          <label>厚度 (mm)</label>
-          <input type="number" value="${layer.thick}" onchange="updateLayer(${index}, 'thick', this.value)">
-        </div>
-        <div class="field-group">
-          <label>物料</label>
-          <input type="text" value="${layer._materialLabel || ''}" readonly onclick="openSearch(${index})" placeholder="点击选择物料">
-        </div>
-      </div>
-    </div>
-  `).join('');
-  
-  // 初始化拖拽
-  initDrag();
-}
-
-// 获取层类型名称
-function getLayerTypeName(type) {
-  const names = { cover: '面料', fill: '填充', support: '支撑' };
-  return names[type] || type;
-}
-
-// 选择层
-let currentLayerId = null;
-function selectLayer(index) {
-  const layer = currentMattress.layers[index];
-  currentLayerId = layer.id;
-  renderStructure();
-  renderBOM();
-}
-
-// 更新层属性
-function updateLayer(index, key, value) {
-  currentMattress.layers[index][key] = parseFloat(value) || 0;
-  renderBOM();
-}
-
-// 打开搜索
-function openSearch(index) {
-  currentEditIndex = index;
-  document.getElementById('searchModal').style.display = 'flex';
-  document.getElementById('searchInput').value = '';
-  document.getElementById('searchResults').innerHTML = '';
-  document.getElementById('searchResults').style.display = 'none';
-  document.getElementById('searchInput').focus();
-}
-
-// 关闭搜索
-function closeSearchModal() {
-  document.getElementById('searchModal').style.display = 'none';
-}
-
-// 搜索物料
-function doSearch(keyword) {
-  const results = document.getElementById('searchResults');
-  if (!keyword.trim()) {
-    results.style.display = 'none';
-    return;
-  }
-  
-  const filtered = materialDB.filter(m => 
-    m.name.toLowerCase().includes(keyword.toLowerCase()) || 
-    m.spec.toLowerCase().includes(keyword.toLowerCase())
-  );
-  
-  if (filtered.length === 0) {
-    results.innerHTML = '<div class="search-result-item">未找到匹配物料</div>';
-    results.style.display = 'flex';
-    return;
-  }
-  
-  results.innerHTML = filtered.map(m => `
-    <div class="search-result-item" onclick="selectSearchItem(${JSON.stringify(m).replace(/"/g, '&quot;')})">
-      <div class="thumb">${m.type === 'fabric' ? '🧵' : m.type === 'foam' ? '🧽' : '📦'}</div>
-      <div class="info">
-        <div class="name">${m.name}</div>
-        <div class="desc">${m.spec} · ${m.category} · ¥${m.price}/${m.unit}</div>
-      </div>
-    </div>
-  `).join('');
-  results.style.display = 'flex';
-}
-
-// 选择搜索结果
-function selectSearchItem(m) {
-  // 选中物料后自动解析参数
-  if (m && !m._calcParams) m._calcParams = {};
-  if (m) {
-    const ct2 = detectMaterialCalcType(m.name, m.label);
-    if (ct2 === 'foam') {
-      if (!m._calcParams.density) m._calcParams.density = parseFoamDensity(m.name) || 25;
-      if (!m._calcParams.thick)   m._calcParams.thick   = parseThickness(m.name) || 0;
-      if (!m._calcParams.coef)    m._calcParams.coef    = 1;
-    } else if (ct2 === 'felt' || ct2 === 'nw') {
-      if (!m._calcParams.gsm) {
-        const gm = m.name.match(/(\d+)(?:克|g|G)/);
-        if (gm) m._calcParams.gsm = parseFloat(gm[1]);
-      }
-    }
-    // 门幅同步到面料行
-    const fw = parseFabricWidth(m.name);
-    if (fw && !m._fabricWidth) m._fabricWidth = fw;
-  }
-  
-  currentMattress.layers[currentEditIndex].material = m.id;
-  currentMattress.layers[currentEditIndex]._materialLabel = m.name;
-  currentMattress.layers[currentEditIndex]._calcParams = m._calcParams || {};
-  currentMattress.layers[currentEditIndex]._fabricWidth = m._fabricWidth || 0;
-  
-  closeSearchModal();
-  renderStructure();
-  renderBOM();
-}
-
-// 确认搜索
-function confirmSearch() {
-  if (selectedSearchItem) {
-    selectSearchItem(selectedSearchItem);
-    selectedSearchItem = null;
-  }
-  closeSearchModal();
-}
-
-// 关闭计算弹窗
-function closeCalcModal() {
-  document.getElementById('calcModal').style.display = 'none';
-}
-
-// 确认计算参数
-function confirmCalc() {
-  if (currentEditIndex !== null) {
-    const layer = currentMattress.layers[currentEditIndex];
-    if (!layer._calcParams) layer._calcParams = {};
-    
-    layer._calcParams.thick = parseFloat(document.getElementById('paramThick').value) || 0;
-    layer._calcParams.density = parseFloat(document.getElementById('paramDensity').value) || 0;
-    layer._calcParams.gsm = parseFloat(document.getElementById('paramGsm').value) || 0;
-    layer._calcParams.coef = parseFloat(document.getElementById('paramCoef').value) || 1;
-    
-    closeCalcModal();
-    renderBOM();
-  }
-}
-
-// 解析面料宽度
-function parseFabricWidth(name) {
-  const match = name.match(/(\d+\.?\d*)(?:m|米|幅宽)/);
-  return match ? parseFloat(match[1]) : 0;
-}
-
-// 解析泡沫密度
-function parseFoamDensity(name) {
-  const match = name.match(/(\d+)(?:D|密度)/);
-  return match ? parseInt(match[1]) : 0;
-}
-
-// 解析厚度
-function parseThickness(name) {
-  const match = name.match(/(\d+)(?:mm|毫米|厚)/);
-  return match ? parseInt(match[1]) : 0;
-}
-
-// 检测物料计算类型
-function detectMaterialCalcType(name, label) {
-  if (!name) return 'other';
-  const lower = name.toLowerCase();
-  if (lower.includes('面料') || lower.includes('针织') || lower.includes('网布') || lower.includes('防滑')) return 'fabric';
-  if (lower.includes('海绵') || lower.includes('乳胶') || lower.includes('记忆棉') || lower.includes('泡棉')) return 'foam';
-  if (lower.includes('无纺布') || lower.includes('毛毡')) return 'felt';
-  return 'other';
-}
-
-// 计算单个物料用量
-function calculateMaterialUsage(layer) {
-  const { type, thick, material, _calcParams } = layer;
-  const width = 1.5; // 默认床垫宽度 1.5m
-  const length = 2.0; // 默认床垫长度 2.0m
-  let usage = 0;
-  let unit = '平方米';
-  
-  // 从数据库获取物料信息
-  const matInfo = materialDB.find(m => m.id === material);
-  if (!matInfo) return { usage: 0, unit: '平方米', price: 0, note: '未找到物料' };
-  
-  switch (detectMaterialCalcType(matInfo.name, matInfo.label)) {
-    case 'fabric':
-      // 面料：按长度计算 (宽度 * 长度)
-      if (_calcParams.fabricWidth) {
-        // 如果设置了门幅，按门幅计算
-        const fabricWidth = parseFloat(_calcParams.fabricWidth) || 1.5;
-        usage = (length * 2 + width * 2 + 0.3) / fabricWidth; // 周长/门幅
-      } else {
-        // 默认按展开面积
-        usage = width * length;
-      }
-      break;
-    case 'foam':
-      // 泡沫：按体积计算 (面积 * 厚度)
-      usage = width * length * (thick / 1000);
-      break;
-    case 'felt':
-      // 无纺布：按面积计算
-      usage = width * length;
-      break;
-    default:
-      // 其他：按面积计算
-      usage = width * length;
-  }
-  
-  // 应用系数
-  if (_calcParams.coef) usage *= _calcParams.coef;
-  
-  // 损耗率 (默认 5%)
-  const lossRate = _calcParams.lossRate || 0.05;
-  const actualUsage = usage * (1 + lossRate);
-  
+// 包材用量公式（w=宽cm, l=长cm, h=高cm）
+function calcPackagingDefaults(mattressType, w, l, h) {
+  const W=parseFloat(w)||180, L=parseFloat(l)||200, H=parseFloat(h)||25;
+  const perim = (W+L)*2/100;
+  const edgeRounds = mattressType==='QT-两边款'?2:(mattressType==='PT-虎口款'||mattressType.startsWith('ET'))?3:0;
+  // 纸箱（精确公式）
+  const isOT = mattressType.startsWith('OT');
+  const bH = Math.round(H+13), bW = bH;
+  const bL = isOT ? Math.round(L*0.96+3) : Math.round(L*0.80+3);
+  const boxSqm = parseFloat(((bL+bW)*2*(bH+5)/10000).toFixed(4));
+  // PE压缩膜（精确公式：÷2）
+  const peFilm = parseFloat(((H*2+W)/100/0.255/2*1.02).toFixed(3));
+  // 缠绕膜
+  const wrapFilm = parseFloat((L/100*2*1.02).toFixed(3));
+  // 拉链：(L+W)/100*2+0.1（精确）
+  const zipperQty = parseFloat(((L+W)/100*2+0.1).toFixed(2));
+  // 边带：周长×圈数×1.03
+  const edgeTape = edgeRounds>0 ? parseFloat((perim*edgeRounds*1.03).toFixed(3)) : 0;
   return {
-    usage: parseFloat(usage.toFixed(3)),
-    actualUsage: parseFloat(actualUsage.toFixed(3)),
-    unit: matInfo.unit,
-    price: matInfo.price,
-    note: ''
+    '拉链':              {qty:zipperQty, unit:'米',     price:0,    note:`(${L}+${W})/100×2+0.1`, needSelect:true, autoCalc:true},
+    '边带':              {qty:edgeTape,  unit:'米',     price:0.5,  note:`${edgeRounds}圈×周长×1.03`,autoCalc:true},
+    '拉手':              {qty:1,         unit:'件',     price:1,    autoCalc:true},
+    '平卷纸箱':          {qty:boxSqm,    unit:'双平方', price:10.5, note:`箱${bW}×${bL}×${bH}cm`, autoCalc:true},
+    '黄卡纸箱（平卷）':  {qty:boxSqm,    unit:'双平方', price:10.5, note:`箱${bW}×${bL}×${bH}cm`, autoCalc:true},
+    'PE压缩膜':          {qty:peFilm,    unit:'米',     price:1.628,autoCalc:true},
+    '制袋PE压缩膜':      {qty:peFilm,    unit:'米',     price:1.628,autoCalc:true},
+    '缠绕膜':            {qty:wrapFilm,  unit:'米',     price:0.936,autoCalc:true},
+    'WM缠绕膜':          {qty:wrapFilm,  unit:'米',     price:0.936,autoCalc:true},
+    '标签':              {qty:1,         unit:'件',     price:0.5,  autoCalc:true},
+    '开包器':            {qty:1,         unit:'件',     price:5,    autoCalc:true},
+    '缝纫线-裥棉面线':   {qty:2550,      unit:'米',     price:0.002,note:'2500×1.02',autoCalc:true},
+    '缝纫线-裥棉底线':   {qty:2550,      unit:'米',     price:0.002,autoCalc:true},
+    '缝纫线-边布面线':   {qty:510,       unit:'米',     price:0.002,note:'500×1.02', autoCalc:true},
+    '缝纫线-缝纫底线':   {qty:510,       unit:'米',     price:0.002,autoCalc:true},
+    '缝纫线-拷边线':     {qty:510,       unit:'米',     price:0.001,autoCalc:true},
+    '缝纫线-包边线':     {qty:612,       unit:'米',     price:0.001,note:'600×1.02', autoCalc:true},
+    '缝纫线-绣花线':     {qty:510,       unit:'米',     price:0.003,autoCalc:true},
+    '干燥剂':            {qty:3,         unit:'T02',    price:0.11, note:'3包',      autoCalc:true},
+    '透明胶带':          {qty:7.14,      unit:'米',     price:0.06, note:'7×1.02',   autoCalc:true},
+    '内套缝纫线':        {qty:153,       unit:'米',     price:0.001,note:'150×1.02', autoCalc:true},
   };
 }
 
-// 重新计算全部
-function calculateAll() {
-  if (currentMattress.layers.length === 0) {
-    showToast('请先添加结构层', 'error');
-    return;
+
+// 胶水用量计算（w=宽cm, l=长cm）
+function calcGlueDefaults(mattressType, w, l) {
+  const W=parseFloat(w)||180, L=parseFloat(l)||200;
+  const area = W*L/10000; // m²
+  const cfg = GLUE_DEFAULTS[mattressType] || { pur:1, glue350A:6, glue5804:4, glueFactor:1 };
+
+  // PUR胶：海绵/乳胶间粘合，20g/m²
+  const purQty = parseFloat((area * 0.020 * (1+0.02)).toFixed(4));
+
+  // 热熔胶350A：护边用，6条×长度×0.017kg/m
+  const glue350ALen = L/100; // 单条长度=床长
+  const glue350AQty = parseFloat((glue350ALen * cfg.glue350A * 0.017 * (1+0.02) * cfg.glueFactor).toFixed(4));
+
+  // 热熔胶5804：棉毡/裥棉用，4条×长度×0.016kg/m
+  const glue5804Qty = parseFloat((glue350ALen * cfg.glue5804 * 0.016 * (1+0.02) * cfg.glueFactor).toFixed(4));
+
+  return {
+    'PUR胶':      { qty: purQty,     unit:'公斤', note:'20g/m²×面积×1.02' },
+    '热熔胶-350A': { qty: glue350AQty, unit:'公斤', note:`6条×${(L/100).toFixed(2)}m×17g×1.02` },
+    '热熔胶-5804': { qty: glue5804Qty, unit:'公斤', note:`4条×${(L/100).toFixed(2)}m×16g×1.02` }
+  };
+}
+
+/* ============================================================
+   床垫款式结构（内置6款，对齐Excel + txt文件）
+   ============================================================ */
+const MATTRESS_STRUCTURES = {
+  '套子款（外购）': {
+    layers:[
+      { name:'内套',      fabric:null,  materials:['全涤汗布内套'] },
+      { name:'床芯-舒适层', fabric:null, materials:['海绵A','海绵B'] },
+      { name:'床芯-弹簧', fabric:null,  materials:['弹簧床芯','上棉毡','下棉毡','底棉','长护边','宽护边'] },
+      { name:'胶水',      fabric:null,  materials:['PUR胶','热熔胶-350A','热熔胶-5804'] },
+      { name:'包材及辅料', fabric:null, materials:['拉链','边带','拉手','平卷纸箱','内套缝纫线','干燥剂','透明胶带'] }
+    ]
+  },
+  'OT-洁之宝款式1': {
+    layers:[
+      { name:'正面裥绵',   fabric:'正面面料',  materials:['无胶棉A','多针海绵A','多针海绵B','白色无纺布'] },
+      { name:'反面裥绵',   fabric:'反面面料',  materials:['无胶棉B','多针海绵C','多针海绵D','白色无纺布'] },
+      { name:'内套',       fabric:null,        materials:['全涤汗布内套'] },
+      { name:'床芯-舒适层',fabric:null,        materials:['海绵A','海绵B'] },
+      { name:'床芯-弹簧',  fabric:null,        materials:['弹簧床芯','上棉毡','下棉毡','底棉','长护边','宽护边'] },
+      { name:'胶水',       fabric:null,        materials:['PUR胶','热熔胶-350A','热熔胶-5804'] },
+      { name:'包材及辅料', fabric:null,        materials:['拉链','边带','拉手','平卷纸箱','标签','缝纫线-裥棉面线','缝纫线-裥棉底线','缝纫线-边布面线','缝纫线-缝纫底线','缝纫线-拷边线','缝纫线-包边线','干燥剂','透明胶带'] }
+    ]
+  },
+  'OT-洁之宝款式2': {
+    layers:[
+      { name:'正面裥绵',   fabric:'正面面料',  materials:['无胶棉A','多针海绵A','多针海绵B','白色无纺布'] },
+      { name:'边布裥绵',   fabric:'边布面料',  materials:['无胶棉B','卷棉','白色无纺布'] },
+      { name:'反面裥绵',   fabric:'反面面料',  materials:['无胶棉C','多针海绵C','多针海绵D','白色无纺布'] },
+      { name:'内套',       fabric:null,        materials:['全涤汗布内套'] },
+      { name:'床芯-舒适层',fabric:null,        materials:['海绵A','海绵B'] },
+      { name:'床芯-弹簧',  fabric:null,        materials:['弹簧床芯','上棉毡','下棉毡','底棉','长护边','宽护边'] },
+      { name:'胶水',       fabric:null,        materials:['PUR胶','热熔胶-350A','热熔胶-5804'] },
+      { name:'包材及辅料', fabric:null,        materials:['拉链','边带','拉手','平卷纸箱','标签','缝纫线-裥棉面线','缝纫线-裥棉底线','缝纫线-边布面线','缝纫线-缝纫底线','缝纫线-拷边线','缝纫线-包边线','干燥剂','透明胶带'] }
+    ]
+  },
+  'QT-两边款': {
+    layers:[
+      { name:'面布裥绵',   fabric:'面料',      materials:['无胶棉A','多针海绵A','多针海绵B','白色无纺布'] },
+      { name:'边布裥绵',   fabric:'边布面料',  materials:['无胶棉B','卷棉','白色无纺布'] },
+      { name:'底部裥绵',   fabric:'底部面料',  materials:['无胶棉C','多针海绵C','多针海绵D','白色无纺布'] },
+      { name:'床芯-弹簧',  fabric:null,        materials:['弹簧床芯','上棉毡','下棉毡','底棉','长护边','宽护边'] },
+      { name:'胶水',       fabric:null,        materials:['PUR胶','热熔胶-350A','热熔胶-5804'] },
+      { name:'包材及辅料', fabric:null,        materials:['边带','平卷纸箱','标签','缝纫线-裥棉面线','缝纫线-裥棉底线','缝纫线-边布面线','缝纫线-缝纫底线','缝纫线-拷边线','缝纫线-包边线','干燥剂','透明胶带'] }
+    ]
+  },
+  'PT-虎口款': {
+    layers:[
+      { name:'面布裥绵',   fabric:'面料',      materials:['无胶棉A','多针海绵A','多针海绵B','白色无纺布'] },
+      { name:'虎口',       fabric:'虎口面料',  materials:['无胶棉B','卷棉','白色无纺布'] },
+      { name:'隔层',       fabric:null,        materials:['白色无纺布-隔层'] },
+      { name:'大边裥绵',   fabric:'大边面料',  materials:['无胶棉C','卷棉B','白色无纺布'] },
+      { name:'底部裥绵',   fabric:'底部面料',  materials:['无胶棉D','多针海绵C','多针海绵D','白色无纺布'] },
+      { name:'床芯-虎口填充', fabric:null,     materials:['虎口填充海绵A','虎口填充海绵B'] },
+      { name:'床芯-弹簧',  fabric:null,        materials:['弹簧床芯','上棉毡','下棉毡','底棉','长护边','宽护边'] },
+      { name:'胶水',       fabric:null,        materials:['PUR胶','热熔胶-350A','热熔胶-5804','虎口胶水'] },
+      { name:'包材及辅料', fabric:null,        materials:['拉链','边带','拉手','平卷纸箱','标签','缝纫线-裥棉面线','缝纫线-裥棉底线','缝纫线-边布面线','缝纫线-缝纫底线','缝纫线-拷边线','缝纫线-包边线','干燥剂','透明胶带'] }
+    ]
+  },
+  'ET-真三边款': {
+    layers:[
+      { name:'面布裥绵',   fabric:'面料',      materials:['无胶棉A','多针海绵A','多针海绵B','白色无纺布'] },
+      { name:'小边裥绵',   fabric:'小边面料',  materials:['无胶棉B','卷棉','白色无纺布'] },
+      { name:'隔层',       fabric:null,        materials:['白色无纺布-隔层'] },
+      { name:'大边裥绵',   fabric:'大边面料',  materials:['无胶棉C','卷棉B','白色无纺布'] },
+      { name:'底部裥绵',   fabric:'底部面料',  materials:['无胶棉D','多针海绵C','多针海绵D','白色无纺布'] },
+      { name:'床芯-弹簧',  fabric:null,        materials:['弹簧床芯','上棉毡','下棉毡','底棉','长护边','宽护边'] },
+      { name:'胶水',       fabric:null,        materials:['PUR胶','热熔胶-350A','热熔胶-5804'] },
+      { name:'包材及辅料', fabric:null,        materials:['拉链','边带','拉手','平卷纸箱','标签','缝纫线-裥棉面线','缝纫线-裥棉底线','缝纫线-边布面线','缝纫线-缝纫底线','缝纫线-拷边线','缝纫线-包边线','干燥剂','透明胶带'] }
+    ]
+  },
+  'ET-假三边款': {
+    layers:[
+      { name:'面布裥绵',   fabric:'面料',      materials:['无胶棉A','多针海绵A','多针海绵B','白色无纺布'] },
+      { name:'大边裥绵',   fabric:'大边面料',  materials:['无胶棉B','卷棉','白色无纺布'] },
+      { name:'底部裥绵',   fabric:'底部面料',  materials:['无胶棉C','多针海绵C','白色无纺布'] },
+      { name:'床芯-弹簧',  fabric:null,        materials:['弹簧床芯','上棉毡','下棉毡','底棉','长护边','宽护边'] },
+      { name:'胶水',       fabric:null,        materials:['PUR胶','热熔胶-350A','热熔胶-5804'] },
+      { name:'包材及辅料', fabric:null,        materials:['拉链','边带','拉手','平卷纸箱','标签','缝纫线-裥棉面线','缝纫线-裥棉底线','缝纫线-边布面线','缝纫线-缝纫底线','缝纫线-拷边线','缝纫线-包边线','干燥剂','透明胶带'] }
+    ]
   }
-  
-  currentMattress.layers.forEach(layer => {
-    if (layer.material) {
-      const result = calculateMaterialUsage(layer);
-      layer._usage = result.usage;
-      layer._actualUsage = result.actualUsage;
-      layer._unit = result.unit;
-      layer._price = result.price;
-      layer._note = result.note;
+};
+
+/* ============================================================
+   数据库 & 全局状态
+   ============================================================ */
+let DB = { fabric:[], price:[], cotton:[], spring:[], fabricUpdate:'', priceUpdate:'' };
+let currentMattress = null;
+let currentMattressType = '';
+let bomData = [];
+let springCost = 0; // 已去税的床芯成本
+
+/* ============================================================
+   飞书 API
+   ============================================================ */
+function getFeishuConfig() {
+  const saved = localStorage.getItem('feishuConfig');
+  if (saved) {
+    try { return JSON.parse(saved); } catch(e) {}
+  }
+  return FEISHU_DEFAULT;
+}
+
+// ============================================================
+// 所有飞书请求通过 Vercel 代理转发，彻底解决 CORS 问题
+// 代理地址：https://mattress-bom.pages.dev/api/feishu
+// ============================================================
+const PROXY_URL = 'https://mattress-bom.pages.dev/api/feishu';
+
+async function proxyFetch(feishuUrl, options = {}) {
+  const res = await fetch(PROXY_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      url: feishuUrl,
+      method: options.method || 'GET',
+      body: options.body || null
+    })
+  });
+  if (!res.ok) throw new Error('代理请求失败: ' + res.status);
+  return res.json();
+}
+
+async function getFeishuToken() {
+  const cfg = getFeishuConfig();
+  const data = await proxyFetch(
+    'https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal',
+    {
+      method: 'POST',
+      body: { app_id: cfg.appId, app_secret: cfg.appSecret }
     }
+  );
+  if (!data.tenant_access_token) throw new Error('获取Token失败: ' + JSON.stringify(data));
+  return data.tenant_access_token;
+}
+
+async function fetchTableAll(tableId, token) {
+  const cfg = getFeishuConfig();
+  const records = [];
+  let pageToken = '';
+  do {
+    const feishuUrl = `https://open.feishu.cn/open-apis/bitable/v1/apps/${cfg.appToken}/tables/${tableId}/records?page_size=500${pageToken ? '&page_token=' + encodeURIComponent(pageToken) : ''}`;
+    // 通过代理转发，并在代理层带上 Authorization header
+    const res = await fetch(PROXY_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        url: feishuUrl,
+        method: 'GET',
+        authToken: token
+      })
+    });
+    if (!res.ok) throw new Error(`读取表失败 [${tableId}]: ${res.status}`);
+    const data = await res.json();
+    (data.data?.items || []).forEach(item => records.push(item.fields));
+    pageToken = data.data?.page_token || '';
+  } while (pageToken);
+  return records;
+}
+
+async function syncFeishu(silent = false) {
+  if (!silent) showLoading('🔄 正在获取飞书授权...');
+  setSyncStatus('syncing', silent ? '后台刷新中...' : '同步中...');
+  const btn = document.getElementById('syncBtn');
+  btn.disabled = true;
+
+  try {
+    const token = await getFeishuToken();
+    const cfg = getFeishuConfig();
+
+    showLoading('📦 正在拉取物料清单...');
+    const materials = await fetchTableAll(cfg.tables.material, token);
+
+    showLoading('🎨 正在拉取面料清单...');
+    const fabrics = await fetchTableAll(cfg.tables.fabric, token);
+
+    showLoading('🌿 正在拉取棉种清单...');
+    const cottons = await fetchTableAll(cfg.tables.cotton, token);
+
+    showLoading('🌀 正在拉取弹簧标准...');
+    const springs = await fetchTableAll(cfg.tables.spring, token);
+
+    // 安全取值函数，兼容飞书返回的各种格式（文本/数字/对象/数组/null）
+    function safeStr(v) {
+      if (v === null || v === undefined) return '';
+      if (typeof v === 'object') {
+        // 飞书富文本字段返回 [{text:'...'}] 数组
+        if (Array.isArray(v)) return v.map(i => i.text || i.value || '').join('');
+        // 飞书人员/链接字段返回对象
+        return v.text || v.value || v.name || String(v);
+      }
+      return String(v).trim();
+    }
+    function safeNum(v) {
+      if (v === null || v === undefined) return 0;
+      if (typeof v === 'object') return 0;
+      return parseFloat(v) || 0;
+    }
+
+    // 解析物料 —— 飞书「价格清单」表
+    // 实际列名：物料编码, 物料名称, 单位, 形态, 采购含税价, 备注, 关键词
+    DB.price = materials.map(r => {
+      try {
+        const name = safeStr(r['物料编码'] || r['物料名称'] || r['名称'] || '');
+        if (!name) return null;
+        const altName = safeStr(r['物料名称'] || r['货号'] || '');
+        const price = safeNum(r['采购含税价'] || r['含税单价'] || r['单价'] || 0);
+        return {
+          name, altName,
+          unit:     safeStr(r['单位']) || '件',
+          form:     safeStr(r['形态']),
+          price,
+          remark:   safeStr(r['备注']),
+          keywords: safeStr(r['关键词']) || name
+        };
+      } catch(e) { return null; }
+    }).filter(r => r && r.name && r.price > 0);
+
+    // 解析面料 —— 飞书「面料」表
+    // 实际列名：型号, 货号, 克重, 门幅, 供应商, 价格, 物料状态, 备注
+    DB.fabric = fabrics.map(r => {
+      try {
+        const name = safeStr(r['型号'] || r['面料名称'] || r['名称'] || '');
+        if (!name) return null;
+        const price = safeNum(r['价格'] || r['含税单价'] || r['单价'] || 0);
+        return {
+          name,
+          code:     safeStr(r['货号']),
+          unit:     'm',
+          gsm:      safeNum(r['克重']),
+          width:    safeNum(r['门幅']),
+          price,
+          remark:   safeStr(r['备注'] || r['成分']),
+          supplier: safeStr(r['供应商']),
+          status:   safeStr(r['物料状态']),
+          keywords: name
+        };
+      } catch(e) { return null; }
+    }).filter(r => r && r.name && r.price > 0);
+
+    // 解析棉种 —— 飞书「绵种清单」表
+    // 实际列名：绵种大类, 编码, 颜色, 功能, 名称, 状态, 原名称
+    DB.cotton = cottons.map(r => {
+      try {
+        return {
+          category: safeStr(r['绵种大类']),
+          code:     safeStr(r['编码']),
+          color:    safeStr(r['颜色']),
+          func:     safeStr(r['功能']),
+          name:     safeStr(r['名称']),
+          status:   safeStr(r['状态']),
+          oldName:  safeStr(r['原名称'])
+        };
+      } catch(e) { return null; }
+    }).filter(r => r && (r.name || r.code));
+
+    // 解析弹簧 —— 飞书「弹簧标准」表
+    // 实际列名：高度(cm）, 线径(mm), 65g袋装无纺布门幅（cm）, 单个弹簧克重, 单个65g无纺布克重
+    DB.spring = springs.map(r => {
+      try {
+        return {
+          height:       safeNum(r['高度(cm）'] || r['高度(cm)'] || r['高度']),
+          wire:         safeStr(r['线径(mm)'] || r['线径']),
+          nwWidth:      safeNum(r['65g袋装无纺布门幅（cm）'] || r['袋装无纺布门幅']),
+          springWeight: safeNum(r['单个弹簧克重'] || r['单个弹簧克重(g)']),
+          bagWeight:    safeNum(r['单个65g无纺布克重'] || r['单个无纺布克重(g)'])
+        };
+      } catch(e) { return null; }
+    }).filter(r => r && r.height && r.wire);
+
+    DB.fabricUpdate = new Date().toLocaleString('zh-CN');
+    DB.priceUpdate  = new Date().toLocaleString('zh-CN');
+    saveDB();
+    refreshAllUI();
+    setSyncStatus('online', '飞书同步成功 ' + new Date().toLocaleTimeString('zh-CN'));
+
+    // 刷新下拉（面料/物料已更新）
+    if (currentMattress) { renderStructure(); renderBOM(); }
+
+  } catch(err) {
+    console.error('飞书同步失败:', err);
+    setSyncStatus('offline', '同步失败（使用本地缓存）');
+    // 提示CORS问题
+    if (!silent) {
+      const msg = err.message.includes('fetch') || err.message.includes('Failed')
+        ? `⚠️ 飞书同步失败（CORS跨域限制）\n\n错误：${err.message}\n\n解决方案：\n1. 安装Chrome插件「Allow CORS: Access-Control-Allow-Origin」并开启\n2. 或将此页面部署到服务器并配置飞书代理\n\n当前使用本地缓存数据。`
+        : `❌ 飞书同步失败：${err.message}`;
+      alert(msg);
+    }
+  }
+
+  hideLoading();
+  btn.disabled = false;
+}
+
+function setSyncStatus(state, text) {
+  const badge = document.getElementById('syncBadge');
+  const time  = document.getElementById('syncTime');
+  badge.className = 'sync-badge ' + state;
+  badge.textContent = state === 'online' ? '✅ 已同步' : state === 'syncing' ? '⏳ 同步中' : '⭕ 未同步';
+  time.textContent = text;
+}
+
+/* ============================================================
+   Loading
+   ============================================================ */
+function showLoading(text) {
+  document.getElementById('loadingText').textContent = text || '加载中...';
+  document.getElementById('loadingOverlay').classList.add('show');
+}
+function hideLoading() {
+  document.getElementById('loadingOverlay').classList.remove('show');
+}
+
+/* ============================================================
+   飞书配置弹窗
+   ============================================================ */
+function openFeishuConfig() {
+  const cfg = getFeishuConfig();
+  document.getElementById('cfgAppId').value       = cfg.appId || '';
+  document.getElementById('cfgAppSecret').value   = cfg.appSecret || '';
+  document.getElementById('cfgAppToken').value    = cfg.appToken || '';
+  document.getElementById('cfgSpringTable').value = cfg.tables?.spring || '';
+  document.getElementById('cfgMaterialTable').value = cfg.tables?.material || '';
+  document.getElementById('cfgCottonTable').value = cfg.tables?.cotton || '';
+  document.getElementById('cfgFabricTable').value = cfg.tables?.fabric || '';
+  document.getElementById('cfgFeeTable').value    = cfg.tables?.fee || '';
+  document.getElementById('cfgGlueTable').value   = cfg.tables?.glue || '';
+  document.getElementById('feishuModal').classList.add('show');
+}
+function closeFeishuConfig() { document.getElementById('feishuModal').classList.remove('show'); }
+function saveFeishuConfig() {
+  const cfg = {
+    appId:     document.getElementById('cfgAppId').value.trim(),
+    appSecret: document.getElementById('cfgAppSecret').value.trim(),
+    appToken:  document.getElementById('cfgAppToken').value.trim(),
+    tables: {
+      spring:   document.getElementById('cfgSpringTable').value.trim(),
+      material: document.getElementById('cfgMaterialTable').value.trim(),
+      cotton:   document.getElementById('cfgCottonTable').value.trim(),
+      fabric:   document.getElementById('cfgFabricTable').value.trim(),
+      fee:      document.getElementById('cfgFeeTable').value.trim(),
+      glue:     document.getElementById('cfgGlueTable').value.trim()
+    }
+  };
+  localStorage.setItem('feishuConfig', JSON.stringify(cfg));
+  closeFeishuConfig();
+  alert('✅ 飞书配置已保存');
+}
+
+/* ============================================================
+   本地存储
+   ============================================================ */
+function loadDB() {
+  try {
+    const saved = localStorage.getItem('mattressDB_v3');
+    if (saved) {
+      const d = JSON.parse(saved);
+      DB.fabric       = d.fabric       || [];
+      DB.price        = d.price        || [];
+      DB.cotton       = d.cotton       || [];
+      DB.spring       = d.spring       || getDefaultSpring();
+      DB.fabricUpdate = d.fabricUpdate || '';
+      DB.priceUpdate  = d.priceUpdate  || '';
+    } else {
+      DB.spring = getDefaultSpring();
+    }
+  } catch(e) { console.error(e); DB.spring = getDefaultSpring(); }
+}
+
+function getDefaultSpring() {
+  return [
+    {height:16,wire:'钢线1.8',nwWidth:175,springWeight:22,bagWeight:3.5},
+    {height:16,wire:'钢线2.0',nwWidth:175,springWeight:26,bagWeight:3.5},
+    {height:18,wire:'钢线1.8',nwWidth:190,springWeight:26,bagWeight:3.8},
+    {height:18,wire:'钢线2.0',nwWidth:190,springWeight:31,bagWeight:3.8},
+    {height:18,wire:'钢线2.2',nwWidth:190,springWeight:36,bagWeight:3.8},
+    {height:20,wire:'钢线1.8',nwWidth:210,springWeight:30,bagWeight:4.1},
+    {height:20,wire:'钢线2.0',nwWidth:210,springWeight:36,bagWeight:4.1},
+    {height:20,wire:'钢线2.2',nwWidth:210,springWeight:42,bagWeight:4.1},
+    {height:22,wire:'钢线1.8',nwWidth:220,springWeight:35,bagWeight:4.451},
+    {height:22,wire:'钢线2.0',nwWidth:220,springWeight:42,bagWeight:4.451},
+    {height:22,wire:'钢线2.2',nwWidth:220,springWeight:50,bagWeight:4.451},
+    {height:24,wire:'钢线2.0',nwWidth:240,springWeight:48,bagWeight:5.0},
+    {height:24,wire:'钢线2.2',nwWidth:240,springWeight:57,bagWeight:5.0},
+  ];
+}
+
+function saveDB() {
+  try { localStorage.setItem('mattressDB_v3', JSON.stringify(DB)); } catch(e) {}
+}
+
+/* ============================================================
+   初始化
+   ============================================================ */
+function init() {
+  // 确保飞书配置已写入
+  if (!localStorage.getItem('feishuConfig')) {
+    localStorage.setItem('feishuConfig', JSON.stringify(FEISHU_DEFAULT));
+  }
+  loadDB();
+  refreshMattressTypes();
+  refreshAllUI();
+  updateSpringLayout();
+
+  // 页面加载时自动同步飞书
+  // 有本地缓存 → 先显示缓存，再静默后台刷新
+  // 无缓存 → 显示加载动画同步
+  const hasCachedData = DB.price.length > 0 || DB.fabric.length > 0;
+  if (hasCachedData) {
+    // 有缓存先用，3秒后静默刷新
+    setSyncStatus('online', '使用缓存数据，后台刷新中...');
+    setTimeout(() => syncFeishu(true), 3000);
+  } else {
+    // 无缓存直接同步
+    syncFeishu(false);
+  }
+}
+
+/* ============================================================
+   款式类型
+   ============================================================ */
+function refreshMattressTypes() {
+  const sel = document.getElementById('mattressType');
+  sel.innerHTML = '<option value="">-- 请选择款式 --</option>';
+  Object.keys(MATTRESS_STRUCTURES).forEach(k => {
+    const o = document.createElement('option');
+    o.value = k; o.textContent = k;
+    sel.appendChild(o);
   });
-  
-  renderBOM();
-  showToast('计算完成');
 }
 
-// 渲染BOM表
-function renderBOM() {
-  const table = document.getElementById('bomTable');
-  const tbody = table.querySelector('tbody') || document.createElement('tbody');
-  const bomEmpty = document.getElementById('bomEmptyState');
-  
-  if (currentMattress.layers.length === 0) {
-    table.style.display = 'none';
-    bomEmpty.style.display = 'block';
+function onMattressTypeChange() {
+  const t = document.getElementById('mattressType').value;
+  currentMattressType = t;
+  if (!t) {
+    document.getElementById('structureContainer').innerHTML = '<div class="empty-tip">请先选择床垫款式</div>';
+    document.getElementById('bomBody').innerHTML = '<tr><td colspan="6" style="text-align:center;color:#999;padding:30px">请先选择床垫款式</td></tr>';
+    currentMattress = null;
+    document.getElementById('feeMatchTip').textContent = '';
+    updateTotals();
     return;
   }
-  
-  table.style.display = 'table';
-  bomEmpty.style.display = 'none';
-  
-  let totalAmount = 0;
-  
-  tbody.innerHTML = currentMattress.layers.map((layer, index) => {
-    if (!layer.material) return '';
-    
-    const matInfo = materialDB.find(m => m.id === layer.material);
-    if (!matInfo) return '';
-    
-    const usage = layer._usage || 0;
-    const actualUsage = layer._actualUsage || 0;
-    const price = layer._price || 0;
-    const amount = actualUsage * price;
-    totalAmount += amount;
-    
-    return `
-      
-        <td class="hidden-col">${matInfo.id}
-        <td style="font-weight:500;">${matInfo.name}
-        <td style="font-size:12px; color:#8c8c8c;">${matInfo.spec}
-        <td style="font-size:12px; color:#8c8c8c;">${layer._unit || matInfo.unit}
-        <td style="font-family:monospace;">${usage.toFixed(3)}
-        <td style="font-family:monospace;">${((layer._actualUsage / usage - 1) * 100).toFixed(1) || '5.0'}%
-        <td style="font-family:monospace; color:#1890ff; font-weight:500;">${actualUsage.toFixed(3)}
-        <td style="font-family:monospace
-        <td style="font-family:monospace; color:#1890ff; font-weight:500;">${actualUsage.toFixed(3)}
-        <td style="font-family:monospace;">¥${price.toFixed(2)}
-        <td style="font-family:monospace; color:#52c41a; font-weight:bold;">¥${amount.toFixed(2)}
-        <td style="font-size:12px; color:#8c8c8c;">${layer._note || '-'}
-        <td class="hidden-col">${matInfo.category}
-      
-    `;
-  }).join('');
-  
-  // 合计行
-  tbody.innerHTML += `
-    
-      <td ="10" style="font-weight:bold;">合计
-      <td ="10">-
-      <td ="10">-
-      <td ="10">-
-      <td ="10">-
-      <td ="10">-
-      <td ="10">-
-      <td ="10">-
-      <td ="10" style="color:#faad14; font-weight:bold; font-size:16px;">¥${totalAmount.toFixed(2)}
-      <td class="hidden-col">-
-    
-  `;
-  
-  table.appendChild(tbody);
-}
-
-// 导出BOM
-function exportBOM() {
-  if (currentMattress.layers.length === 0) {
-    showToast('没有数据可导出', 'error');
-    return;
-  }
-  
-  let csv = '\uFEFF';
-  csv += '物料编码,物料名称,规格/参数,单位,理论用量,损耗率,实际用量,单价,金额,备注,分类\n';
-  
+  currentMattress = JSON.parse(JSON.stringify(MATTRESS_STRUCTURES[t]));
   currentMattress.layers.forEach(layer => {
-    if (!layer.material) return;
-    const matInfo = materialDB.find(m => m.id === layer.material);
-    if (!matInfo) return;
-    
-    const usage = layer._usage || 0;
-    const actualUsage = layer._actualUsage || 0;
-    const price = layer._price || 0;
-    const amount = actualUsage * price;
-    const lossRate = ((actualUsage / usage - 1) * 100).toFixed(1) || '5.0';
-    
-    csv += `${matInfo.id},${matInfo.name},${matInfo.spec},${layer._unit || matInfo.unit},${usage.toFixed(3)},${lossRate}%,${actualUsage.toFixed(3)},${price.toFixed(2)},${amount.toFixed(2)},${layer._note || '-'},${matInfo.category}\n`;
+    layer._fabricSel = '';
+    layer._fabricCoef = 1;      // 系数（Excel黄色列）
+    layer._fabricWidth = 0;     // 门幅cm（0=从数据库读）
+    layer._fabricDrop = 15;     // 下垂量cm（面布默认15）
+    layer._fabricQty = 0;       // 最终计算米数（自动）
+    layer._fabricManual = false;
+    layer._fabricManualName = '';
+    layer._fabricManualPrice = 0;
+    layer._fabricSrc = 'fabric';
+    layer._materials = layer.materials.map(m => ({ label:m, sel:'', qty:1 }));
   });
-  
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-  const link = document.createElement('a');
-  link.href = URL.createObjectURL(blob);
-  link.download = `BOM_${currentMattress.name}_${new Date().toISOString().slice(0,10)}.csv`;
-  link.click();
-  URL.revokeObjectURL(link);
-  
-  showToast('导出成功');
-}
-
-// 清空所有
-function clearAll() {
-  if (!confirm('确定要清空所有数据吗？')) return;
-  currentMattress.layers = [];
-  currentLayerId = null;
+  autoMatchFee();
+  autoSelectInnerSleeve();
+  autoFillGlueAndPackaging();
   renderStructure();
   renderBOM();
-  showToast('已清空');
 }
 
-// Toast提示
-function showToast(message, type = 'success') {
-  const toast = document.getElementById('toast');
-  toast.textContent = message;
-  toast.className = `toast show ${type}`;
-  toast.style.display = 'block';
-  
-  setTimeout(() => {
-    toast.classList.remove('show');
-    setTimeout(() => { toast.style.display = 'none'; }, 300);
-  }, 3000);
+function onSizeChange() {
+  autoMatchFee();
+  autoSelectInnerSleeve();
+  if (currentMattress) { autoFillGlueAndPackaging(); renderBOM(); }
+  // 床垫尺寸改变时，如果弹簧计算器已打开则自动同步
+  if (document.getElementById('springModal').classList.contains('show')) {
+    syncFromMattressSize();
+  }
 }
 
-// 拖拽功能
-function initDrag() {
-  const items = document.querySelectorAll('.layer-item[draggable]');
-  let dragSrcEl = null;
-  
-  items.forEach(item => {
-    item.addEventListener('dragstart', (e) => {
-      dragSrcEl = item;
-      item.classList.add('dragging');
-      e.dataTransfer.effectAllowed = 'move';
-      e.dataTransfer.setData('text/html', item.innerHTML);
-    });
-    
-    item.addEventListener('dragend', () => {
-      item.classList.remove('dragging');
-      document.querySelectorAll('.drop-placeholder').forEach(el => el.remove());
-    });
-    
-    item.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      e.dataTransfer.dropEffect = 'move';
-      
-      const placeholder = document.querySelector('.drop-placeholder');
-      if (placeholder) placeholder.remove();
-      
-      const rect = item.getBoundingClientRect();
-      const mid = rect.top + rect.height / 2;
-      
-      if (e.clientY < mid) {
-        item.parentNode.insertBefore(createPlaceholder(), item);
-      } else {
-        item.parentNode.insertBefore(createPlaceholder(), item.nextSibling);
+/* 工费自动匹配 */
+function autoMatchFee() {
+  if (!currentMattressType) return;
+  const w = parseFloat(document.getElementById('mWidth').value) || 0;
+  const fee = getProcessingFee(currentMattressType, w);
+  if (fee !== null) {
+    document.getElementById('processingFee').value = fee;
+    document.getElementById('feeMatchTip').textContent = `✓ 已自动匹配 (宽${w}cm)`;
+  } else {
+    document.getElementById('feeMatchTip').textContent = '';
+  }
+  recalcFOB();
+}
+
+/* 内套自动提示 */
+function autoSelectInnerSleeve() {
+  const w = parseFloat(document.getElementById('mWidth').value) || 0;
+  const l = parseFloat(document.getElementById('mLength').value) || 0;
+  const tip = document.getElementById('innerSleeveTip');
+  if (!w) { tip.style.display='none'; return; }
+  let spec;
+  if (w < 130)       spec = '全涤汗布内套90cm门幅/90g (¥3.24/m)';
+  else if (w < 160)  spec = '全涤汗布内套115cm门幅/90g (¥4.14/m)';
+  else               spec = '全涤汗布内套150cm门幅/90g (¥5.4/m)';
+  const qty = l > 190 ? 2.7 : 2.6;
+  tip.style.display = 'inline-flex';
+  tip.textContent = `建议内套：${spec}，用量 ${qty}m`;
+}
+
+// 胶水+包材标签匹配表（结构层label → 默认值key）
+const MATERIAL_LABEL_MAP = {
+  'PUR胶':       'PUR胶',
+  '热熔胶-350A': '热熔胶-350A',
+  '热熔胶-5804': '热熔胶-5804',
+  '拉链':        '拉链',
+  '边带':        '边带',
+  '拉手':        '拉手',
+  '平卷纸箱':    '平卷纸箱',
+  '标签':        '标签',
+  '开包器':      '开包器',
+  '干燥剂':      '干燥剂',
+  '透明胶带':    '透明胶带',
+  '缝纫线-裥棉面线': '裥棉面线',
+  '缝纫线-裥棉底线': '裥棉底线',
+  '缝纫线-边布面线': '边布面线',
+  '缝纫线-缝纫底线': '缝纫底线',
+  '缝纫线-拷边线':   '拷边线',
+  '缝纫线-包边线':   '包边线',
+  '缝纫线-绣花线':   '绣花线',
+  'PE压缩膜':    'PE压缩膜',
+  '缠绕膜':      '缠绕膜'
+};
+
+function autoFillGlueAndPackaging() {
+  if (!currentMattress || !currentMattressType) return;
+  const w=document.getElementById('mWidth').value;
+  const l=document.getElementById('mLength').value;
+  const h=document.getElementById('mHeight').value;
+  const pkgD=calcPackagingDefaults(currentMattressType,w,l,h);
+  const glD=calcGlueDefaults(currentMattressType,w,l);
+  const all={...pkgD,...glD};
+  currentMattress.layers.forEach(layer=>{
+    layer._materials.forEach(m=>{
+      const def=all[m.label]||all[MATERIAL_LABEL_MAP[m.label]];
+      if(def&&!m._manualQty){
+        m.qty=def.qty; m._autoDefault=true; m._defaultNote=def.note||'';
+        if(!m._unitManual) m._unit=def.unit;
+        if(def.price) m._defaultPrice=def.price;
       }
     });
-    
-    item.addEventListener('drop', (e) => {
-      e.preventDefault();
-      if (dragSrcEl && dragSrcEl !== item) {
-        const srcIndex = Array.from(items).indexOf(dragSrcEl);
-        const targetIndex = Array.from(items).indexOf(item);
-        
-        if (srcIndex !== -1 && targetIndex !== -1) {
-          const [removed] = currentMattress.layers.splice(srcIndex, 1);
-          currentMattress.layers.splice(targetIndex, 0, removed);
-          renderStructure();
-          renderBOM();
+  });
+}
+
+/* ============================================================
+   渲染结构层
+   ============================================================ */
+function syncDOMToData() {
+  // renderStructure 前调用：把DOM里已填的搜索框值同步回数据对象，防止重渲染丢失
+  if (!currentMattress) return;
+  document.querySelectorAll('.search-input').forEach(inp => {
+    // 只同步有值且已选中的（即 _fabricSel / m.sel 已有值的不需要再处理）
+    // 主要保护：qty 输入框的值
+  });
+  // 同步所有 qty 输入框（structure-row 里的 number input）
+  document.querySelectorAll('.structure-row').forEach(row => {
+    const qtyInput = row.querySelector('input[type="number"]:not([disabled])');
+    const searchInput = row.querySelector('.search-input');
+    if (!qtyInput || !searchInput) return;
+    const li = parseInt(searchInput.dataset.li);
+    const mi = searchInput.dataset.mi;
+    const type = searchInput.dataset.type;
+    if (isNaN(li)) return;
+    if (type === 'fabric') {
+      currentMattress.layers[li]._fabricQty = parseFloat(qtyInput.value) || 1;
+    } else if (mi !== '' && mi !== undefined) {
+      const m = currentMattress.layers[li]._materials[parseInt(mi)];
+      if (m) m.qty = parseFloat(qtyInput.value) || 0;
+    }
+  });
+}
+
+function renderStructure() {
+  syncDOMToData(); // 先把DOM里的值存回数据，再重渲染
+  if (!currentMattress) return;
+  const c = document.getElementById('structureContainer');
+  let html = '';
+  currentMattress.layers.forEach((layer, li) => {
+    html += `<div class="structure-group">
+      <div class="structure-group-title">▣ ${layer.name}</div>`;
+
+    if (layer.fabric) {
+      const sel = layer._fabricSel;
+      const manualMode = layer._fabricManual || false;
+      const manualPrice = layer._fabricManualPrice || 0;
+      const selItem = DB.fabric.find(f => f.name === sel);
+      const displayVal = selItem ? `${selItem.name}${selItem.code?' ('+selItem.code+')':''} ¥${selItem.price}` : '';
+
+      if (manualMode) {
+        // 手动录入模式
+        html += `<div class="structure-row" style="grid-template-columns:100px 50px 1fr 70px 60px">
+          <span class="label-text">${escHtml(layer.fabric)}</span>
+          <span class="category-badge badge-fabric">面料</span>
+          <input type="text" placeholder="面料名称（自定义）"
+            value="${escHtml(layer._fabricManualName||'')}"
+            style="font-size:12px;border:1px solid #ffd591;background:#fffbe6"
+            oninput="onFabricManualName(${li},this.value)">
+          <input type="number" placeholder="单价¥" value="${manualPrice||''}"
+            style="font-size:12px;border:1px solid #ffd591;background:#fffbe6"
+            oninput="onFabricManualPrice(${li},this.value)">
+          <input type="number" placeholder="用量" value="${layer._fabricQty||1}"
+            style="font-size:12px;border:1px solid #ffd591;background:#fffbe6"
+            onchange="onFabricQtyChange(${li},this.value)"
+            title="面料用量（米）">
+          <button onclick="toggleFabricManual(${li},false)"
+            style="font-size:11px;padding:3px 6px;border:1px solid #d9d9d9;border-radius:3px;cursor:pointer;background:#fff;white-space:nowrap">
+            搜索
+          </button>
+        </div>`;
+      } else {
+        // 搜索模式：系数+门幅+自动算米数
+        const selF = DB.fabric.find(f=>f.name===sel)||DB.price.find(f=>f.name===sel);
+        const dbWidth = selF ? (selF.width || 0) : 0;
+        const dispWidth = layer._fabricWidth || dbWidth || 220;
+        const coef = layer._fabricCoef != null ? layer._fabricCoef : 1;
+        const drop = layer._fabricDrop != null ? layer._fabricDrop : 15;
+        const calcResult = calcFabricQtyM(dispWidth, coef, drop, 0.05);
+        const calcM = calcResult.final;
+        html += `<div style="margin-bottom:6px">
+          <div class="structure-row" style="grid-template-columns:90px 44px 1fr 48px 52px 52px">
+            <span class="label-text">${escHtml(layer.fabric)}</span>
+            <span class="category-badge badge-fabric">面料</span>
+            <div class="search-wrap" style="position:relative">
+              <input type="text" class="search-input"
+                placeholder="输入关键词筛选面料..."
+                value="${escHtml(displayVal)}"
+                data-type="fabric" data-li="${li}" data-mi=""
+                oninput="onSearchInput(this)"
+                onfocus="onSearchFocus(this)"
+                onblur="onSearchBlur(this)"
+                autocomplete="off">
+              <div class="search-dropdown" style="display:none"></div>
+            </div>
+            <input type="number" value="${coef}" min="0" step="0.5"
+              style="font-size:11px;border:1px solid #b7eb8f;border-radius:3px;padding:3px 5px;background:#f6ffed"
+              onchange="onFabricCoefChange(${li},this.value)"
+              title="系数（如1=1层, 1.5=1.5层, 0=不用）">
+            <input type="number" value="${dispWidth}" min="0" step="10"
+              style="font-size:11px;border:1px solid #ffd591;border-radius:3px;padding:3px 5px;background:#fffbe6"
+              onchange="onFabricWidthChange(${li},this.value)"
+              title="门幅（cm），自动从数据库读取，可手动覆盖">
+            <button onclick="toggleFabricManual(${li},true)"
+              style="font-size:11px;padding:3px 6px;border:1px solid #d9d9d9;border-radius:3px;cursor:pointer;background:#fff;white-space:nowrap">
+              手动
+            </button>
+          </div>
+          <div style="font-size:11px;color:#888;padding:3px 0 3px 140px;display:flex;gap:10px;flex-wrap:wrap">
+            <span>门幅 <strong style="color:#fa8c16">${dispWidth}cm</strong></span>
+            <span>系数 <strong style="color:#52c41a">${coef}</strong></span>
+            <span>→ 最终用量 <strong style="color:#1890ff" id="fabricM_${li}">${calcM.toFixed(3)}m</strong></span>
+            <span style="color:#bbb">（下垂${drop}cm，损耗5%）</span>
+          </div>
+        </div>`;
+      }
+    }
+
+    layer._materials.forEach((m, mi) => {
+      // === 拉链：下拉选型号，自动算用量 ===
+      if (m.label === '拉链' && !m._manual) {
+        const W2 = parseFloat(document.getElementById('mWidth').value)||180;
+        const L2 = parseFloat(document.getElementById('mLength').value)||200;
+        const zipQty = parseFloat(((W2+L2)/100*2+0.1).toFixed(2));
+        const ZIPPER_PRICES = {'3#尼龙正装拉链':0.5,'5#尼龙正装拉链':1,'5#尼龙反装拉链':1.1,'7#尼龙正装拉链':1.3};
+        const selZip  = m._zipperType || '5#尼龙正装拉链';
+        const zipP    = ZIPPER_PRICES[selZip] || 1;
+        const coefZ   = m._stdCoef != null ? m._stdCoef : 1;
+        const finalQZ = parseFloat((zipQty * coefZ).toFixed(2));
+        const untaxedZ = parseFloat((zipP * finalQZ / 1.13).toFixed(2));
+        const zipOpts  = Object.entries(ZIPPER_PRICES).map(([k,v])=>
+          `<option value="${k}" ${selZip===k?'selected':''}>${k} ¥${v}/m</option>`).join('');
+        html += `<div style="margin-bottom:4px">
+          <div style="display:grid;grid-template-columns:90px 44px 1fr 44px 30px;gap:5px;align-items:center">
+            <span class="label-text">拉链</span>
+            <span class="category-badge badge-material">辅料</span>
+            <select style="font-size:12px;border:1px solid #d9d9d9;border-radius:3px;padding:3px 6px;width:100%"
+              onchange="onZipperTypeChange(${li},${mi},this.value)">${zipOpts}</select>
+            <input type="number" value="${coefZ}" min="0" step="1"
+              style="font-size:12px;border:1px solid #b7eb8f;border-radius:3px;padding:3px 5px;background:#f6ffed;text-align:center"
+              onchange="onStdCoefChange(${li},${mi},this.value)" title="系数">
+            <span style="font-size:10px;color:#999">系数</span>
+          </div>
+          <div style="font-size:11px;color:#888;padding:2px 0 2px 140px">
+            用量 <strong style="color:#1890ff">${finalQZ}m</strong>
+            × ¥${zipP} ÷1.13 = <strong style="color:#52c41a">¥${untaxedZ}</strong>
+          </div>
+        </div>`;
+        return;
+      }
+
+      // === 标准辅料：只显示系数，自动带出用量和金额 ===
+      const STD_S = new Set([
+        'PUR胶','热熔胶-350A','热熔胶-5804','虎口胶水',
+        '边带','拉手','平卷纸箱','黄卡纸箱（平卷）',
+        'PE压缩膜','制袋PE压缩膜','缠绕膜','WM缠绕膜',
+        '标签','开包器',
+        '缝纫线-裥棉面线','缝纫线-裥棉底线','缝纫线-边布面线',
+        '缝纫线-缝纫底线','缝纫线-拷边线','缝纫线-包边线','缝纫线-绣花线',
+        '干燥剂','透明胶带','内套缝纫线'
+      ]);
+      if (STD_S.has(m.label) && !m._manual) {
+        const pkgDS = calcPackagingDefaults(currentMattressType||'',
+          document.getElementById('mWidth').value,
+          document.getElementById('mLength').value,
+          document.getElementById('mHeight').value);
+        const glDS  = calcGlueDefaults(currentMattressType||'',
+          document.getElementById('mWidth').value,
+          document.getElementById('mLength').value);
+        const defS  = pkgDS[m.label] || glDS[m.label];
+        const coefS = m._stdCoef != null ? m._stdCoef : 1;
+        const baseQ = defS ? defS.qty : 0;
+        const unitS = defS ? defS.unit : '件';
+        const priceS= defS ? defS.price : 0;
+        const noteS = defS ? (defS.note||'') : '';
+        const finalQS = parseFloat((baseQ * coefS).toFixed(4));
+        const untaxedS = coefS>0 ? parseFloat((priceS*finalQS/1.13).toFixed(2)) : 0;
+        html += `<div style="margin-bottom:3px">
+          <div style="display:grid;grid-template-columns:90px 44px 1fr 44px 30px;gap:5px;align-items:center">
+            <span class="label-text">${escHtml(m.label)}</span>
+            <span class="category-badge badge-material">辅料</span>
+            <span style="font-size:12px;color:#888">
+              ${noteS?`<span style="font-size:11px">${escHtml(noteS)} → </span>`:''}
+              <strong style="color:${coefS>0?'#1890ff':'#bbb'}">${finalQS} ${unitS}</strong>
+              ${coefS>0?`<span style="color:#52c41a;font-size:11px"> ¥${untaxedS}</span>`:''}
+            </span>
+            <input type="number" value="${coefS}" min="0" step="1"
+              style="font-size:12px;border:1px solid #b7eb8f;border-radius:3px;padding:3px 5px;background:#f6ffed;text-align:center"
+              onchange="onStdCoefChange(${li},${mi},this.value)" title="系数：1=计费，0=不计费">
+            <span style="font-size:10px;color:#999">系数</span>
+          </div>
+        </div>`;
+        return;
+      }
+
+      const selItem = DB.price.find(p => p.name === m.sel);
+      const displayVal = selItem ? `${selItem.name}${selItem.altName?' ('+selItem.altName+')':''} ¥${selItem.price}` : '';
+      // 判断是否需要自动计算（公斤类物料）
+      const calcType = !m._manualQty ? detectMaterialCalcType(m.sel, m.label) : null;
+      const dbUnit = selItem ? (selItem.unit||'件') : '件';
+      const curUnit = m._unit || dbUnit;
+      const unitOptions = ['件','米','公斤','克','g/m²','cm','mm','平方米','T02','双平方'].map(u=>
+        `<option value="${u}" ${curUnit===u?'selected':''}>${u}</option>`).join('');
+
+      // 计算参数 & 当前计算值
+      const cp = m._calcParams || {};
+      let autoKg = null, paramHtml = '';
+
+      if (calcType === 'foam') {
+        const thick   = cp.thick   != null ? cp.thick   : 0;
+        const density = cp.density != null ? cp.density : (parseFoamDensity(m.sel)||25);
+        const coef    = cp.coef    != null ? cp.coef    : 1;
+        autoKg = (thick > 0) ? calcKgQty('foam', {thick, density, coef, name:m.sel}) : null;
+        paramHtml = `
+          <div class="calc-param-row">
+            <label>厚度</label>
+            <input type="number" value="${thick}" min="0" step="0.5" placeholder="cm"
+              style="width:48px;padding:2px 4px;font-size:11px;border:1px solid #91d5ff;border-radius:3px"
+              onchange="onCalcParam(${li},${mi},'thick',this.value)" title="厚度（cm）">
+            <span style="color:#999">cm</span>
+            <label>密度</label>
+            <input type="number" value="${density}" min="0" step="1"
+              style="width:44px;padding:2px 4px;font-size:11px;border:1px solid #91d5ff;border-radius:3px"
+              onchange="onCalcParam(${li},${mi},'density',this.value)" title="密度kg/m³">
+            <span style="color:#999">kg/m³</span>
+            <label>系数</label>
+            <input type="number" value="${coef}" min="0" step="0.1"
+              style="width:40px;padding:2px 4px;font-size:11px;border:1px solid #b7eb8f;border-radius:3px;background:#f6ffed"
+              onchange="onCalcParam(${li},${mi},'coef',this.value)" title="系数（蛋形=0.8，常规=1）">
+            ${autoKg!=null?`<strong class="result">= ${autoKg.toFixed(3)} kg</strong>`:''}
+          </div>`;
+      } else if (calcType === 'felt' || calcType === 'nw') {
+        const gsm = cp.gsm != null ? cp.gsm : (calcType==='felt'?200:25);
+        autoKg = calcKgQty(calcType, {gsm});
+        paramHtml = `
+          <div class="calc-param-row">
+            <label>克重</label>
+            <input type="number" value="${gsm}" min="0" step="10"
+              style="width:54px;padding:2px 4px;font-size:11px;border:1px solid #91d5ff;border-radius:3px"
+              onchange="onCalcParam(${li},${mi},'gsm',this.value)" title="克重 g/m²">
+            <span style="color:#999">g/m²</span>
+            <strong class="result">= ${autoKg.toFixed(3)} kg</strong>
+          </div>`;
+      } else if (calcType === 'edge_long' || calcType === 'edge_wide') {
+        const edgeH   = cp.edgeH   != null ? cp.edgeH   : 10;
+        const density = cp.density != null ? cp.density : 35;
+        autoKg = calcKgQty(calcType, {edgeH, density});
+        paramHtml = `
+          <div class="calc-param-row">
+            <label>护边高</label>
+            <input type="number" value="${edgeH}" min="0" step="1"
+              style="width:44px;padding:2px 4px;font-size:11px;border:1px solid #91d5ff;border-radius:3px"
+              onchange="onCalcParam(${li},${mi},'edgeH',this.value)" title="护边高度cm">
+            <span style="color:#999">cm</span>
+            <label>密度</label>
+            <input type="number" value="${density}" min="0" step="1"
+              style="width:44px;padding:2px 4px;font-size:11px;border:1px solid #91d5ff;border-radius:3px"
+              onchange="onCalcParam(${li},${mi},'density',this.value)" title="密度kg/m³">
+            <span style="color:#999">kg/m³</span>
+            <strong class="result">= ${autoKg.toFixed(3)} kg</strong>
+          </div>`;
+      }
+
+      const showQtyVal = (autoKg != null && !m._manualQty) ? autoKg.toFixed(3) : m.qty;
+
+      html += `<div style="margin-bottom:4px">
+        <div class="structure-row">
+          <span class="label-text" title="${escHtml(m.label)}">${escHtml(m.label)}</span>
+          <span class="category-badge badge-material">物料</span>
+          <div class="search-wrap" style="position:relative">
+            <input type="text" class="search-input"
+              placeholder="输入关键词筛选物料..."
+              value="${escHtml(displayVal)}"
+              data-type="material" data-li="${li}" data-mi="${mi}"
+              oninput="onSearchInput(this)"
+              onfocus="onSearchFocus(this)"
+              onblur="onSearchBlur(this)"
+              autocomplete="off">
+            <div class="search-dropdown" style="display:none"></div>
+          </div>
+          <input type="number" value="${showQtyVal}" min="0" step="0.001"
+            class="${!m._manualQty && autoKg!=null ? 'qty-auto' : ''}"
+            onchange="onQtyInputWithConvert(${li},${mi},this.value)"
+            title="${autoKg!=null&&!m._manualQty?'自动计算（修改后转为手动）':'手动输入'}">
+          <select class="unit-select" onchange="onUnitChange(${li},${mi},this.value)">${unitOptions}</select>
+        </div>
+        ${paramHtml}
+      </div>`;
+    });
+
+    html += `<button class="add-btn" onclick="addMaterialRow(${li})">+ 添加物料行</button></div>`;
+  });
+  c.innerHTML = html;
+}
+
+function escHtml(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* ---- 搜索下拉逻辑 ---- */
+let _blurTimer = null;
+
+function onSearchFocus(inp) {
+  clearTimeout(_blurTimer);
+  filterAndShow(inp, inp.value);
+}
+
+function onSearchInput(inp) {
+  clearTimeout(_blurTimer);
+  filterAndShow(inp, inp.value);
+  // 清空已选值（用户正在重新输入）
+  const li = parseInt(inp.dataset.li);
+  const mi = inp.dataset.mi;
+  if (inp.dataset.type === 'fabric') {
+    currentMattress.layers[li]._fabricSel = '';
+  } else {
+    if (mi !== '') currentMattress.layers[li]._materials[parseInt(mi)].sel = '';
+  }
+  renderBOM();
+}
+
+function onSearchBlur(inp) {
+  _blurTimer = setTimeout(() => {
+    const drop = inp.nextElementSibling;
+    if (drop) drop.style.display = 'none';
+    // 如果没有选中值，清空输入框
+    const li = parseInt(inp.dataset.li);
+    const mi = inp.dataset.mi;
+    if (inp.dataset.type === 'fabric') {
+      if (!currentMattress.layers[li]._fabricSel) inp.value = '';
+    } else {
+      if (mi !== '' && !currentMattress.layers[li]._materials[parseInt(mi)].sel) inp.value = '';
+    }
+  }, 200);
+}
+
+function filterAndShow(inp, keyword) {
+  const drop = inp.nextElementSibling;
+  const type = inp.dataset.type;
+  const kw = keyword.trim().toLowerCase();
+
+  // 面料库和物料库合并搜索，统一显示
+  // 面料库条目加上来源标记 _src:'fabric'，物料库加 _src:'price'
+  const combined = [
+    ...DB.fabric.map(f => ({...f, _src:'fabric'})),
+    ...DB.price.map(p => ({...p, _src:'price'}))
+  ];
+
+  let matched = kw
+    ? combined.filter(item => {
+        const haystack = (
+          (item.name||'') + (item.altName||'') + (item.code||'') +
+          (item.keywords||'') + (item.remark||'') + (item.supplier||'')
+        ).toLowerCase();
+        return haystack.includes(kw);
+      })
+    : combined;
+
+  // 最多显示60条
+  matched = matched.slice(0, 60);
+
+  if (matched.length === 0) {
+    drop.innerHTML = `<div class="sdrop-empty">没有匹配结果</div>`;
+  } else {
+    drop.innerHTML = matched.map(item => {
+      const srcBadge = item._src === 'fabric'
+        ? `<span style="font-size:10px;background:#ffe9f0;color:#eb2f96;padding:1px 4px;border-radius:3px;margin-left:4px">面料</span>`
+        : `<span style="font-size:10px;background:#e6f7ff;color:#1890ff;padding:1px 4px;border-radius:3px;margin-left:4px">物料</span>`;
+      const sub = item.code || item.altName || '';
+      const priceStr = item.price ? `¥${item.price}${item.unit?'/'+item.unit:''}` : '';
+      const label = `<span class="sdrop-name">${escHtml(item.name)}${srcBadge}</span>${sub?`<span class="sdrop-sub">${escHtml(sub)}</span>`:''}<span class="sdrop-price">${priceStr}</span>`;
+      // 传入来源，让 onSearchSelect 知道去哪张表找
+      return `<div class="sdrop-item" onmousedown="onSearchSelect(event,'${escHtml(type)}',${inp.dataset.li},'${inp.dataset.mi}','${escHtml(item.name)}','${item._src}')">${label}</div>`;
+    }).join('');
+  }
+
+  drop.style.display = 'block';
+}
+
+function onSearchSelect(e, type, li, mi, name, src) {
+  e.preventDefault();
+  clearTimeout(_blurTimer);
+  li = parseInt(li);
+
+  // 优先从来源表找，找不到则两张表都找
+  src = src || 'price';
+  const srcList = src === 'fabric' ? DB.fabric : DB.price;
+  const fallback = src === 'fabric' ? DB.price : DB.fabric;
+  const item = srcList.find(x => x.name === name) || fallback.find(x => x.name === name);
+  if (!item) return;
+
+  // 把实际来源存到条目上，renderBOM时用于计算
+  item._src = item._src || src;
+
+  // 更新数据：不管是面料行还是物料行，都统一存 sel/name + 来源
+  if (type === 'fabric') {
+    currentMattress.layers[li]._fabricSel = name;
+    currentMattress.layers[li]._fabricSrc = src;  // 记录来自哪张表
+  } else {
+    currentMattress.layers[li]._materials[parseInt(mi)].sel = name;
+    currentMattress.layers[li]._materials[parseInt(mi)]._src = src;
+  }
+
+  // 更新输入框显示文字
+  const sub = item.code || item.altName || '';
+  const displayVal = `${item.name}${sub?' ('+sub+')':''} ¥${item.price}${item.unit?'/'+item.unit:''}`;
+
+  const rows = document.querySelectorAll('.search-input');
+  rows.forEach(inp => {
+    if (parseInt(inp.dataset.li) === li && inp.dataset.type === type &&
+        (type === 'fabric' || inp.dataset.mi === String(mi))) {
+      inp.value = displayVal;
+      inp.nextElementSibling.style.display = 'none';
+    }
+  });
+
+  // 选中物料后，自动同步单位；选中面料时自动同步门幅
+  if (type === 'material') {
+    const m = currentMattress.layers[li]._materials[parseInt(mi)];
+    if (m && !m._unitManual) { m._unit = item.unit || '件'; }
+    // 自动填入密度（从物料编码识别）
+    // 选中物料后自动解析参数
+if (m && !m._calcParams) m._calcParams = {};
+if (m) {
+  const ct2 = detectMaterialCalcType(item.name, m.label);
+  if (ct2 === 'foam') {
+    if (!m._calcParams.density) m._calcParams.density = parseFoamDensity(item.name) || 25;
+    if (!m._calcParams.thick)   m._calcParams.thick   = parseThickness(item.name) || 0;
+    if (!m._calcParams.coef)    m._calcParams.coef    = 1;
+  } else if (ct2 === 'felt' || ct2 === 'nw') {
+    // 棉毡/无纺布克重从名称解析：180克 → 180, 25g → 25
+    if (!m._calcParams.gsm) {
+      const gm = item.name.match(/(\d+)(?:克|g|G)/);
+      if (gm) m._calcParams.gsm = parseFloat(gm[1]);
+    }
+  }
+  // 门幅同步到面料行
+  const fw = parseFabricWidth(item.name);
+  if (fw && !m._fabricWidth) m._fabricWidth = fw;
+}
+function onFabricSelect(li,val){ currentMattress.layers[li]._fabricSel=val; renderBOM(); }
+
+function toggleFabricManual(li, manual) {
+  currentMattress.layers[li]._fabricManual = manual;
+  if (!manual) {
+    // 切回搜索模式，清空手动数据
+    currentMattress.layers[li]._fabricManualName = '';
+    currentMattress.layers[li]._fabricManualPrice = 0;
+  } else {
+    // 切到手动模式，清空搜索选中
+    currentMattress.layers[li]._fabricSel = '';
+  }
+  renderStructure();
+  renderBOM();
+}
+
+function onFabricManualName(li, val) {
+  currentMattress.layers[li]._fabricManualName = val;
+  renderBOM();
+}
+
+function onFabricQtyChange(li, val) {
+  currentMattress.layers[li]._fabricQty = parseFloat(val) || 1;
+  renderBOM();
+}
+
+function onFabricCoefChange(li, val) {
+  const coef = parseFloat(val);
+  currentMattress.layers[li]._fabricCoef = isNaN(coef) ? 1 : coef;
+  // 同步更新用量
+  syncFabricQty(li);
+  renderStructure();
+  renderBOM();
+}
+
+function onFabricWidthChange(li, val) {
+  const w = parseFloat(val) || 220;
+  currentMattress.layers[li]._fabricWidth = w;
+  currentMattress.layers[li]._fabricWidthManual = true;
+  syncLayerMaterialWidth(li, w);
+  syncFabricQty(li);
+  renderStructure();
+  renderBOM();
+}
+
+function syncFabricQty(li) {
+  const layer = currentMattress.layers[li];
+  const selF = DB.fabric.find(f=>f.name===layer._fabricSel)||DB.price.find(f=>f.name===layer._fabricSel);
+  const dbWidth = selF ? (selF.width || 0) : 0;
+  const w = layer._fabricWidth || dbWidth || 220;
+  const c = layer._fabricCoef != null ? layer._fabricCoef : 1;
+  const d = layer._fabricDrop != null ? layer._fabricDrop : 15;
+  layer._fabricQty = calcFabricQtyM(w, c, d, 0.05).final;
+}
+
+// 当面料门幅变化时，同层的无胶棉/卷棉门幅同步（它们通常门幅相同）
+function syncLayerMaterialWidth(li, widthCm) {
+  const layer = currentMattress.layers[li];
+  layer._materials.forEach(m => {
+    // 只同步「面料类」物料：无胶棉、卷棉、无纺布
+    const label = m.label || '';
+    const isFabricType = label.includes('无胶棉') || label.includes('卷棉') ||
+                         label.includes('无纺布') || label.includes('面料');
+    if (isFabricType && !m._widthManual) {
+      m._fabricWidth = widthCm;
+      // 重算用量
+      if (m.qty > 0 || m._coef != null) {
+        const coef = m._coef != null ? m._coef : m.qty;
+        m._computedQty = calcFabricQtyM(widthCm, coef, 0, 0.05).final;
+      }
+    }
+  });
+}
+
+function onFabricManualPrice(li, val) {
+  currentMattress.layers[li]._fabricManualPrice = parseFloat(val) || 0;
+  renderBOM();
+}
+function onMaterialSelect(li,mi,val){ currentMattress.layers[li]._materials[mi].sel=val; renderBOM(); }
+function onQtyChange(li,mi,v){ 
+  const m = currentMattress.layers[li]._materials[parseInt(mi)];
+  m.qty = parseFloat(v)||0; 
+  m._auto = false; 
+  m._manualQty = true;
+  renderBOM(); 
+}
+
+function onUnitChange(li, mi, val) {
+  const m = currentMattress.layers[li]._materials[parseInt(mi)];
+  m._unit = val;
+  m._unitManual = true;
+  renderBOM();
+}
+
+
+/* 面料/无胶棉/卷棉 用量计算（对齐Excel）
+   widthCm:  面料门幅（cm），如220
+   coef:     系数（层数/厚度），如1, 1.5, 0
+   dropCm:   下垂量（cm），面布默认15cm，边布默认=边布高度
+   loss:     损耗率，默认0.05
+   返回：最终用量（米）和标准用量（米）
+*/
+function calcFabricQtyM(widthCm, coef, dropCm, loss) {
+  const mW = parseFloat(document.getElementById('mWidth').value)  || 180;
+  const mL = parseFloat(document.getElementById('mLength').value) || 200;
+  const w   = parseFloat(widthCm) || 220;
+  const c   = parseFloat(coef)    || 0;
+  const d   = parseFloat(dropCm)  || 0;
+  const l   = parseFloat(loss)    != null ? parseFloat(loss) : 0.05;
+  if (c === 0) return { std: 0, final: 0 };
+  // 标准用量（米）= (床垫宽 + 2*下垂量) / 门幅 × (床垫长 + 2*下垂量) / 100
+  // 简化版（与Excel对齐）：(mL + 2*dropCm) / 100 * (mW + 2*dropCm) / w
+  // 实际Excel用的是：标准用量 = (mL+2*d)/100  ← 单位是"米"（以门幅宽度为1米幅宽）
+  // 即：用量(米) = 裁片长(m) = (mL+2*d)/100  当门幅能覆盖床垫宽时
+  // 当需要多幅时：幅数 = ceil((mW+2*d) / w)
+  const strips = Math.ceil((mW + 2*d) / w);  // 需要几幅
+  const std = (mL + 2*d) / 100 * strips;      // 标准用量（米）
+  const final = std * (1 + l) * c;
+  return { std: parseFloat(std.toFixed(4)), final: parseFloat(final.toFixed(4)) };
+}
+
+/* ============================================================
+   公斤类物料用量自动计算（对齐Excel）
+   ============================================================ */
+
+// 判断物料类型（用于自动选择计算模式）
+function detectMaterialCalcType(name, label) {
+  if (!name && !label) return null;
+  const n = (name||'').toLowerCase();
+  const lb = (label||'').toLowerCase();
+  const all = n + ' ' + lb;
+
+  // 海绵/片绵（按体积）
+  if (/^[pmaqldzw]\d/.test(name) || all.includes('海绵') || all.includes('记忆棉') ||
+      all.includes('乳胶') || all.includes('片绵') || all.includes('底绵') ||
+      all.includes('舒适层') || all.includes('填充')) return 'foam';
+
+  // 棉毡（按面积×克重）
+  if (all.includes('棉毡') || all.includes('绵毡')) return 'felt';
+
+  // 无纺布（按面积×克重）
+  if (all.includes('无纺布') && !all.includes('袋')) return 'nw';
+
+  // 长护边（按长度×高度×密度）
+  if (all.includes('长护边') || (all.includes('护边') && all.includes('长'))) return 'edge_long';
+
+  // 宽护边
+  if (all.includes('宽护边') || (all.includes('护边') && all.includes('宽'))) return 'edge_wide';
+
+  return null;
+}
+
+// 自动计算公斤用量
+function calcKgQty(calcType, params) {
+  const W = parseFloat(document.getElementById('mWidth').value)  || 180;
+  const L = parseFloat(document.getElementById('mLength').value) || 200;
+  const H = parseFloat(document.getElementById('mHeight').value) || 25;
+  const loss = params.loss != null ? params.loss : 0;
+
+  let qty = 0;
+  switch (calcType) {
+    case 'foam': {
+      // kg = 长×宽×厚度cm / 1,000,000 × 密度kg/m³ × 系数
+      const thick    = parseFloat(params.thick)   || 0;
+      const density  = parseFloat(params.density) || parseFoamDensity(params.name) || 25;
+      const coef     = parseFloat(params.coef)    || 1;
+      qty = (L/100) * (W/100) * (thick/100) * density * coef;
+      break;
+    }
+    case 'felt': {
+      // kg = 长×宽 / 1,000,000 × 克重gsm
+      const gsm = parseFloat(params.gsm) || 200;
+      qty = (L * W / 1000000) * gsm / 1000;
+      break;
+    }
+    case 'nw': {
+      // kg = 长×宽 / 1,000,000 × 克重gsm
+      const gsm = parseFloat(params.gsm) || 25;
+      qty = (L * W / 1000000) * gsm / 1000;
+      break;
+    }
+    case 'edge_long': {
+      // kg = 长/100 × 护边高/100 × 密度 × 2（两条长边）
+      const edgeH   = parseFloat(params.edgeH)   || 10;
+      const density = parseFloat(params.density) || 35;
+      qty = (L/100) * (edgeH/100) * density * 2;
+      break;
+    }
+    case 'edge_wide': {
+      // kg = 宽/100 × 护边高/100 × 密度 × 2（两条短边）
+      const edgeH   = parseFloat(params.edgeH)   || 10;
+      const density = parseFloat(params.density) || 35;
+      qty = (W/100) * (edgeH/100) * density * 2;
+      break;
+    }
+  }
+  return qty * (1 + loss);
+}// 从物料名称解析厚度（cm）：1cm P2270W → 1, 0.5cm → 0.5
+function parseThickness(name) {
+  if (!name) return null;
+  const m = name.match(/^(\d+\.?\d*)cm/i);
+  if (m) return parseFloat(m[1]);
+  return null;
+}
+
+// 从物料名称解析门幅（cm）：220门幅 → 220, 140门幅 → 140
+function parseFabricWidth(name) {
+  if (!name) return null;
+  const m = name.match(/(\d+)[（(]?门幅/);
+  if (m) return parseFloat(m[1]);
+  // 也尝试匹配括号内：（220cm）
+  const m2 = name.match(/[（(](\d+)(?:cm|CM)?[）)]/);
+  if (m2) return parseFloat(m2[1]);
+  return null;
+}
+/* 从物料编码/名称解析密度（kg/m³）
+   编码规律：P2270W → 密度22, P25120W → 密度25, M4055B → 密度40, A3050B → 密度30
+   取编码开头字母后的数字前2-3位 */
+function parseFoamDensity(name) {
+  if (!name) return null;
+  // 匹配 P22, P25, M40, A30, L45 等前缀数字
+  const m = name.match(/^[PMAQLDZW](\d{2,3})\d/);
+  if (m) return parseInt(m[1]);
+  // 匹配 "25#", "40D", "30kg" 等
+  const m2 = name.match(/(\d{2,3})[#Dkg]/);
+  if (m2) return parseInt(m2[1]);
+  return null;
+}
+
+/* 厚度(cm) → 公斤，需要知道床垫长宽和海绵密度 */
+function calcFoamKg(thicknessCm, densityKgM3) {
+  const w = parseFloat(document.getElementById('mWidth').value)||180;
+  const l = parseFloat(document.getElementById('mLength').value)||200;
+  if (!thicknessCm || !densityKgM3) return null;
+  return (w/100) * (l/100) * (thicknessCm/100) * densityKgM3;
+}
+
+/* 用量输入：如果单位是cm且物料是海绵，旁边显示换算后的公斤 */
+function onQtyInputWithConvert(li, mi, val) {
+  const m = currentMattress.layers[li]._materials[parseInt(mi)];
+  m.qty = parseFloat(val)||0;
+  m._auto = false;
+  m._manualQty = true;
+
+  // 如果单位是cm，尝试换算成kg存入 _kgQty
+  if (m._unit === 'cm' && m.sel) {
+    const density = parseFoamDensity(m.sel);
+    if (density) {
+      m._kgQty = calcFoamKg(m.qty, density);
+    }
+  } else {
+    m._kgQty = null;
+  }
+  renderBOM();
+  // 更新换算提示（不触发完整重渲染，直接更新对应提示span）
+  const tipId = `kgtip_${li}_${mi}`;
+  const tip = document.getElementById(tipId);
+  if (tip && m._kgQty) tip.textContent = `≈ ${m._kgQty.toFixed(3)} kg`;
+  else if (tip) tip.textContent = '';
+}
+function addMaterialRow(li){ currentMattress.layers[li]._materials.push({label:'自定义', sel:'', qty:1}); renderStructure(); }
+
+function onZipperTypeChange(li, mi, val) {
+  currentMattress.layers[li]._materials[parseInt(mi)]._zipperType = val;
+  renderStructure(); renderBOM();
+}
+function onStdCoefChange(li, mi, val) {
+  currentMattress.layers[li]._materials[parseInt(mi)]._stdCoef = parseFloat(val)>=0?parseFloat(val):1;
+  renderStructure(); renderBOM();
+}
+
+// 计算参数修改（厚度/密度/克重/护边高/系数）
+function onCalcParam(li, mi, key, val) {
+  const m = currentMattress.layers[li]._materials[parseInt(mi)];
+  if (!m._calcParams) m._calcParams = {};
+  m._calcParams[key] = parseFloat(val) || 0;
+  m._manualQty = false; // 参数修改后恢复自动计算
+  renderStructure();
+  renderBOM();
+}
+
+/* ============================================================
+   渲染BOM（去税金额 = 含税单价 ÷ 1.13）
+   ============================================================ */
+function renderBOM() {
+  if (!currentMattress) { updateTotals(); return; }
+  const tb = document.getElementById('bomBody');
+  let html = '';
+  bomData = [];
+
+  currentMattress.layers.forEach(layer => {
+    html += `<tr class="group-row"><td colspan="6">▣ ${escHtml(layer.name)}</td></tr>`;
+
+    if (layer.fabric) {
+      if (layer._fabricManual) {
+        // 手动录入模式
+        const mName  = layer._fabricManualName || '';
+        const mPrice = layer._fabricManualPrice || 0;
+        const mCoef  = layer._fabricCoef  != null ? layer._fabricCoef  : 1;
+        const mWidth = layer._fabricWidth || 220;
+        const mDrop  = layer._fabricDrop  || 15;
+        const mQty   = mCoef===0 ? 0 : calcFabricQtyM(mWidth, mCoef, mDrop, 0.05).final;
+        if (mName && mPrice > 0) {
+          const untaxed = mPrice * mQty / 1.13;
+          bomData.push({layer:layer.name, label:layer.fabric, name:mName, qty:mQty, unit:'m', price:mPrice, untaxedAmt:untaxed});
+          html += `<tr>
+            <td>${escHtml(layer.fabric)}<span class="category-badge badge-fabric" style="margin-left:4px">面料</span><span style="font-size:10px;color:#fa8c16;margin-left:4px">手动</span></td>
+            <td>${escHtml(mName)}</td><td>${mQty.toFixed(3)}m</td><td>m</td>
+            <td>¥${mPrice.toFixed(2)}</td><td style="color:#389e0d"><strong>¥${untaxed.toFixed(2)}</strong></td>
+          </tr>`;
+        } else {
+          html += `<tr class="unmatched">
+            <td>${escHtml(layer.fabric)}<span class="category-badge badge-fabric" style="margin-left:4px">面料</span></td>
+            <td colspan="5" style="color:#fa8c16">（请填写面料名称和单价）</td></tr>`;
+        }
+      } else {
+        // 搜索选择模式
+        const f = DB.fabric.find(x => x.name === layer._fabricSel)
+               || DB.price.find(x => x.name === layer._fabricSel);
+        if (f) {
+          // 用计算出的用量（系数×门幅×尺寸），如果还没算过则现算
+          const dbW = f.width || 220;
+          const w   = layer._fabricWidth || dbW;
+          const coef = layer._fabricCoef != null ? layer._fabricCoef : 1;
+          const drop = layer._fabricDrop  != null ? layer._fabricDrop : 15;
+          const qty  = coef === 0 ? 0 : calcFabricQtyM(w, coef, drop, 0.05).final;
+          const untaxed = f.price * qty / 1.13;
+          bomData.push({layer:layer.name, label:layer.fabric, name:f.name, qty, unit:'m', price:f.price, untaxedAmt:untaxed});
+          const coefTip = coef===0?'(系数0, 不计费)': '';
+          html += `<tr>
+            <td>${escHtml(layer.fabric)}<span class="category-badge badge-fabric" style="margin-left:4px">面料</span></td>
+            <td>${escHtml(f.name)}</td>
+            <td title="系数${coef}×门幅${w}cm">${qty.toFixed(3)}m ${coefTip}</td><td>m</td>
+            <td>¥${f.price.toFixed(2)}</td><td style="color:#389e0d"><strong>¥${untaxed.toFixed(2)}</strong></td>
+          </tr>`;
+        } else {
+          html += `<tr class="unmatched">
+            <td>${escHtml(layer.fabric)}<span class="category-badge badge-fabric" style="margin-left:4px">面料</span></td>
+            <td colspan="5" style="color:#fa8c16">（未选择，可点「手动」直接填写）</td></tr>`;
         }
       }
-      document.querySelectorAll('.drop-placeholder').forEach(el => el.remove());
+    }
+
+    layer._materials.forEach(m => {
+      // === 拉链 BOM ===
+      if (m.label === '拉链' && !m._manual) {
+        const W3=parseFloat(document.getElementById('mWidth').value)||180;
+        const L3=parseFloat(document.getElementById('mLength').value)||200;
+        const zipQty3 = parseFloat(((W3+L3)/100*2+0.1).toFixed(2));
+        const ZIPPER_P={'3#尼龙正装拉链':0.5,'5#尼龙正装拉链':1,'5#尼龙反装拉链':1.1,'7#尼龙正装拉链':1.3};
+        const zipType3 = m._zipperType||'5#尼龙正装拉链';
+        const zipP3    = ZIPPER_P[zipType3]||1;
+        const coef3    = m._stdCoef!=null?m._stdCoef:1;
+        if (coef3>0) {
+          const qty3 = parseFloat((zipQty3*coef3).toFixed(2));
+          const untaxed3 = zipP3*qty3/1.13;
+          bomData.push({layer:layer.name,label:'拉链',name:zipType3,qty:qty3,unit:'米',price:zipP3,untaxedAmt:untaxed3});
+          html += `<tr>
+            <td>拉链<span class="category-badge badge-material" style="margin-left:4px">辅料</span></td>
+            <td>${zipType3}</td><td>${qty3}</td><td>米</td>
+            <td>¥${zipP3}</td><td style="color:#389e0d"><strong>¥${untaxed3.toFixed(2)}</strong></td>
+          </tr>`;
+        }
+        return;
+      }
+
+      // === 标准辅料 BOM ===
+      const STD_SET=new Set([
+        'PUR胶','热熔胶-350A','热熔胶-5804','虎口胶水',
+        '边带','拉手','平卷纸箱','黄卡纸箱（平卷）',
+        'PE压缩膜','制袋PE压缩膜','缠绕膜','WM缠绕膜',
+        '标签','开包器',
+        '缝纫线-裥棉面线','缝纫线-裥棉底线','缝纫线-边布面线',
+        '缝纫线-缝纫底线','缝纫线-拷边线','缝纫线-包边线','缝纫线-绣花线',
+        '干燥剂','透明胶带','内套缝纫线'
+      ]);
+      if (STD_SET.has(m.label) && !m._manual) {
+        const pkgD4=calcPackagingDefaults(currentMattressType||'',
+          document.getElementById('mWidth').value,
+          document.getElementById('mLength').value,
+          document.getElementById('mHeight').value);
+        const glD4=calcGlueDefaults(currentMattressType||'',
+          document.getElementById('mWidth').value,
+          document.getElementById('mLength').value);
+        const def4=pkgD4[m.label]||glD4[m.label];
+        if (def4) {
+          const coef4=m._stdCoef!=null?m._stdCoef:1;
+          const qty4=parseFloat((def4.qty*coef4).toFixed(4));
+          if (coef4>0&&qty4>0) {
+            const untaxed4=def4.price*qty4/1.13;
+            bomData.push({layer:layer.name,label:m.label,name:m.label,qty:qty4,unit:def4.unit,price:def4.price,untaxedAmt:untaxed4});
+            html+=`<tr>
+              <td>${escHtml(m.label)}<span class="category-badge badge-material" style="margin-left:4px">辅料</span></td>
+              <td><span style="color:#888;font-size:11px">${def4.note||'标准'}</span></td>
+              <td>${qty4}</td><td>${def4.unit}</td>
+              <td>¥${def4.price}</td>
+              <td style="color:#389e0d"><strong>¥${untaxed4.toFixed(2)}</strong></td>
+            </tr>`;
+          }
+        }
+        return;
+      }
+
+      // 优先从记录的来源表找，找不到则两张表都搜
+      const fromFabric = m._src === 'fabric';
+      const p = fromFabric
+        ? (DB.fabric.find(x => x.name === m.sel) || DB.price.find(x => x.name === m.sel))
+        : (DB.price.find(x => x.name === m.sel) || DB.fabric.find(x => x.name === m.sel));
+      if (p) {
+        const isFabricSrc = !!DB.fabric.find(x => x.name === m.sel) && !DB.price.find(x => x.name === m.sel);
+        const srcBadge = isFabricSrc
+          ? '<span class="category-badge badge-fabric" style="margin-left:4px">面料</span>'
+          : '<span class="category-badge badge-material" style="margin-left:4px">物料</span>';
+        const dispUnit = m._unit || p.unit || '件';
+
+        // 优先用自动计算结果
+        const ct = !m._manualQty ? detectMaterialCalcType(m.sel, m.label) : null;
+        const cp2 = m._calcParams || {};
+        let finalQty = m.qty;
+        let finalUnit = dispUnit;
+        let autoLabel = '';
+
+        if (ct === 'foam') {
+          const thick   = cp2.thick   != null ? cp2.thick   : 0;
+          const density = cp2.density != null ? cp2.density : (parseFoamDensity(m.sel)||25);
+          const coef    = cp2.coef    != null ? cp2.coef    : 1;
+          if (thick > 0) {
+            finalQty  = calcKgQty('foam', {thick, density, coef, name:m.sel});
+            finalUnit = '公斤';
+            autoLabel = `${thick}cm`;
+          }
+        } else if (ct === 'felt' || ct === 'nw') {
+          const gsm = cp2.gsm != null ? cp2.gsm : (ct==='felt'?200:25);
+          finalQty  = calcKgQty(ct, {gsm});
+          finalUnit = '公斤';
+          autoLabel = `${gsm}g/m²`;
+        } else if (ct === 'edge_long' || ct === 'edge_wide') {
+          const edgeH   = cp2.edgeH   != null ? cp2.edgeH   : 10;
+          const density = cp2.density != null ? cp2.density : 35;
+          finalQty  = calcKgQty(ct, {edgeH, density});
+          finalUnit = '公斤';
+          autoLabel = `${edgeH}cm护边`;
+        }
+
+        const untaxedFinal = p.price * finalQty / 1.13;
+        bomData.push({layer:layer.name, label:m.label, name:p.name, qty:finalQty, unit:finalUnit, price:p.price, untaxedAmt:untaxedFinal});
+        const showQty = autoLabel ? `${finalQty.toFixed(3)}` : finalQty;
+        html += `<tr>
+          <td>${escHtml(m.label)}${srcBadge}${autoLabel?`<span style="font-size:10px;color:#1890ff;margin-left:3px">${autoLabel}</span>`:''}</td>
+          <td>${escHtml(p.name)}</td><td>${showQty}</td><td>${finalUnit}</td>
+          <td>¥${p.price.toFixed(2)}</td><td style="color:#389e0d"><strong>¥${untaxedFinal.toFixed(2)}</strong></td>
+        </tr>`;
+      } else {
+        html += `<tr class="unmatched">
+          <td>${escHtml(m.label)}<span class="category-badge badge-material" style="margin-left:4px">物料</span></td>
+          <td colspan="5" style="color:#fa8c16">（未填写）</td></tr>`;
+      }
     });
   });
+
+  tb.innerHTML = html;
+  updateTotals();
 }
 
-function createPlaceholder() {
-  const div = document.createElement('div');
-  div.className = 'drop-placeholder';
-  return div;
+/* ============================================================
+   汇总 & FOB（对齐Excel公式）
+   ============================================================ */
+function updateTotals() {
+  const matUntaxed = bomData.reduce((s,r) => s + r.untaxedAmt, 0);
+  const fee = parseFloat(document.getElementById('processingFee').value) || 0;
+  const total = matUntaxed + springCost + fee;
+
+  document.getElementById('totalMaterial').textContent = '¥' + matUntaxed.toFixed(2);
+  document.getElementById('totalSpring').textContent   = '¥' + springCost.toFixed(2);
+  document.getElementById('totalFee').textContent      = '¥' + fee.toFixed(2);
+  document.getElementById('grandTotal').textContent    = '¥' + total.toFixed(2);
+  document.getElementById('springCostDisplay').innerHTML =
+    `床芯成本（去税）：<strong style="color:#f5222d">¥${springCost.toFixed(2)}</strong><span style="float:right;font-size:11px;color:#999">通过【床芯计算器】计算后点击"应用"</span>`;
+
+  recalcFOB();
 }
 
-// 同步飞书（模拟）
-function syncFeishu() {
-  showToast('正在同步飞书数据...', 'success');
-  setTimeout(() => {
-    showToast('飞书同步完成', 'success');
-  }, 2000);
+function recalcFOB() {
+  const matUntaxed = bomData.reduce((s,r) => s + r.untaxedAmt, 0);
+  const fee    = parseFloat(document.getElementById('processingFee').value) || 0;
+  const rate   = parseFloat(document.getElementById('fobRate').value) || 7.2;
+  const pCoef  = parseFloat(document.getElementById('profitCoef').value) || 0.795;
+
+  // Excel公式：FOB = (未税材料 + 床芯 + 加工费) ÷ 汇率 ÷ 利润系数
+  const totalCNY = matUntaxed + springCost + fee;
+  const fobUSD   = rate > 0 && pCoef > 0 ? totalCNY / rate / pCoef : 0;
+
+  document.getElementById('fb1').textContent = '¥' + matUntaxed.toFixed(2);
+  document.getElementById('fb2').textContent = '¥' + springCost.toFixed(2);
+  document.getElementById('fb3').textContent = '¥' + fee.toFixed(2);
+  document.getElementById('fb4').textContent = '¥' + totalCNY.toFixed(2);
+  document.getElementById('fobFinal').textContent = '$' + fobUSD.toFixed(2);
 }
 
-// 本地存储
-function saveData() {
-  localStorage.setItem('mattressBOM_v3', JSON.stringify(currentMattress));
+/* ============================================================
+   数据库管理弹窗
+   ============================================================ */
+function openDBManager()  { document.getElementById('dbModal').classList.add('show'); refreshAllUI(); }
+function closeDBManager() { document.getElementById('dbModal').classList.remove('show'); }
+
+function switchTab(e,id) {
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+  e.currentTarget.classList.add('active');
+  document.getElementById(id).classList.add('active');
 }
 
-function loadData() {
-  const saved = localStorage.getItem('mattressBOM_v3');
-  if (saved) {
+function refreshAllUI() {
+  refreshFabricUI();
+  refreshPriceUI();
+  refreshCottonUI();
+  refreshSpringUI();
+  refreshFeeUI();
+  refreshStructureView();
+}
+
+function refreshFabricUI() {
+  document.getElementById('fabricCount').textContent = DB.fabric.length;
+  document.getElementById('fabricUpdate').textContent = DB.fabricUpdate || '--';
+  const tb = document.getElementById('fabricBody');
+  tb.innerHTML = DB.fabric.length === 0
+    ? '<tr><td colspan="4" style="text-align:center;color:#bbb;padding:20px">无数据，请先同步飞书</td></tr>'
+    : DB.fabric.map(f=>`<tr>
+        <td>${f.name}</td>
+        <td>${f.code||''}</td>
+        <td>${f.gsm?f.gsm+'g':''}${f.width?' '+f.width+'cm':''}</td>
+        <td>¥${(f.price||0).toFixed(2)}</td>
+        <td>${f.supplier||''}</td>
+        <td>${f.status||''}</td>
+      </tr>`).join('');
+  // 更新表头
+  document.querySelector('#tab-fabric .db-table thead tr').innerHTML =
+    '<th>型号</th><th>货号</th><th>克重/门幅</th><th>价格</th><th>供应商</th><th>状态</th>';
+}
+
+function refreshPriceUI() {
+  document.getElementById('priceCount').textContent = DB.price.length;
+  document.getElementById('priceUpdate').textContent = DB.priceUpdate || '--';
+  const tb = document.getElementById('priceBody');
+  tb.innerHTML = DB.price.length === 0
+    ? '<tr><td colspan="5" style="text-align:center;color:#bbb;padding:20px">无数据，请先同步飞书</td></tr>'
+    : DB.price.map(p=>`<tr>
+        <td>${p.name}</td>
+        <td>${p.altName||''}</td>
+        <td>${p.unit||''}</td>
+        <td>${p.form||''}</td>
+        <td>¥${(p.price||0).toFixed(2)}</td>
+        <td>${p.remark||''}</td>
+      </tr>`).join('');
+  // 更新表头
+  document.querySelector('#tab-price .db-table thead tr').innerHTML =
+    '<th>物料编码</th><th>物料名称</th><th>单位</th><th>形态</th><th>采购含税价</th><th>备注</th>';
+}
+
+function refreshCottonUI() {
+  document.getElementById('cottonCount').textContent = DB.cotton.length;
+  const tb = document.getElementById('cottonBody');
+  tb.innerHTML = DB.cotton.length === 0
+    ? '<tr><td colspan="5" style="text-align:center;color:#bbb;padding:20px">无数据，请先同步飞书</td></tr>'
+    : DB.cotton.map(c=>`<tr><td>${c.code}</td><td>${c.name}</td><td>${c.category}</td><td>${c.color}</td><td>${c.status}</td></tr>`).join('');
+}
+
+function refreshSpringUI() {
+  document.getElementById('springCount').textContent = DB.spring.length;
+  const tb = document.getElementById('springBody');
+  tb.innerHTML = DB.spring.length === 0
+    ? '<tr><td colspan="5" style="text-align:center;color:#bbb;padding:20px">无数据</td></tr>'
+    : DB.spring.map(s=>`<tr><td>${s.height}cm</td><td>${s.wire}</td><td>${s.nwWidth}cm</td><td>${s.springWeight}g</td><td>${s.bagWeight}g</td></tr>`).join('');
+}
+
+function refreshFeeUI() {
+  const tb = document.getElementById('feeBody');
+  tb.innerHTML = Object.entries(FEE_STANDARD).map(([k,v])=>
+    `<tr><td>${k}</td>${v.fees.map(f=>`<td>¥${f}</td>`).join('')}</tr>`).join('');
+}
+
+function refreshStructureView() {
+  document.getElementById('structureCount').textContent = Object.keys(MATTRESS_STRUCTURES).length;
+  document.getElementById('structureView').innerHTML = Object.entries(MATTRESS_STRUCTURES).map(([k,v])=>`
+    <div style="background:#fafafa;padding:12px;border-radius:4px;margin-bottom:10px;border:1px solid #e8e8e8">
+      <h4 style="color:#1e3c72;margin-bottom:6px">📦 ${k}</h4>
+      <div style="font-size:12px;color:#666">${v.layers.length}层：${v.layers.map(l=>l.name).join(' → ')}</div>
+    </div>`).join('');
+}
+
+/* ============================================================
+   CSV 导入 / 导出（保留备用）
+   ============================================================ */
+function downloadCSV(filename, headers, rows) {
+  let csv = '\uFEFF';
+  csv += headers.join(',') + '\n';
+  rows.forEach(r => {
+    csv += r.map(v => {
+      const s = String(v==null?'':v);
+      return (s.includes(',')||s.includes('"')||s.includes('\n')) ? '"'+s.replace(/"/g,'""')+'"' : s;
+    }).join(',') + '\n';
+  });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
+  a.download = filename; a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 1000);
+}
+
+function downloadDB(type) {
+  if (type==='fabric') downloadCSV('面料库.csv',['面料名称','单位','含税单价','备注'],DB.fabric.map(f=>[f.name,f.unit,f.price,f.remark]));
+  if (type==='price')  downloadCSV('物料库.csv',['物料名称','单位','形态','含税单价','备注'],DB.price.map(p=>[p.name,p.unit,p.form,p.price,p.remark]));
+}
+
+function uploadDB(e, type) {
+  const f = e.target.files[0]; if(!f) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
     try {
-      currentMattress = JSON.parse(saved);
-      if (!currentMattress.layers) currentMattress.layers = [];
-    } catch(e) {
-      console.error('加载数据失败', e);
-    }
-  }
+      let text = ev.target.result;
+      if(text.charCodeAt(0)===0xFEFF) text=text.slice(1);
+      text = text.replace(/\r\n/g,'\n').replace(/\r/g,'\n').trim();
+      const lines = text.split('\n').filter(l=>l.trim());
+      if(lines.length<2){alert('文件无数据');return;}
+      const headers = lines[0].split(',').map(h=>h.trim().replace(/^"|"$/g,''));
+      const rows = lines.slice(1).map(l=>{
+        const cells=[]; let cur='',inQ=false;
+        for(const ch of l){if(inQ){if(ch==='"')inQ=false;else cur+=ch;}else if(ch==='"')inQ=true;else if(ch===','){cells.push(cur.trim());cur='';}else cur+=ch;}
+        cells.push(cur.trim());
+        const obj={}; headers.forEach((h,i)=>{obj[h]=cells[i]||'';});
+        return obj;
+      });
+      if(type==='fabric'){
+        DB.fabric=rows.map(r=>({name:r['面料名称']||r['名称']||'',unit:r['单位']||'m',price:parseFloat(r['含税单价']||r['单价']||0)||0,remark:r['备注']||'',keywords:r['关键词']||r['面料名称']||''})).filter(r=>r.name);
+        DB.fabricUpdate=new Date().toLocaleString('zh-CN');
+      }else if(type==='price'){
+        DB.price=rows.map(r=>({name:r['物料名称']||r['名称']||'',unit:r['单位']||'件',form:r['形态']||'',price:parseFloat(r['含税单价']||r['单价']||0)||0,remark:r['备注']||'',keywords:r['关键词']||r['物料名称']||''})).filter(r=>r.name);
+        DB.priceUpdate=new Date().toLocaleString('zh-CN');
+      }
+      saveDB(); refreshAllUI();
+      if(currentMattress){renderStructure();renderBOM();}
+      alert(`✅ 导入${DB[type==='fabric'?'fabric':'price'].length}条`);
+    }catch(err){alert('解析失败：'+err.message);}
+    e.target.value='';
+  };
+  reader.readAsText(f,'UTF-8');
 }
 
-// 页面关闭前保存
-window.addEventListener('beforeunload', saveData);
+/* ============================================================
+   床芯计算器
+   ============================================================ */
+function openSpringCalculator() {
+  document.getElementById('springModal').classList.add('show');
+  syncFromMattressSize();
+}
 
-// 初始化
-document.addEventListener('DOMContentLoaded', () => {
-  loadData();
-  renderStructure();
-  renderBOM();
-});
+// 从床垫尺寸同步到床芯尺寸（床芯 = 床垫 - 2cm，参考Excel口径尺寸）
+function syncFromMattressSize() {
+  const mW = parseFloat(document.getElementById('mWidth').value)  || 180;
+  const mL = parseFloat(document.getElementById('mLength').value) || 200;
+  const mH = parseFloat(document.getElementById('mHeight').value) || 25;
+
+  // Excel规律：床芯宽 = 床垫宽 - 2（护边占用），床芯长 = 床垫长 - 2
+  // 床网高度 ≈ 床垫总高 - 上层填充厚度，一般取弹簧床网高度，默认18/22cm
+  document.getElementById('sWidth').value  = mW - 2;
+  document.getElementById('sLength').value = mL - 2;
+
+  // 床网高度：按床垫总高推算（总高>=30用22cm，总高>=25用18cm，其他16cm）
+  const heightSel = document.getElementById('sHeight');
+  if (mH >= 30) heightSel.value = '22';
+  else if (mH >= 25) heightSel.value = '18';
+  else heightSel.value = '16';
+
+  updateSpringLayout();
+  updateZoneInputs();
+}
+function closeSpringCalculator() { document.getElementById('springModal').classList.remove('show'); }
+
+/* 线径 → 钢线单价（¥/kg，不含税） */
+const WIRE_PRICE = { '钢线1.2':5.4,'钢线1.4':5.3,'钢线1.6':5.25,'钢线1.8':5.2,'钢线2.0':5.1,'钢线2.2':5.0,'钢线2.4':4.9 };
+
+/* 自动计算排列数 */
+function updateSpringLayout() {
+  const w = parseFloat(document.getElementById('sWidth').value)||0;
+  const l = parseFloat(document.getElementById('sLength').value)||0;
+  const p = parseFloat(document.getElementById('sPitch').value)||6.3;
+  if (p <= 0) return;
+  const wc = Math.floor(w/p);
+  const lc = Math.floor(l/p);
+  if (wc > 0) document.getElementById('widthCountInput').value = wc;
+  if (lc > 0) document.getElementById('lengthCountInput').value = lc;
+  updateTotalCheck();
+  updateZoneVisual();
+}
+
+/* 手动修改排列数 */
+function onManualLayout() {
+  updateTotalCheck();
+  updateZoneVisual();
+}
+
+function getWC() { return parseInt(document.getElementById('widthCountInput').value)||0; }
+function getLC() { return parseInt(document.getElementById('lengthCountInput').value)||0; }
+
+/* 校验总数 */
+function updateTotalCheck() {
+  const wc = getWC(), lc = getLC();
+  const calc = wc * lc;
+  document.getElementById('calcTotal').textContent = calc;
+  // 输入总数：从分区明细里算
+  updateSpringBreakdown();
+}
+
+/* 计算各区弹簧数量并显示明细 */
+function updateSpringBreakdown() {
+  const wc = getWC(), lc = getLC(), total = wc * lc;
+  const zone = document.getElementById('zoneType').value;
+  const hasBorder = zone.includes('border');
+  const zonesNum = zone.startsWith('7zone')?7:zone.startsWith('5zone')?5:zone.startsWith('3zone')?3:0;
+
+  let softCount=0, hardCount=0, borderCount=0;
+  const bd = document.getElementById('springBreakdown');
+  const bdc = document.getElementById('springBreakdownContent');
+
+  if (zone === 'full') {
+    softCount = total; hardCount = 0; borderCount = 0;
+    bd.style.display = 'none';
+  } else if (zone === 'border') {
+    borderCount = wc*2 + (lc-2)*2;
+    softCount = total - borderCount;
+    bd.style.display = 'block';
+    bdc.innerHTML = `
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;color:#555">
+        <div>🔵 软区：<strong style="color:#1890ff">${softCount}</strong></div>
+        <div>🔴 四周硬：<strong style="color:#fa541c">${borderCount}</strong></div>
+        <div>合计：<strong>${softCount+borderCount}</strong></div>
+      </div>`;
+  } else {
+    // 分区
+    const pattern = zonesNum===3?['hard','soft','hard']:
+                    zonesNum===5?['hard','soft','hard','soft','hard']:
+                    ['hard','soft','hard','soft','hard','soft','hard'];
+    let zRows = [];
+    for(let i=0;i<zonesNum;i++) zRows.push(parseInt((document.getElementById('zoneRow'+i)||{}).value)||0);
+    const sumR = zRows.reduce((a,b)=>a+b,0);
+    if (sumR > 0) {
+      zRows.forEach((r,i) => {
+        if(pattern[i]==='hard') hardCount += r*wc;
+        else softCount += r*wc;
+      });
+    } else { softCount = total; }
+
+    if (hasBorder) {
+      borderCount = wc*2 + (lc-2)*2;
+      // 四周加硬从已有数量里扣除再加border
+      const innerTotal = softCount + hardCount;
+      softCount = total - hardCount - borderCount;
+      if (softCount < 0) softCount = 0;
+    }
+
+    bd.style.display = 'block';
+    let html = `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;color:#555;font-size:11px">`;
+    html += `<div>🔵 软区：<strong style="color:#1890ff">${softCount}</strong></div>`;
+    html += `<div>🔴 硬区：<strong style="color:#fa541c">${hardCount}</strong></div>`;
+    if (hasBorder) html += `<div>🟠 四周加硬：<strong style="color:#fa8c16">${borderCount}</strong></div>`;
+    html += `<div style="grid-column:1/4;margin-top:4px;border-top:1px solid #f0f0f0;padding-top:4px">`;
+    const inputSum = softCount + hardCount + borderCount;
+    const calcSum = total;
+    const match = inputSum === calcSum;
+    html += `合计：<strong style="color:${match?'#52c41a':'#f5222d'}">${inputSum}</strong>`;
+    html += ` / 计算总数：<strong>${calcSum}</strong>`;
+    html += ` <span style="color:${match?'#52c41a':'#f5222d'}">${match?'✅ 核对一致':'⚠️ 不一致，请检查分区行数'}</span>`;
+    html += `</div></div>`;
+    bdc.innerHTML = html;
+  }
+
+  // 更新顶部核对
+  const inputTotal = softCount + hardCount + borderCount;
+  document.getElementById('inputTotal').textContent = inputTotal;
+  const match = (inputTotal === total) || zone === 'full';
+  document.getElementById('totalCheck').innerHTML = match
+    ? '<span style="color:#52c41a">✅ 一致</span>'
+    : `<span style="color:#f5222d">⚠️ 差 ${Math.abs(inputTotal-total)} 个</span>`;
+
+  // 自动同步软/硬袋数
+  document.getElementById('whiteBagCount').value = softCount;
+  document.getElementById('colorBagCount').value = hardCount + borderCount;
+  document.getElementById('bagAutoLabel').textContent =
+    `自动填入：白色${softCount}个，有色${hardCount+borderCount}个`;
+
+  // 有border分区时显示四周加硬线径选择
+  const borderWireRow = document.getElementById('borderWireRow');
+  if (borderWireRow) {
+    borderWireRow.style.display = hasBorder ? 'block' : 'none';
+  }
+
+  // 自动计算胶水条数 = 长排数（Excel规律）
+  const lcNow = getLC();
+  if (lcNow > 0) {
+    document.getElementById('glueCount').value = lcNow;
+  }
+  // 胶水长度 = 床芯长（m）
+  const sLenNow = parseFloat(document.getElementById('sLength').value) || 0;
+  if (sLenNow > 0) {
+    document.getElementById('glueLen').value = (sLenNow / 100).toFixed(3);
+  }
+  // 包面无纺布用量宽 = 床芯长（m），参考Excel
+  if (sLenNow > 0) {
+    document.getElementById('nwLen').value = (sLenNow / 100 + 0.15).toFixed(3);
+  }
+
+  autoCalcAccessories();
+}
+
+function updateZoneInputs() {
+  const t = document.getElementById('zoneType').value;
+  const lc = getLC();
+  const c = document.getElementById('zoneRowsContainer');
+  let zones = 0;
+  if(t.startsWith('3zone')) zones=3;
+  else if(t.startsWith('5zone')) zones=5;
+  else if(t.startsWith('7zone')) zones=7;
+  if(zones===0){c.innerHTML='';updateZoneVisual();updateSpringBreakdown();return;}
+  let html=`<div style="font-size:11px;color:#666;margin-top:8px">分区行数（共${lc}行）：</div>
+  <div class="zone-rows-input" style="grid-template-columns:repeat(${zones},1fr)">`;
+  for(let i=0;i<zones;i++) html+=`<input type="number" id="zoneRow${i}" value="${Math.floor(lc/zones)}" oninput="updateZoneVisual();updateSpringBreakdown()" placeholder="区${i+1}">`;
+  html+='</div>';
+  c.innerHTML=html;
+  updateZoneVisual();
+  updateSpringBreakdown();
+}
+
+function suggestZoneRows() {
+  const t=document.getElementById('zoneType').value;
+  const lc=getLC();
+  const zones=t.startsWith('7zone')?7:t.startsWith('5zone')?5:t.startsWith('3zone')?3:0;
+  if(!zones){alert('当前分区无需设置');return;}
+  const dists=zones===3?[0.3,0.4,0.3]:zones===5?[0.18,0.22,0.2,0.22,0.18]:[0.12,0.14,0.14,0.12,0.14,0.14,0.12];
+  dists.forEach((d,i)=>{const el=document.getElementById('zoneRow'+i);if(el)el.value=Math.round(lc*d);});
+  updateZoneVisual();
+  updateSpringBreakdown();
+}
+
+function updateZoneVisual() {
+  const t=document.getElementById('zoneType').value;
+  const v=document.getElementById('zoneVisual');
+  if(!t.includes('zone')){v.style.display='none';return;}
+  v.style.display='block';
+  const zones=t.startsWith('7zone')?7:t.startsWith('5zone')?5:3;
+  const pattern=zones===3?['hard','soft','hard']:zones===5?['hard','soft','hard','soft','hard']:['hard','soft','hard','soft','hard','soft','hard'];
+  let total=0; const rows=[];
+  for(let i=0;i<zones;i++){const r=parseInt((document.getElementById('zoneRow'+i)||{}).value)||0;rows.push(r);total+=r;}
+  if(!total)total=1;
+  document.getElementById('zoneBar').innerHTML=rows.map((r,i)=>`<div class="zone-segment zone-${pattern[i]}" style="width:${(r/total*100).toFixed(1)}%">${r}</div>`).join('');
+  document.getElementById('zoneInfo').textContent=`${rows.length}区 / ${total}行`;
+}
+
+// 实时计算辅料用量和成本（胶水/无纺布袋/包面无纺布）
+function autoCalcAccessories() {
+  // 胶水
+  const gLen  = parseFloat(document.getElementById('glueLen').value)  || 0;
+  const gCnt  = parseFloat(document.getElementById('glueCount').value) || 0;
+  const gWg   = parseFloat(document.getElementById('glueWeight').value)|| 100;
+  const gLoss = parseFloat(document.getElementById('glueLoss').value)  || 0.02;
+  const gP    = parseFloat(document.getElementById('gluePrice').value) || 16;
+  const glueKg   = gLen * gCnt * gWg / 1000 * (1 + gLoss);
+  const glueCost = glueKg * gP / 1.13;
+  document.getElementById('glueKgDisplay').textContent  = glueKg.toFixed(4);
+  document.getElementById('glueCostDisplay').textContent = '¥' + glueCost.toFixed(2);
+  document.getElementById('glueAutoTip').textContent = `${glueKg.toFixed(3)}kg → ¥${glueCost.toFixed(2)}`;
+
+  // 无纺布袋
+  const wBag  = parseFloat(document.getElementById('whiteBagCount').value) || 0;
+  const cBag  = parseFloat(document.getElementById('colorBagCount').value)  || 0;
+  const bagW  = parseFloat(document.getElementById('bagUnitWeight').value)  || 4.451;
+  const bagL  = parseFloat(document.getElementById('bagLoss').value)        || 0.03;
+  const wBagP = parseFloat(document.getElementById('whiteBagPrice').value)  || 9.5;
+  const cBagP = parseFloat(document.getElementById('colorBagPrice').value)  || 10;
+  const wBagKg  = wBag * bagW / 1000 * (1 + bagL);
+  const cBagKg  = cBag * bagW / 1000 * (1 + bagL);
+  const bagCost = (wBagKg * wBagP + cBagKg * cBagP) / 1.13;
+  document.getElementById('bagKgDisplay').textContent  = (wBagKg + cBagKg).toFixed(4);
+  document.getElementById('bagCostDisplay').textContent = '¥' + bagCost.toFixed(2);
+
+  // 包面无纺布
+  const nwW   = parseFloat(document.getElementById('nwWidth').value) || 210;
+  const nwG   = parseFloat(document.getElementById('nwGsm').value)   || 70;
+  const nwL   = parseFloat(document.getElementById('nwLen').value)   || 2.0;
+  const nwLoss= parseFloat(document.getElementById('nwLoss').value)  || 0.02;
+  const nwP   = parseFloat(document.getElementById('nwPrice').value) || 9.5;
+  const nwKg   = (nwW / 100) * nwL * nwG / 1000 * (1 + nwLoss);
+  const nwCost = nwKg * nwP / 1.13;
+  document.getElementById('nwKgDisplay').textContent  = nwKg.toFixed(4);
+  document.getElementById('nwCostDisplay').textContent = '¥' + nwCost.toFixed(2);
+  document.getElementById('nwAutoTip').textContent = `${nwKg.toFixed(3)}kg → ¥${nwCost.toFixed(2)}`;
+}
+
+function calculateSpring() {
+  const w      = parseFloat(document.getElementById('sWidth').value)||0;
+  const l      = parseFloat(document.getElementById('sLength').value)||0;
+  const h      = parseInt(document.getElementById('sHeight').value)||18;
+  const wc     = getWC(), lc = getLC();
+  const total  = wc * lc;
+  const softW  = document.getElementById('softWire').value;
+  const hardW  = document.getElementById('hardWire').value;
+  const zone   = document.getElementById('zoneType').value;
+  const hasBorder = zone.includes('border');
+  const zonesNum  = zone.startsWith('7zone')?7:zone.startsWith('5zone')?5:zone.startsWith('3zone')?3:0;
+
+  // 计算各区弹簧数量（对齐Excel逻辑）
+  let softCount=0, hardCount=0, borderCount=0;
+  if (zone==='full') { softCount=total; }
+  else if (zone==='border') {
+    borderCount = wc*2 + (lc-2)*2;
+    softCount = total - borderCount;
+  } else {
+    const pattern = zonesNum===3?['hard','soft','hard']:
+                    zonesNum===5?['hard','soft','hard','soft','hard']:
+                    ['hard','soft','hard','soft','hard','soft','hard'];
+    const zRows=[];
+    for(let i=0;i<zonesNum;i++) zRows.push(parseInt((document.getElementById('zoneRow'+i)||{}).value)||0);
+    const sumR=zRows.reduce((a,b)=>a+b,0);
+    if(sumR>0) zRows.forEach((r,i)=>{ if(pattern[i]==='hard') hardCount+=r*wc; else softCount+=r*wc; });
+    else softCount=total;
+    if(hasBorder){ borderCount=wc*2+(lc-2)*2; softCount=total-hardCount-borderCount; if(softCount<0)softCount=0; }
+  }
+
+  // 从弹簧参照表查单个克重
+  const softSpec  = DB.spring.find(s=>s.height===h && s.wire===softW) || {springWeight:30, bagWeight:4.0};
+  const hardSpec  = DB.spring.find(s=>s.height===h && s.wire===hardW) || softSpec;
+  // 四周加硬线径：优先用单独指定的，否则用硬线径
+  const borderWireSel = document.getElementById('borderWire');
+  const borderWireVal = (borderWireSel && borderWireSel.value) ? borderWireSel.value : hardW;
+  const brdSpec = DB.spring.find(s=>s.height===h && s.wire===borderWireVal) || hardSpec;
+  const borderWireForCost = borderWireVal;
+
+  // 钢丝用量（kg），含2%损耗
+  const softSteelKg   = softCount   * softSpec.springWeight / 1000 * 1.02;
+  const hardSteelKg   = hardCount   * hardSpec.springWeight / 1000 * 1.02;
+  const borderSteelKg = borderCount * brdSpec.springWeight  / 1000 * 1.02;
+
+  // 钢丝单价（从物料库读，fallback内置）
+  const getWirePrice = (wire) => {
+    const item = DB.price.find(p => p.name === wire || (p.keywords||'').includes(wire));
+    return item ? item.price / 1.13 : (WIRE_PRICE[wire] || 5.1);
+  };
+  const softP  = getWirePrice(softW);
+  const hardP  = getWirePrice(hardW);
+  const softSteelCost  = softSteelKg   * softP;
+  const hardSteelCost  = hardSteelKg   * hardP;
+  const brdP           = getWirePrice(borderWireForCost);
+  const brdSteelCost   = borderSteelKg * brdP;
+  const totalSteelCost = softSteelCost + hardSteelCost + brdSteelCost;
+
+  // 无纺布袋
+  const wBag  = parseInt(document.getElementById('whiteBagCount').value) || softCount;
+  const cBag  = parseInt(document.getElementById('colorBagCount').value) || (hardCount + borderCount);
+  const bagW  = parseFloat(document.getElementById('bagUnitWeight').value)||4.451;
+  const bagL  = parseFloat(document.getElementById('bagLoss').value)||0.03;
+  const wBagP = parseFloat(document.getElementById('whiteBagPrice').value)||9.5;
+  const cBagP = parseFloat(document.getElementById('colorBagPrice').value)||10;
+  const wBagKg = wBag * bagW / 1000 * (1+bagL);
+  const cBagKg = cBag * bagW / 1000 * (1+bagL);
+  const bagCost = (wBagKg * wBagP + cBagKg * cBagP) / 1.13;
+
+  // 包面无纺布
+  const nwW = parseFloat(document.getElementById('nwWidth').value)||210;
+  const nwG = parseFloat(document.getElementById('nwGsm').value)||70;
+  const nwL = parseFloat(document.getElementById('nwLen').value)||2.0;
+  const nwLoss = parseFloat(document.getElementById('nwLoss').value)||0.02;
+  const nwP = parseFloat(document.getElementById('nwPrice').value)||9.5;
+  const nwKg = (nwW/100) * nwL * nwG/1000 * (1+nwLoss);
+  const nwCost = nwKg * nwP / 1.13;
+
+  // 胶水
+  const gLen  = parseFloat(document.getElementById('glueLen').value)||2.0;
+  const gCnt  = parseFloat(document.getElementById('glueCount').value)||25;
+  const gWg   = parseFloat(document.getElementById('glueWeight').value)||100;
+  const gLoss = parseFloat(document.getElementById('glueLoss').value)||0.02;
+  const gP    = parseFloat(document.getElementById('gluePrice').value)||16;
+  const glueKg = gLen * gCnt * gWg/1000 * (1+gLoss);
+  const glueCost = glueKg * gP / 1.13;
+
+  const totalCost = totalSteelCost + bagCost + nwCost + glueCost;
+  springCost = totalCost;
+
+  // 生成明细
+  let steelDetail = `软区钢丝（${softW}）：${softCount}个×${softSpec.springWeight}g=${softSteelKg.toFixed(3)}kg × ¥${softP.toFixed(2)} = ¥${softSteelCost.toFixed(2)}`;
+  if (hardCount > 0) steelDetail += `<br>硬区钢丝（${hardW}）：${hardCount}个×${hardSpec.springWeight}g=${hardSteelKg.toFixed(3)}kg × ¥${hardP.toFixed(2)} = ¥${hardSteelCost.toFixed(2)}`;
+  if (borderCount > 0) steelDetail += `<br>四周加硬（${borderWireForCost}）：${borderCount}个×${brdSpec.springWeight}g=${borderSteelKg.toFixed(3)}kg × ¥${brdP.toFixed(2)} = ¥${brdSteelCost.toFixed(2)}`;
+
+  document.getElementById('springCostResult').style.display='block';
+  document.getElementById('springCostResult').innerHTML = `
+    <strong>📊 计算结果（已去税 ÷1.13）</strong><br>
+    弹簧排列：宽${wc}×长${lc} = ${total}个（软${softCount} + 硬${hardCount} + 四周加硬${borderCount}）<br>
+    <div style="margin:4px 0;padding:6px;background:#fff;border-radius:3px;font-size:11px;color:#555">${steelDetail}</div>
+    钢丝合计：<strong>¥${totalSteelCost.toFixed(2)}</strong><br>
+    无纺布袋：<strong>¥${bagCost.toFixed(2)}</strong>（白色${wBag}个 + 有色${cBag}个）<br>
+    包面无纺布：<strong>¥${nwCost.toFixed(2)}</strong>（${nwKg.toFixed(3)}kg）<br>
+    热熔胶：<strong>¥${glueCost.toFixed(2)}</strong>（${glueKg.toFixed(3)}kg）<br>
+    <hr style="margin:8px 0;border-color:#b7eb8f">
+    💰 床芯去税成本：<strong style="color:#f5222d;font-size:16px">¥${totalCost.toFixed(2)}</strong>
+  `;
+}
+
+function applySpringCost() {
+  if (springCost <= 0) { alert('请先点击【开始计算】'); return; }
+  updateTotals();
+  alert('✅ 床芯成本已应用：¥' + springCost.toFixed(2) + '（去税）');
+  closeSpringCalculator();
+}
+
+
+/* ============================================================
+   导出BOM
+   ============================================================ */
+function exportBOM() {
+  if (!currentMattress) { alert('请先选择床垫款式'); return; }
+  const fee = parseFloat(document.getElementById('processingFee').value)||0;
+  const matU = bomData.reduce((s,r)=>s+r.untaxedAmt,0);
+  const headers = ['结构层','字段','物料名称','用量','单位','含税单价','去税金额'];
+  const rows = bomData.map(r=>[r.layer,r.label,r.name,r.qty,r.unit,r.price.toFixed(2),r.untaxedAmt.toFixed(2)]);
+  rows.push(['','','面料+物料去税合计','','','',matU.toFixed(2)]);
+  rows.push(['','','床芯成本（去税）','','','',springCost.toFixed(2)]);
+  rows.push(['','','加工费','','','',fee.toFixed(2)]);
+  rows.push(['','','未税材料总计','','','',(matU+springCost+fee).toFixed(2)]);
+  downloadCSV(`BOM_${currentMattressType}_${Date.now()}.csv`, headers, rows);
+}
+
+function resetAll() {
+  if (!confirm('确定重置所有BOM内容？')) return;
+  document.getElementById('mattressType').value = '';
+  springCost = 0; currentMattress = null; currentMattressType = ''; bomData = [];
+  document.getElementById('structureContainer').innerHTML = '<div class="empty-tip">请先选择床垫款式</div>';
+  document.getElementById('bomBody').innerHTML = '<tr><td colspan="6" style="text-align:center;color:#999;padding:30px">请先选择床垫款式</td></tr>';
+  document.getElementById('feeMatchTip').textContent = '';
+  document.getElementById('innerSleeveTip').style.display = 'none';
+  updateTotals();
+}
+
+/* ============================================================
+   启动
+   ============================================================ */
+init();
 </script>
 </body>
 </html>
