@@ -889,9 +889,9 @@ async function fetchTableAll(tableId, token) {
   return records;
 }
 
-async function syncFeishu() {
-  showLoading('🔄 正在获取飞书授权...');
-  setSyncStatus('syncing', '同步中...');
+async function syncFeishu(silent = false) {
+  if (!silent) showLoading('🔄 正在获取飞书授权...');
+  setSyncStatus('syncing', silent ? '后台刷新中...' : '同步中...');
   const btn = document.getElementById('syncBtn');
   btn.disabled = true;
 
@@ -1012,10 +1012,12 @@ async function syncFeishu() {
     console.error('飞书同步失败:', err);
     setSyncStatus('offline', '同步失败（使用本地缓存）');
     // 提示CORS问题
-    const msg = err.message.includes('fetch') || err.message.includes('Failed')
-      ? `⚠️ 飞书同步失败（CORS跨域限制）\n\n错误：${err.message}\n\n解决方案：\n1. 安装Chrome插件「Allow CORS: Access-Control-Allow-Origin」并开启\n2. 或将此页面部署到服务器并配置飞书代理\n\n当前使用本地缓存数据。`
-      : `❌ 飞书同步失败：${err.message}`;
-    alert(msg);
+    if (!silent) {
+      const msg = err.message.includes('fetch') || err.message.includes('Failed')
+        ? `⚠️ 飞书同步失败（CORS跨域限制）\n\n错误：${err.message}\n\n解决方案：\n1. 安装Chrome插件「Allow CORS: Access-Control-Allow-Origin」并开启\n2. 或将此页面部署到服务器并配置飞书代理\n\n当前使用本地缓存数据。`
+        : `❌ 飞书同步失败：${err.message}`;
+      alert(msg);
+    }
   }
 
   hideLoading();
@@ -1123,14 +1125,26 @@ function saveDB() {
    初始化
    ============================================================ */
 function init() {
+  // 确保飞书配置已写入
+  if (!localStorage.getItem('feishuConfig')) {
+    localStorage.setItem('feishuConfig', JSON.stringify(FEISHU_DEFAULT));
+  }
   loadDB();
   refreshMattressTypes();
   refreshAllUI();
   updateSpringLayout();
-  // 预填飞书配置
-  const cfg = getFeishuConfig();
-  if (!localStorage.getItem('feishuConfig')) {
-    localStorage.setItem('feishuConfig', JSON.stringify(FEISHU_DEFAULT));
+
+  // 页面加载时自动同步飞书
+  // 有本地缓存 → 先显示缓存，再静默后台刷新
+  // 无缓存 → 显示加载动画同步
+  const hasCachedData = DB.price.length > 0 || DB.fabric.length > 0;
+  if (hasCachedData) {
+    // 有缓存先用，3秒后静默刷新
+    setSyncStatus('online', '使用缓存数据，后台刷新中...');
+    setTimeout(() => syncFeishu(true), 3000);
+  } else {
+    // 无缓存直接同步
+    syncFeishu(false);
   }
 }
 
@@ -1217,24 +1231,51 @@ function renderStructure() {
 
     if (layer.fabric) {
       const sel = layer._fabricSel;
+      const manualMode = layer._fabricManual || false;
+      const manualPrice = layer._fabricManualPrice || 0;
       const selItem = DB.fabric.find(f => f.name === sel);
       const displayVal = selItem ? `${selItem.name}${selItem.code?' ('+selItem.code+')':''} ¥${selItem.price}` : '';
-      html += `<div class="structure-row">
-        <span class="label-text">${escHtml(layer.fabric)}</span>
-        <span class="category-badge badge-fabric">面料</span>
-        <div class="search-wrap" style="position:relative">
-          <input type="text" class="search-input"
-            placeholder="输入关键词筛选面料..."
-            value="${escHtml(displayVal)}"
-            data-type="fabric" data-li="${li}" data-mi=""
-            oninput="onSearchInput(this)"
-            onfocus="onSearchFocus(this)"
-            onblur="onSearchBlur(this)"
-            autocomplete="off">
-          <div class="search-dropdown" style="display:none"></div>
-        </div>
-        <input type="number" value="1" disabled style="background:#f5f5f5;font-size:11px">
-      </div>`;
+
+      if (manualMode) {
+        // 手动录入模式
+        html += `<div class="structure-row" style="grid-template-columns:100px 50px 1fr 70px 60px">
+          <span class="label-text">${escHtml(layer.fabric)}</span>
+          <span class="category-badge badge-fabric">面料</span>
+          <input type="text" placeholder="面料名称（自定义）"
+            value="${escHtml(layer._fabricManualName||'')}"
+            style="font-size:12px;border:1px solid #ffd591;background:#fffbe6"
+            oninput="onFabricManualName(${li},this.value)">
+          <input type="number" placeholder="单价¥" value="${manualPrice||''}"
+            style="font-size:12px;border:1px solid #ffd591;background:#fffbe6"
+            oninput="onFabricManualPrice(${li},this.value)">
+          <button onclick="toggleFabricManual(${li},false)"
+            style="font-size:11px;padding:3px 6px;border:1px solid #d9d9d9;border-radius:3px;cursor:pointer;background:#fff;white-space:nowrap">
+            搜索
+          </button>
+        </div>`;
+      } else {
+        // 搜索模式
+        html += `<div class="structure-row" style="grid-template-columns:100px 50px 1fr 70px 60px">
+          <span class="label-text">${escHtml(layer.fabric)}</span>
+          <span class="category-badge badge-fabric">面料</span>
+          <div class="search-wrap" style="position:relative">
+            <input type="text" class="search-input"
+              placeholder="输入关键词筛选面料..."
+              value="${escHtml(displayVal)}"
+              data-type="fabric" data-li="${li}" data-mi=""
+              oninput="onSearchInput(this)"
+              onfocus="onSearchFocus(this)"
+              onblur="onSearchBlur(this)"
+              autocomplete="off">
+            <div class="search-dropdown" style="display:none"></div>
+          </div>
+          <input type="number" value="1" disabled style="background:#f5f5f5;font-size:11px">
+          <button onclick="toggleFabricManual(${li},true)"
+            style="font-size:11px;padding:3px 6px;border:1px solid #d9d9d9;border-radius:3px;cursor:pointer;background:#fff;white-space:nowrap">
+            手动
+          </button>
+        </div>`;
+      }
     }
 
     layer._materials.forEach((m, mi) => {
@@ -1312,53 +1353,72 @@ function filterAndShow(inp, keyword) {
   const type = inp.dataset.type;
   const kw = keyword.trim().toLowerCase();
 
-  const list = type === 'fabric' ? DB.fabric : DB.price;
+  // 面料库和物料库合并搜索，统一显示
+  // 面料库条目加上来源标记 _src:'fabric'，物料库加 _src:'price'
+  const combined = [
+    ...DB.fabric.map(f => ({...f, _src:'fabric'})),
+    ...DB.price.map(p => ({...p, _src:'price'}))
+  ];
+
   let matched = kw
-    ? list.filter(item => {
-        const haystack = (item.name + (item.altName||'') + (item.code||'') + (item.keywords||'') + (item.remark||'')).toLowerCase();
+    ? combined.filter(item => {
+        const haystack = (
+          (item.name||'') + (item.altName||'') + (item.code||'') +
+          (item.keywords||'') + (item.remark||'') + (item.supplier||'')
+        ).toLowerCase();
         return haystack.includes(kw);
       })
-    : list;
+    : combined;
 
-  // 最多显示50条
-  matched = matched.slice(0, 50);
+  // 最多显示60条
+  matched = matched.slice(0, 60);
 
   if (matched.length === 0) {
     drop.innerHTML = `<div class="sdrop-empty">没有匹配结果</div>`;
   } else {
     drop.innerHTML = matched.map(item => {
-      const label = type === 'fabric'
-        ? `<span class="sdrop-name">${escHtml(item.name)}</span>${item.code?`<span class="sdrop-sub">${escHtml(item.code)}</span>`:''}<span class="sdrop-price">¥${item.price}</span>`
-        : `<span class="sdrop-name">${escHtml(item.name)}</span>${item.altName?`<span class="sdrop-sub">${escHtml(item.altName)}</span>`:''}<span class="sdrop-price">¥${item.price}/${item.unit||''}</span>`;
-      return `<div class="sdrop-item" onmousedown="onSearchSelect(event,'${escHtml(inp.dataset.type)}',${inp.dataset.li},'${inp.dataset.mi}','${escHtml(item.name)}')">${label}</div>`;
+      const srcBadge = item._src === 'fabric'
+        ? `<span style="font-size:10px;background:#ffe9f0;color:#eb2f96;padding:1px 4px;border-radius:3px;margin-left:4px">面料</span>`
+        : `<span style="font-size:10px;background:#e6f7ff;color:#1890ff;padding:1px 4px;border-radius:3px;margin-left:4px">物料</span>`;
+      const sub = item.code || item.altName || '';
+      const priceStr = item.price ? `¥${item.price}${item.unit?'/'+item.unit:''}` : '';
+      const label = `<span class="sdrop-name">${escHtml(item.name)}${srcBadge}</span>${sub?`<span class="sdrop-sub">${escHtml(sub)}</span>`:''}<span class="sdrop-price">${priceStr}</span>`;
+      // 传入来源，让 onSearchSelect 知道去哪张表找
+      return `<div class="sdrop-item" onmousedown="onSearchSelect(event,'${escHtml(type)}',${inp.dataset.li},'${inp.dataset.mi}','${escHtml(item.name)}','${item._src}')">${label}</div>`;
     }).join('');
   }
 
   drop.style.display = 'block';
 }
 
-function onSearchSelect(e, type, li, mi, name) {
+function onSearchSelect(e, type, li, mi, name, src) {
   e.preventDefault();
   clearTimeout(_blurTimer);
   li = parseInt(li);
 
-  const list = type === 'fabric' ? DB.fabric : DB.price;
-  const item = list.find(x => x.name === name);
+  // 优先从来源表找，找不到则两张表都找
+  src = src || 'price';
+  const srcList = src === 'fabric' ? DB.fabric : DB.price;
+  const fallback = src === 'fabric' ? DB.price : DB.fabric;
+  const item = srcList.find(x => x.name === name) || fallback.find(x => x.name === name);
   if (!item) return;
 
-  // 更新数据
+  // 把实际来源存到条目上，renderBOM时用于计算
+  item._src = item._src || src;
+
+  // 更新数据：不管是面料行还是物料行，都统一存 sel/name + 来源
   if (type === 'fabric') {
     currentMattress.layers[li]._fabricSel = name;
+    currentMattress.layers[li]._fabricSrc = src;  // 记录来自哪张表
   } else {
     currentMattress.layers[li]._materials[parseInt(mi)].sel = name;
+    currentMattress.layers[li]._materials[parseInt(mi)]._src = src;
   }
 
   // 更新输入框显示文字
-  const displayVal = type === 'fabric'
-    ? `${item.name}${item.code?' ('+item.code+')':''} ¥${item.price}`
-    : `${item.name}${item.altName?' ('+item.altName+')':''} ¥${item.price}/${item.unit||''}`;
+  const sub = item.code || item.altName || '';
+  const displayVal = `${item.name}${sub?' ('+sub+')':''} ¥${item.price}${item.unit?'/'+item.unit:''}`;
 
-  // 找到对应的input并更新
   const rows = document.querySelectorAll('.search-input');
   rows.forEach(inp => {
     if (parseInt(inp.dataset.li) === li && inp.dataset.type === type &&
@@ -1372,6 +1432,30 @@ function onSearchSelect(e, type, li, mi, name) {
 }
 
 function onFabricSelect(li,val){ currentMattress.layers[li]._fabricSel=val; renderBOM(); }
+
+function toggleFabricManual(li, manual) {
+  currentMattress.layers[li]._fabricManual = manual;
+  if (!manual) {
+    // 切回搜索模式，清空手动数据
+    currentMattress.layers[li]._fabricManualName = '';
+    currentMattress.layers[li]._fabricManualPrice = 0;
+  } else {
+    // 切到手动模式，清空搜索选中
+    currentMattress.layers[li]._fabricSel = '';
+  }
+  renderStructure();
+  renderBOM();
+}
+
+function onFabricManualName(li, val) {
+  currentMattress.layers[li]._fabricManualName = val;
+  renderBOM();
+}
+
+function onFabricManualPrice(li, val) {
+  currentMattress.layers[li]._fabricManualPrice = parseFloat(val) || 0;
+  renderBOM();
+}
 function onMaterialSelect(li,mi,val){ currentMattress.layers[li]._materials[mi].sel=val; renderBOM(); }
 function onQtyChange(li,mi,v){ currentMattress.layers[li]._materials[parseInt(mi)].qty=parseFloat(v)||0; currentMattress.layers[li]._materials[parseInt(mi)]._auto=false; renderBOM(); }
 function addMaterialRow(li){ currentMattress.layers[li]._materials.push({label:'自定义', sel:'', qty:1}); renderStructure(); }
@@ -1389,29 +1473,57 @@ function renderBOM() {
     html += `<tr class="group-row"><td colspan="6">▣ ${escHtml(layer.name)}</td></tr>`;
 
     if (layer.fabric) {
-      const f = DB.fabric.find(x => x.name === layer._fabricSel);
-      if (f) {
-        const untaxed = f.price / 1.13;
-        bomData.push({layer:layer.name, label:layer.fabric, name:f.name, qty:1, unit:f.unit||'m', price:f.price, untaxedAmt:untaxed});
-        html += `<tr>
-          <td>${escHtml(layer.fabric)}<span class="category-badge badge-fabric" style="margin-left:4px">面料</span></td>
-          <td>${escHtml(f.name)}</td><td>1</td><td>${f.unit||'m'}</td>
-          <td>¥${f.price.toFixed(2)}</td><td style="color:#389e0d"><strong>¥${untaxed.toFixed(2)}</strong></td>
-        </tr>`;
+      if (layer._fabricManual) {
+        // 手动录入模式
+        const mName  = layer._fabricManualName || '';
+        const mPrice = layer._fabricManualPrice || 0;
+        if (mName && mPrice > 0) {
+          const untaxed = mPrice / 1.13;
+          bomData.push({layer:layer.name, label:layer.fabric, name:mName, qty:1, unit:'m', price:mPrice, untaxedAmt:untaxed});
+          html += `<tr>
+            <td>${escHtml(layer.fabric)}<span class="category-badge badge-fabric" style="margin-left:4px">面料</span><span style="font-size:10px;color:#fa8c16;margin-left:4px">手动</span></td>
+            <td>${escHtml(mName)}</td><td>1</td><td>m</td>
+            <td>¥${mPrice.toFixed(2)}</td><td style="color:#389e0d"><strong>¥${untaxed.toFixed(2)}</strong></td>
+          </tr>`;
+        } else {
+          html += `<tr class="unmatched">
+            <td>${escHtml(layer.fabric)}<span class="category-badge badge-fabric" style="margin-left:4px">面料</span></td>
+            <td colspan="5" style="color:#fa8c16">（请填写面料名称和单价）</td></tr>`;
+        }
       } else {
-        html += `<tr class="unmatched">
-          <td>${escHtml(layer.fabric)}<span class="category-badge badge-fabric" style="margin-left:4px">面料</span></td>
-          <td colspan="5" style="color:#fa8c16">（未选择）</td></tr>`;
+        // 搜索选择模式
+        const f = DB.fabric.find(x => x.name === layer._fabricSel);
+        if (f) {
+          const untaxed = f.price / 1.13;
+          bomData.push({layer:layer.name, label:layer.fabric, name:f.name, qty:1, unit:f.unit||'m', price:f.price, untaxedAmt:untaxed});
+          html += `<tr>
+            <td>${escHtml(layer.fabric)}<span class="category-badge badge-fabric" style="margin-left:4px">面料</span></td>
+            <td>${escHtml(f.name)}</td><td>1</td><td>${f.unit||'m'}</td>
+            <td>¥${f.price.toFixed(2)}</td><td style="color:#389e0d"><strong>¥${untaxed.toFixed(2)}</strong></td>
+          </tr>`;
+        } else {
+          html += `<tr class="unmatched">
+            <td>${escHtml(layer.fabric)}<span class="category-badge badge-fabric" style="margin-left:4px">面料</span></td>
+            <td colspan="5" style="color:#fa8c16">（未选择，可点「手动」直接填写）</td></tr>`;
+        }
       }
     }
 
     layer._materials.forEach(m => {
-      const p = DB.price.find(x => x.name === m.sel);
+      // 优先从记录的来源表找，找不到则两张表都搜
+      const fromFabric = m._src === 'fabric';
+      const p = fromFabric
+        ? (DB.fabric.find(x => x.name === m.sel) || DB.price.find(x => x.name === m.sel))
+        : (DB.price.find(x => x.name === m.sel) || DB.fabric.find(x => x.name === m.sel));
       if (p) {
         const untaxed = p.price * m.qty / 1.13;
+        const isFabricSrc = !!DB.fabric.find(x => x.name === m.sel) && !DB.price.find(x => x.name === m.sel);
+        const srcBadge = isFabricSrc
+          ? '<span class="category-badge badge-fabric" style="margin-left:4px">面料</span>'
+          : '<span class="category-badge badge-material" style="margin-left:4px">物料</span>';
         bomData.push({layer:layer.name, label:m.label, name:p.name, qty:m.qty, unit:p.unit||'件', price:p.price, untaxedAmt:untaxed});
         html += `<tr>
-          <td>${escHtml(m.label)}<span class="category-badge badge-material" style="margin-left:4px">物料</span></td>
+          <td>${escHtml(m.label)}${srcBadge}</td>
           <td>${escHtml(p.name)}</td><td>${m.qty}</td><td>${p.unit||'件'}</td>
           <td>¥${p.price.toFixed(2)}</td><td style="color:#389e0d"><strong>¥${untaxed.toFixed(2)}</strong></td>
         </tr>`;
