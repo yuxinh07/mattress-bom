@@ -119,6 +119,36 @@ body {
 }
 .qty-auto { background:#f6ffed !important; border-color:#b7eb8f !important; }
 
+/* 搜索输入框 */
+.search-wrap { position:relative; width:100%; }
+.search-input {
+  width:100%; padding:4px 8px; font-size:12px;
+  border:1px solid #d9d9d9; border-radius:3px;
+  background:#fff; box-sizing:border-box;
+}
+.search-input:focus { outline:none; border-color:#40a9ff; }
+.search-input::placeholder { color:#bbb; }
+
+/* 搜索结果下拉 */
+.search-dropdown {
+  position:absolute; top:100%; left:0;
+  width:320px; max-height:240px; overflow-y:auto;
+  background:#fff; border:1px solid #d9d9d9; border-radius:4px;
+  box-shadow:0 4px 16px rgba(0,0,0,0.12);
+  z-index:9999; margin-top:2px;
+}
+.sdrop-item {
+  padding:6px 10px; cursor:pointer; font-size:12px;
+  display:flex; align-items:center; gap:6px;
+  border-bottom:1px solid #f5f5f5;
+}
+.sdrop-item:last-child { border-bottom:none; }
+.sdrop-item:hover { background:#e6f7ff; }
+.sdrop-name { flex:1; color:#333; font-weight:500; }
+.sdrop-sub { color:#999; font-size:11px; }
+.sdrop-price { color:#52c41a; font-size:11px; white-space:nowrap; margin-left:auto; }
+.sdrop-empty { padding:12px; text-align:center; color:#bbb; font-size:12px; }
+
 .category-badge {
   display:inline-block; padding:1px 6px; border-radius:8px;
   font-size:10px; font-weight:500; white-space:nowrap;
@@ -1186,25 +1216,44 @@ function renderStructure() {
       <div class="structure-group-title">▣ ${layer.name}</div>`;
 
     if (layer.fabric) {
+      const sel = layer._fabricSel;
+      const selItem = DB.fabric.find(f => f.name === sel);
+      const displayVal = selItem ? `${selItem.name}${selItem.code?' ('+selItem.code+')':''} ¥${selItem.price}` : '';
       html += `<div class="structure-row">
-        <span class="label-text">${layer.fabric}</span>
+        <span class="label-text">${escHtml(layer.fabric)}</span>
         <span class="category-badge badge-fabric">面料</span>
-        <select onchange="onFabricSelect(${li},this.value)">
-          <option value="">-- 选择面料 --</option>
-          ${DB.fabric.map(f=>`<option value="${escHtml(f.name)}" ${layer._fabricSel===f.name?'selected':''}>${escHtml(f.name)} ¥${f.price}</option>`).join('')}
-        </select>
+        <div class="search-wrap" style="position:relative">
+          <input type="text" class="search-input"
+            placeholder="输入关键词筛选面料..."
+            value="${escHtml(displayVal)}"
+            data-type="fabric" data-li="${li}" data-mi=""
+            oninput="onSearchInput(this)"
+            onfocus="onSearchFocus(this)"
+            onblur="onSearchBlur(this)"
+            autocomplete="off">
+          <div class="search-dropdown" style="display:none"></div>
+        </div>
         <input type="number" value="1" disabled style="background:#f5f5f5;font-size:11px">
       </div>`;
     }
 
     layer._materials.forEach((m, mi) => {
+      const selItem = DB.price.find(p => p.name === m.sel);
+      const displayVal = selItem ? `${selItem.name}${selItem.altName?' ('+selItem.altName+')':''} ¥${selItem.price}` : '';
       html += `<div class="structure-row">
         <span class="label-text" title="${escHtml(m.label)}">${escHtml(m.label)}</span>
         <span class="category-badge badge-material">物料</span>
-        <select onchange="onMaterialSelect(${li},${mi},this.value)">
-          <option value="">-- 选择物料 --</option>
-          ${DB.price.map(p=>`<option value="${escHtml(p.name)}" ${m.sel===p.name?'selected':''}>${escHtml(p.name)}${p.altName?' ('+escHtml(p.altName)+')':''} ¥${p.price}</option>`).join('')}
-        </select>
+        <div class="search-wrap" style="position:relative">
+          <input type="text" class="search-input"
+            placeholder="输入关键词筛选物料..."
+            value="${escHtml(displayVal)}"
+            data-type="material" data-li="${li}" data-mi="${mi}"
+            oninput="onSearchInput(this)"
+            onfocus="onSearchFocus(this)"
+            onblur="onSearchBlur(this)"
+            autocomplete="off">
+          <div class="search-dropdown" style="display:none"></div>
+        </div>
         <input type="number" value="${m.qty}" min="0" step="0.01"
           class="${m._auto?'qty-auto':''}"
           onchange="onQtyChange(${li},${mi},this.value)"
@@ -1220,9 +1269,111 @@ function renderStructure() {
 function escHtml(s) {
   return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
+
+/* ---- 搜索下拉逻辑 ---- */
+let _blurTimer = null;
+
+function onSearchFocus(inp) {
+  clearTimeout(_blurTimer);
+  filterAndShow(inp, inp.value);
+}
+
+function onSearchInput(inp) {
+  clearTimeout(_blurTimer);
+  filterAndShow(inp, inp.value);
+  // 清空已选值（用户正在重新输入）
+  const li = parseInt(inp.dataset.li);
+  const mi = inp.dataset.mi;
+  if (inp.dataset.type === 'fabric') {
+    currentMattress.layers[li]._fabricSel = '';
+  } else {
+    if (mi !== '') currentMattress.layers[li]._materials[parseInt(mi)].sel = '';
+  }
+  renderBOM();
+}
+
+function onSearchBlur(inp) {
+  _blurTimer = setTimeout(() => {
+    const drop = inp.nextElementSibling;
+    if (drop) drop.style.display = 'none';
+    // 如果没有选中值，清空输入框
+    const li = parseInt(inp.dataset.li);
+    const mi = inp.dataset.mi;
+    if (inp.dataset.type === 'fabric') {
+      if (!currentMattress.layers[li]._fabricSel) inp.value = '';
+    } else {
+      if (mi !== '' && !currentMattress.layers[li]._materials[parseInt(mi)].sel) inp.value = '';
+    }
+  }, 200);
+}
+
+function filterAndShow(inp, keyword) {
+  const drop = inp.nextElementSibling;
+  const type = inp.dataset.type;
+  const kw = keyword.trim().toLowerCase();
+
+  const list = type === 'fabric' ? DB.fabric : DB.price;
+  let matched = kw
+    ? list.filter(item => {
+        const haystack = (item.name + (item.altName||'') + (item.code||'') + (item.keywords||'') + (item.remark||'')).toLowerCase();
+        return haystack.includes(kw);
+      })
+    : list;
+
+  // 最多显示50条
+  matched = matched.slice(0, 50);
+
+  if (matched.length === 0) {
+    drop.innerHTML = `<div class="sdrop-empty">没有匹配结果</div>`;
+  } else {
+    drop.innerHTML = matched.map(item => {
+      const label = type === 'fabric'
+        ? `<span class="sdrop-name">${escHtml(item.name)}</span>${item.code?`<span class="sdrop-sub">${escHtml(item.code)}</span>`:''}<span class="sdrop-price">¥${item.price}</span>`
+        : `<span class="sdrop-name">${escHtml(item.name)}</span>${item.altName?`<span class="sdrop-sub">${escHtml(item.altName)}</span>`:''}<span class="sdrop-price">¥${item.price}/${item.unit||''}</span>`;
+      return `<div class="sdrop-item" onmousedown="onSearchSelect(event,'${escHtml(inp.dataset.type)}',${inp.dataset.li},'${inp.dataset.mi}','${escHtml(item.name)}')">${label}</div>`;
+    }).join('');
+  }
+
+  drop.style.display = 'block';
+}
+
+function onSearchSelect(e, type, li, mi, name) {
+  e.preventDefault();
+  clearTimeout(_blurTimer);
+  li = parseInt(li);
+
+  const list = type === 'fabric' ? DB.fabric : DB.price;
+  const item = list.find(x => x.name === name);
+  if (!item) return;
+
+  // 更新数据
+  if (type === 'fabric') {
+    currentMattress.layers[li]._fabricSel = name;
+  } else {
+    currentMattress.layers[li]._materials[parseInt(mi)].sel = name;
+  }
+
+  // 更新输入框显示文字
+  const displayVal = type === 'fabric'
+    ? `${item.name}${item.code?' ('+item.code+')':''} ¥${item.price}`
+    : `${item.name}${item.altName?' ('+item.altName+')':''} ¥${item.price}/${item.unit||''}`;
+
+  // 找到对应的input并更新
+  const rows = document.querySelectorAll('.search-input');
+  rows.forEach(inp => {
+    if (parseInt(inp.dataset.li) === li && inp.dataset.type === type &&
+        (type === 'fabric' || inp.dataset.mi === String(mi))) {
+      inp.value = displayVal;
+      inp.nextElementSibling.style.display = 'none';
+    }
+  });
+
+  renderBOM();
+}
+
 function onFabricSelect(li,val){ currentMattress.layers[li]._fabricSel=val; renderBOM(); }
 function onMaterialSelect(li,mi,val){ currentMattress.layers[li]._materials[mi].sel=val; renderBOM(); }
-function onQtyChange(li,mi,v){ currentMattress.layers[li]._materials[mi].qty=parseFloat(v)||0; currentMattress.layers[li]._materials[mi]._auto=false; renderBOM(); }
+function onQtyChange(li,mi,v){ currentMattress.layers[li]._materials[parseInt(mi)].qty=parseFloat(v)||0; currentMattress.layers[li]._materials[parseInt(mi)]._auto=false; renderBOM(); }
 function addMaterialRow(li){ currentMattress.layers[li]._materials.push({label:'自定义', sel:'', qty:1}); renderStructure(); }
 
 /* ============================================================
