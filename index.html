@@ -1076,9 +1076,9 @@ function getFeishuConfig() {
 
 // ============================================================
 // 所有飞书请求通过 Vercel 代理转发，彻底解决 CORS 问题
-// 代理地址：https://mattress-bom.vercel.app/api/feishu
+// 代理地址：https://mattress-bom.pages.dev/api/feishu
 // ============================================================
-const PROXY_URL = 'https://mattress-bom.vercel.app/api/feishu';
+const PROXY_URL = 'https://mattress-bom.pages.dev/api/feishu';
 
 async function proxyFetch(feishuUrl, options = {}) {
   const res = await fetch(PROXY_URL, {
