@@ -1934,26 +1934,25 @@ function onSearchSelect(e, type, li, mi, name, src) {
     const m = currentMattress.layers[li]._materials[parseInt(mi)];
     if (m && !m._unitManual) { m._unit = item.unit || '件'; }
     // 自动填入密度（从物料编码识别）
-    if (m && !m._calcParams) m._calcParams = {};
-    if (m) {
-      const ct2 = detectMaterialCalcType(item.name, m.label);
-      if (ct2 === 'foam' && !m._calcParams.density) {
-        m._calcParams.density = parseFoamDensity(item.name) || 25;
-      }
+    // 选中物料后自动解析参数
+if (m && !m._calcParams) m._calcParams = {};
+if (m) {
+  const ct2 = detectMaterialCalcType(item.name, m.label);
+  if (ct2 === 'foam') {
+    if (!m._calcParams.density) m._calcParams.density = parseFoamDensity(item.name) || 25;
+    if (!m._calcParams.thick)   m._calcParams.thick   = parseThickness(item.name) || 0;
+    if (!m._calcParams.coef)    m._calcParams.coef    = 1;
+  } else if (ct2 === 'felt' || ct2 === 'nw') {
+    // 棉毡/无纺布克重从名称解析：180克 → 180, 25g → 25
+    if (!m._calcParams.gsm) {
+      const gm = item.name.match(/(\d+)(?:克|g|G)/);
+      if (gm) m._calcParams.gsm = parseFloat(gm[1]);
     }
   }
-  if (type === 'fabric') {
-    // 面料选中后，自动从数据库读取门幅（如未手动设过）
-    const layer = currentMattress.layers[li];
-    if (!layer._fabricWidthManual && item.width) {
-      layer._fabricWidth = item.width;
-      syncLayerMaterialWidth(li, item.width);
-    }
-    syncFabricQty(li);
-  }
-  renderBOM();
+  // 门幅同步到面料行
+  const fw = parseFabricWidth(item.name);
+  if (fw && !m._fabricWidth) m._fabricWidth = fw;
 }
-
 function onFabricSelect(li,val){ currentMattress.layers[li]._fabricSel=val; renderBOM(); }
 
 function toggleFabricManual(li, manual) {
@@ -2151,6 +2150,23 @@ function calcKgQty(calcType, params) {
     }
   }
   return qty * (1 + loss);
+}// 从物料名称解析厚度（cm）：1cm P2270W → 1, 0.5cm → 0.5
+function parseThickness(name) {
+  if (!name) return null;
+  const m = name.match(/^(\d+\.?\d*)cm/i);
+  if (m) return parseFloat(m[1]);
+  return null;
+}
+
+// 从物料名称解析门幅（cm）：220门幅 → 220, 140门幅 → 140
+function parseFabricWidth(name) {
+  if (!name) return null;
+  const m = name.match(/(\d+)[（(]?门幅/);
+  if (m) return parseFloat(m[1]);
+  // 也尝试匹配括号内：（220cm）
+  const m2 = name.match(/[（(](\d+)(?:cm|CM)?[）)]/);
+  if (m2) return parseFloat(m2[1]);
+  return null;
 }
 /* 从物料编码/名称解析密度（kg/m³）
    编码规律：P2270W → 密度22, P25120W → 密度25, M4055B → 密度40, A3050B → 密度30
