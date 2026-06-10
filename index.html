@@ -881,64 +881,93 @@ async function syncFeishu() {
     showLoading('🌀 正在拉取弹簧标准...');
     const springs = await fetchTableAll(cfg.tables.spring, token);
 
-    // 解析物料 —— 字段名对齐飞书「价格清单」表
+    // 安全取值函数，兼容飞书返回的各种格式（文本/数字/对象/数组/null）
+    function safeStr(v) {
+      if (v === null || v === undefined) return '';
+      if (typeof v === 'object') {
+        // 飞书富文本字段返回 [{text:'...'}] 数组
+        if (Array.isArray(v)) return v.map(i => i.text || i.value || '').join('');
+        // 飞书人员/链接字段返回对象
+        return v.text || v.value || v.name || String(v);
+      }
+      return String(v).trim();
+    }
+    function safeNum(v) {
+      if (v === null || v === undefined) return 0;
+      if (typeof v === 'object') return 0;
+      return parseFloat(v) || 0;
+    }
+
+    // 解析物料 —— 飞书「价格清单」表
     // 实际列名：物料编码, 物料名称, 单位, 形态, 采购含税价, 备注, 关键词
     DB.price = materials.map(r => {
-      // 物料编码在第一列，物料名称在第二列（飞书返回字段名以列名为准）
-      const name = r['物料编码'] || r['物料名称'] || r['名称'] || '';
-      if (!name) return null;
-      const altName = r['物料名称'] || r['货号'] || '';
-      return {
-        name:     String(name).trim(),
-        altName:  String(altName).trim(),
-        unit:     String(r['单位'] || '件').trim(),
-        form:     String(r['形态'] || '').trim(),
-        price:    parseFloat(r['采购含税价'] || r['含税单价'] || r['单价'] || 0) || 0,
-        remark:   String(r['备注'] || '').trim(),
-        keywords: String(r['关键词'] || name).trim()
-      };
-    }).filter(r => r.name && r.price > 0);
+      try {
+        const name = safeStr(r['物料编码'] || r['物料名称'] || r['名称'] || '');
+        if (!name) return null;
+        const altName = safeStr(r['物料名称'] || r['货号'] || '');
+        const price = safeNum(r['采购含税价'] || r['含税单价'] || r['单价'] || 0);
+        return {
+          name, altName,
+          unit:     safeStr(r['单位']) || '件',
+          form:     safeStr(r['形态']),
+          price,
+          remark:   safeStr(r['备注']),
+          keywords: safeStr(r['关键词']) || name
+        };
+      } catch(e) { return null; }
+    }).filter(r => r && r.name && r.price > 0);
 
-    // 解析面料 —— 字段名对齐飞书「面料」表
-    // 实际列名：型号, 货号, 使用部位, 克重, 门幅, 成分, 供应商, 价格, 备注
+    // 解析面料 —— 飞书「面料」表
+    // 实际列名：型号, 货号, 克重, 门幅, 供应商, 价格, 物料状态, 备注
     DB.fabric = fabrics.map(r => {
-      const name = r['型号'] || r['面料名称'] || r['名称'] || '';
-      if (!name) return null;
-      return {
-        name:     String(name).trim(),
-        code:     String(r['货号'] || '').trim(),
-        unit:     'm',
-        gsm:      parseFloat(r['克重'] || 0) || 0,
-        width:    parseFloat(r['门幅'] || 0) || 0,
-        price:    parseFloat(r['价格'] || r['含税单价'] || r['单价'] || 0) || 0,
-        remark:   String(r['备注'] || r['成分'] || '').trim(),
-        supplier: String(r['供应商'] || '').trim(),
-        status:   String(r['物料状态'] || '').trim(),
-        keywords: String(r['型号'] || name).trim()
-      };
-    }).filter(r => r.name && r.price > 0);
+      try {
+        const name = safeStr(r['型号'] || r['面料名称'] || r['名称'] || '');
+        if (!name) return null;
+        const price = safeNum(r['价格'] || r['含税单价'] || r['单价'] || 0);
+        return {
+          name,
+          code:     safeStr(r['货号']),
+          unit:     'm',
+          gsm:      safeNum(r['克重']),
+          width:    safeNum(r['门幅']),
+          price,
+          remark:   safeStr(r['备注'] || r['成分']),
+          supplier: safeStr(r['供应商']),
+          status:   safeStr(r['物料状态']),
+          keywords: name
+        };
+      } catch(e) { return null; }
+    }).filter(r => r && r.name && r.price > 0);
 
-    // 解析棉种 —— 字段名对齐飞书「绵种清单」表
+    // 解析棉种 —— 飞书「绵种清单」表
     // 实际列名：绵种大类, 编码, 颜色, 功能, 名称, 状态, 原名称
-    DB.cotton = cottons.map(r => ({
-      category: String(r['绵种大类'] || '').trim(),
-      code:     String(r['编码'] || '').trim(),
-      color:    String(r['颜色'] || '').trim(),
-      func:     String(r['功能'] || '').trim(),
-      name:     String(r['名称'] || '').trim(),
-      status:   String(r['状态'] || '').trim(),
-      oldName:  String(r['原名称'] || '').trim()
-    })).filter(r => r.name || r.code);
+    DB.cotton = cottons.map(r => {
+      try {
+        return {
+          category: safeStr(r['绵种大类']),
+          code:     safeStr(r['编码']),
+          color:    safeStr(r['颜色']),
+          func:     safeStr(r['功能']),
+          name:     safeStr(r['名称']),
+          status:   safeStr(r['状态']),
+          oldName:  safeStr(r['原名称'])
+        };
+      } catch(e) { return null; }
+    }).filter(r => r && (r.name || r.code));
 
-    // 解析弹簧 —— 字段名对齐飞书「弹簧标准」表
+    // 解析弹簧 —— 飞书「弹簧标准」表
     // 实际列名：高度(cm）, 线径(mm), 65g袋装无纺布门幅（cm）, 单个弹簧克重, 单个65g无纺布克重
-    DB.spring = springs.map(r => ({
-      height:       parseFloat(r['高度(cm）'] || r['高度(cm)'] || r['高度'] || 0),
-      wire:         String(r['线径(mm)'] || r['线径'] || '').trim(),
-      nwWidth:      parseFloat(r['65g袋装无纺布门幅（cm）'] || r['袋装无纺布门幅'] || 0),
-      springWeight: parseFloat(r['单个弹簧克重'] || r['单个弹簧克重(g)'] || 0),
-      bagWeight:    parseFloat(r['单个65g无纺布克重'] || r['单个无纺布克重(g)'] || 0)
-    })).filter(r => r.height && r.wire);
+    DB.spring = springs.map(r => {
+      try {
+        return {
+          height:       safeNum(r['高度(cm）'] || r['高度(cm)'] || r['高度']),
+          wire:         safeStr(r['线径(mm)'] || r['线径']),
+          nwWidth:      safeNum(r['65g袋装无纺布门幅（cm）'] || r['袋装无纺布门幅']),
+          springWeight: safeNum(r['单个弹簧克重'] || r['单个弹簧克重(g)']),
+          bagWeight:    safeNum(r['单个65g无纺布克重'] || r['单个无纺布克重(g)'])
+        };
+      } catch(e) { return null; }
+    }).filter(r => r && r.height && r.wire);
 
     DB.fabricUpdate = new Date().toLocaleString('zh-CN');
     DB.priceUpdate  = new Date().toLocaleString('zh-CN');
