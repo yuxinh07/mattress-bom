@@ -1952,7 +1952,7 @@ if (m) {
   // 门幅同步到面料行
   const fw = parseFabricWidth(item.name);
   if (fw && !m._fabricWidth) m._fabricWidth = fw;
-}
+
 function onFabricSelect(li,val){ currentMattress.layers[li]._fabricSel=val; renderBOM(); }
 
 function toggleFabricManual(li, manual) {
