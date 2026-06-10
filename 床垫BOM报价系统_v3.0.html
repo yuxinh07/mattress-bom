@@ -1,0 +1,1589 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>床垫BOM自动报价系统 v3.0</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family:-apple-system,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;
+  background:#f0f2f5; padding:20px; color:#333;
+}
+.container { max-width:1600px; margin:0 auto; }
+
+.header {
+  background:linear-gradient(135deg,#1e3c72 0%,#2a5298 100%);
+  color:#fff; padding:25px 30px; border-radius:8px; margin-bottom:20px;
+  box-shadow:0 4px 12px rgba(0,0,0,0.1);
+  display:flex; align-items:center; justify-content:space-between;
+}
+.header h1 { font-size:24px; margin-bottom:5px; }
+.header p { font-size:13px; opacity:0.85; }
+.sync-status {
+  display:flex; flex-direction:column; align-items:flex-end; gap:6px;
+}
+.sync-badge {
+  display:inline-flex; align-items:center; gap:5px;
+  padding:4px 12px; border-radius:12px; font-size:12px; font-weight:500;
+}
+.sync-badge.online { background:rgba(82,196,26,0.2); color:#95de64; border:1px solid rgba(82,196,26,0.4); }
+.sync-badge.offline { background:rgba(255,77,79,0.2); color:#ff7875; border:1px solid rgba(255,77,79,0.4); }
+.sync-badge.syncing { background:rgba(24,144,255,0.2); color:#69c0ff; border:1px solid rgba(24,144,255,0.4); }
+.sync-time { font-size:11px; opacity:0.7; }
+
+.toolbar {
+  background:#fff; padding:15px 20px; border-radius:8px; margin-bottom:15px;
+  display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+  box-shadow:0 2px 8px rgba(0,0,0,0.05);
+}
+.btn {
+  padding:8px 16px; border:none; border-radius:4px; cursor:pointer;
+  font-size:13px; font-weight:500; transition:all 0.2s;
+  display:inline-flex; align-items:center; gap:5px;
+}
+.btn-primary{ background:#1890ff; color:#fff; }
+.btn-primary:hover{ background:#40a9ff; }
+.btn-success{ background:#52c41a; color:#fff; }
+.btn-success:hover{ background:#73d13d; }
+.btn-warning{ background:#fa8c16; color:#fff; }
+.btn-warning:hover{ background:#ffa940; }
+.btn-default{ background:#fff; color:#333; border:1px solid #d9d9d9; }
+.btn-default:hover{ border-color:#40a9ff; color:#40a9ff; }
+.btn-danger{ background:#ff4d4f; color:#fff; }
+.btn-danger:hover{ background:#ff7875; }
+.btn-sm{ padding:4px 10px; font-size:12px; }
+.btn:disabled { opacity:0.5; cursor:not-allowed; }
+
+.main-layout {
+  display:grid; grid-template-columns: 400px 1fr; gap:15px;
+  margin-bottom:15px;
+}
+
+.panel {
+  background:#fff; border-radius:8px; padding:20px;
+  box-shadow:0 2px 8px rgba(0,0,0,0.05);
+}
+.panel-title {
+  font-size:15px; font-weight:600; color:#1e3c72;
+  margin-bottom:15px; padding-bottom:8px;
+  border-bottom:2px solid #f0f0f0;
+  display:flex; align-items:center; gap:6px;
+}
+
+.form-row { margin-bottom:12px; }
+.form-row label { font-size:13px; color:#666; display:block; margin-bottom:4px; }
+.form-row input, .form-row select, .form-row textarea {
+  width:100%; padding:6px 10px; border:1px solid #d9d9d9; border-radius:4px;
+  font-size:13px; transition:border-color 0.2s;
+}
+.form-row input:focus, .form-row select:focus, .form-row textarea:focus {
+  outline:none; border-color:#40a9ff; box-shadow:0 0 0 2px rgba(24,144,255,0.1);
+}
+.form-row textarea { resize:vertical; font-family:inherit; }
+
+.size-row { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; }
+
+.info-tag {
+  display:inline-flex; align-items:center; gap:4px;
+  background:#e6f7ff; color:#1890ff; border:1px solid #91d5ff;
+  padding:2px 8px; border-radius:4px; font-size:12px; margin-top:4px;
+}
+.warn-tag {
+  background:#fff7e6; color:#fa8c16; border:1px solid #ffd591;
+}
+
+.structure-group {
+  background:#fafafa; border:1px solid #e8e8e8; border-radius:6px;
+  margin-bottom:10px; padding:10px;
+}
+.structure-group-title {
+  font-size:13px; font-weight:600; color:#1890ff;
+  margin-bottom:8px; padding-bottom:6px;
+  border-bottom:1px dashed #d9d9d9;
+  display:flex; align-items:center; gap:5px;
+}
+.structure-row {
+  display:grid; grid-template-columns:100px 50px 1fr 70px;
+  gap:6px; margin-bottom:6px; align-items:center;
+}
+.structure-row .label-text {
+  font-size:12px; color:#555;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.structure-row select, .structure-row input {
+  padding:4px 8px; font-size:12px; border:1px solid #d9d9d9; border-radius:3px;
+  width:100%;
+}
+.structure-row select:focus, .structure-row input:focus {
+  outline:none; border-color:#40a9ff;
+}
+.qty-auto { background:#f6ffed !important; border-color:#b7eb8f !important; }
+
+.category-badge {
+  display:inline-block; padding:1px 6px; border-radius:8px;
+  font-size:10px; font-weight:500; white-space:nowrap;
+}
+.badge-fabric { background:#ffe9f0; color:#eb2f96; }
+.badge-material { background:#e6f7ff; color:#1890ff; }
+
+.add-btn {
+  background:#fff; border:1px dashed #d9d9d9; color:#666;
+  padding:4px 12px; border-radius:3px; font-size:12px;
+  cursor:pointer; width:100%; margin-top:4px;
+}
+.add-btn:hover { border-color:#40a9ff; color:#40a9ff; }
+
+.bom-table { width:100%; border-collapse:collapse; font-size:13px; }
+.bom-table th {
+  background:#fafafa; padding:10px; text-align:left;
+  border-bottom:2px solid #e8e8e8; color:#666; font-weight:500;
+}
+.bom-table td { padding:8px 10px; border-bottom:1px solid #f0f0f0; }
+.bom-table tr:hover td { background:#f5faff; }
+.group-row td { background:#e6f7ff !important; font-weight:600; color:#1890ff; }
+.unmatched { background:#fffbe6 !important; }
+
+.cost-summary {
+  background:linear-gradient(135deg,#f6ffed 0%,#d9f7be 100%);
+  border:1px solid #b7eb8f; border-radius:6px;
+  padding:15px; margin-top:15px;
+}
+.cost-row {
+  display:flex; justify-content:space-between; padding:5px 0; font-size:13px;
+}
+.cost-row.total {
+  border-top:1px solid #b7eb8f; margin-top:5px;
+  padding-top:10px; font-size:16px; font-weight:600; color:#389e0d;
+}
+
+.fob-panel {
+  background:linear-gradient(135deg,#fff7e6 0%,#ffe7ba 100%);
+  border:1px solid #ffd591; border-radius:6px;
+  padding:15px; margin-top:10px;
+}
+.fob-row {
+  display:grid; grid-template-columns:1fr 100px; gap:10px;
+  align-items:center; margin-bottom:8px; font-size:13px;
+}
+.fob-row input, .fob-row select {
+  padding:4px 8px; font-size:12px; border:1px solid #d9d9d9; border-radius:3px;
+  text-align:right;
+}
+.fob-total {
+  background:#fa541c; color:#fff; padding:10px; border-radius:4px;
+  text-align:center; font-size:18px; font-weight:bold; margin-top:10px;
+}
+.fob-breakdown {
+  background:#fff; padding:10px; border-radius:4px;
+  margin-top:10px; font-size:12px; line-height:1.9;
+}
+.fob-breakdown .row { display:flex; justify-content:space-between; }
+.fob-breakdown .row.sep { border-top:1px dashed #e8e8e8; margin-top:4px; padding-top:4px; }
+
+/* Loading overlay */
+.loading-overlay {
+  display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+  background:rgba(0,0,0,0.4); z-index:999999;
+  justify-content:center; align-items:center; flex-direction:column; gap:16px;
+}
+.loading-overlay.show { display:flex; }
+.loading-spinner {
+  width:48px; height:48px; border:5px solid rgba(255,255,255,0.3);
+  border-top-color:#fff; border-radius:50%; animation:spin 0.8s linear infinite;
+}
+.loading-text { color:#fff; font-size:16px; font-weight:500; }
+@keyframes spin { to { transform:rotate(360deg); } }
+
+/* Modal */
+.modal {
+  display:none; position:fixed; top:0; left:0;
+  width:100%; height:100%;
+  background:rgba(0,0,0,0.5); z-index:99999;
+  justify-content:center; align-items:flex-start; padding-top:30px;
+}
+.modal.show { display:flex; }
+.modal-content {
+  background:#fff; border-radius:8px; padding:25px;
+  width:90%; max-width:1200px; max-height:90vh;
+  overflow-y:auto; box-shadow:0 8px 24px rgba(0,0,0,0.2);
+  position:relative; z-index:100000;
+}
+.modal-header {
+  display:flex; justify-content:space-between; align-items:center;
+  margin-bottom:20px; padding-bottom:12px; border-bottom:2px solid #f0f0f0;
+}
+.modal-header h2 { font-size:18px; color:#1e3c72; }
+.close-btn {
+  background:none; border:none; font-size:24px; cursor:pointer;
+  color:#999; padding:0 8px; line-height:1;
+}
+.close-btn:hover { color:#333; }
+
+.tabs {
+  display:flex; gap:5px; border-bottom:2px solid #f0f0f0;
+  margin-bottom:15px; flex-wrap:wrap;
+}
+.tab {
+  padding:8px 16px; cursor:pointer; font-size:13px;
+  border-bottom:2px solid transparent; margin-bottom:-2px; transition:all 0.2s;
+}
+.tab:hover { color:#1890ff; }
+.tab.active { color:#1890ff; border-bottom-color:#1890ff; font-weight:500; }
+
+.tab-content { display:none; }
+.tab-content.active { display:block; }
+
+.tab-desc {
+  background:#e6f7ff; padding:10px 15px; border-radius:4px;
+  font-size:12px; color:#555; margin-bottom:12px; border-left:3px solid #1890ff;
+}
+
+.db-table { width:100%; border-collapse:collapse; font-size:12px; margin-top:10px; }
+.db-table th {
+  background:#fafafa; padding:8px; text-align:left;
+  border-bottom:1px solid #e8e8e8; font-weight:500; color:#666; position:sticky; top:0;
+}
+.db-table td { padding:6px 8px; border-bottom:1px solid #f5f5f5; }
+.db-table tr:hover td { background:#fafafa; }
+
+/* Spring calculator */
+.spring-form { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+.spring-section { background:#fafafa; padding:15px; border-radius:6px; }
+.spring-section h3 {
+  font-size:14px; color:#1e3c72; margin-bottom:12px;
+  padding-bottom:6px; border-bottom:1px solid #e8e8e8;
+}
+.spring-row {
+  display:grid; grid-template-columns:1fr 1fr; gap:8px;
+  margin-bottom:8px; font-size:12px; align-items:center;
+}
+.spring-row label { color:#666; }
+.spring-row input, .spring-row select {
+  padding:4px 8px; font-size:12px; border:1px solid #d9d9d9; border-radius:3px;
+}
+.spring-summary {
+  background:#e6f7ff; padding:10px; border-radius:4px;
+  font-size:13px; line-height:1.8; margin-top:10px;
+}
+.zone-visual { background:#fff; border:1px solid #e8e8e8; border-radius:4px; padding:10px; margin-top:10px; }
+.zone-bar { display:flex; height:30px; border-radius:3px; overflow:hidden; margin-bottom:6px; }
+.zone-segment {
+  display:flex; align-items:center; justify-content:center;
+  color:#fff; font-size:11px; font-weight:500;
+  border-right:1px solid rgba(255,255,255,0.3);
+}
+.zone-segment:last-child { border-right:none; }
+.zone-hard { background:#fa541c; }
+.zone-soft { background:#1890ff; }
+.zone-rows-input { display:grid; gap:6px; margin-top:8px; }
+.zone-rows-input input {
+  padding:3px 6px; font-size:11px; border:1px solid #d9d9d9; border-radius:3px;
+  text-align:center; width:100%;
+}
+.empty-tip { text-align:center; color:#bbb; padding:30px; font-size:13px; }
+
+/* Feishu config panel */
+.feishu-config {
+  background:#f0f7ff; border:1px solid #91d5ff; border-radius:6px;
+  padding:15px; margin-bottom:15px;
+}
+.feishu-config h4 { color:#1890ff; margin-bottom:10px; font-size:14px; }
+.feishu-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.feishu-grid label { font-size:12px; color:#666; display:block; margin-bottom:2px; }
+.feishu-grid input {
+  width:100%; padding:4px 8px; font-size:12px;
+  border:1px solid #d9d9d9; border-radius:3px;
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- 加载遮罩 -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-spinner"></div>
+  <div class="loading-text" id="loadingText">正在从飞书同步数据...</div>
+</div>
+
+<div class="header">
+  <div>
+    <h1>🛏️ 床垫BOM自动报价系统 v3.0</h1>
+    <p>飞书多维表实时同步 · 6款真实结构 · 工费自动匹配 · 标准FOB公式</p>
+  </div>
+  <div class="sync-status">
+    <span class="sync-badge offline" id="syncBadge">⭕ 未同步</span>
+    <span class="sync-time" id="syncTime">点击「同步飞书」加载数据</span>
+  </div>
+</div>
+
+<div class="toolbar">
+  <button class="btn btn-primary" onclick="syncFeishu()" id="syncBtn">🔄 同步飞书数据</button>
+  <button class="btn btn-default" onclick="openDBManager()">📚 本地数据库</button>
+  <button class="btn btn-warning" onclick="openSpringCalculator()">⚙️ 床芯计算器</button>
+  <button class="btn btn-success" onclick="exportBOM()">📤 导出BOM</button>
+  <button class="btn btn-default" onclick="resetAll()">🗑️ 重置</button>
+  <button class="btn btn-default btn-sm" onclick="openFeishuConfig()" style="margin-left:auto">⚙️ 飞书配置</button>
+</div>
+
+<div class="main-layout">
+
+  <!-- 左侧 -->
+  <div class="panel">
+    <div class="panel-title">📋 床垫基本信息</div>
+
+    <div class="form-row">
+      <label>床垫款式</label>
+      <select id="mattressType" onchange="onMattressTypeChange()">
+        <option value="">-- 请选择 --</option>
+      </select>
+    </div>
+
+    <div class="form-row">
+      <label>尺寸 (宽 × 长 × 高 cm)</label>
+      <div class="size-row">
+        <input type="number" id="mWidth" value="180" placeholder="宽" oninput="onSizeChange()">
+        <input type="number" id="mLength" value="200" placeholder="长" oninput="onSizeChange()">
+        <input type="number" id="mHeight" value="25" placeholder="高" oninput="onSizeChange()">
+      </div>
+      <div id="innerSleeveTip" class="info-tag" style="display:none"></div>
+    </div>
+
+    <div class="form-row">
+      <label>加工费 <span style="color:#999;font-weight:normal;font-size:11px">（按款式+宽度自动匹配）</span></label>
+      <div style="display:flex;gap:8px;align-items:center">
+        <input type="number" id="processingFee" value="100" step="1" oninput="recalcFOB()" style="flex:1">
+        <span id="feeMatchTip" style="font-size:11px;color:#52c41a;white-space:nowrap"></span>
+      </div>
+    </div>
+
+    <div class="panel-title" style="margin-top:20px">🏗️ 结构层配置</div>
+    <div id="structureContainer">
+      <div class="empty-tip">请先选择床垫款式</div>
+    </div>
+  </div>
+
+  <!-- 右侧 -->
+  <div class="panel">
+    <div class="panel-title">📊 BOM明细 & 成本汇总</div>
+
+    <div id="springCostDisplay" style="background:#e6fffb;padding:10px;border-radius:4px;margin-bottom:10px;font-size:13px">
+      床芯成本：<strong style="color:#f5222d">¥0.00</strong>
+      <span style="float:right;font-size:11px;color:#999">通过【床芯计算器】计算后点击"应用"</span>
+    </div>
+
+    <table class="bom-table">
+      <thead>
+        <tr>
+          <th style="width:16%">结构层</th>
+          <th>物料名称</th>
+          <th style="width:9%">用量</th>
+          <th style="width:7%">单位</th>
+          <th style="width:10%">含税单价</th>
+          <th style="width:10%">去税金额</th>
+        </tr>
+      </thead>
+      <tbody id="bomBody">
+        <tr><td colspan="6" style="text-align:center;color:#999;padding:30px">请先选择床垫款式</td></tr>
+      </tbody>
+    </table>
+
+    <div class="cost-summary">
+      <div class="cost-row">
+        <span>面料+物料去税成本</span>
+        <span id="totalMaterial">¥0.00</span>
+      </div>
+      <div class="cost-row">
+        <span>床芯成本（去税）</span>
+        <span id="totalSpring">¥0.00</span>
+      </div>
+      <div class="cost-row">
+        <span>加工费</span>
+        <span id="totalFee">¥0.00</span>
+      </div>
+      <div class="cost-row total">
+        <span>未税材料合计</span>
+        <span id="grandTotal">¥0.00</span>
+      </div>
+    </div>
+
+    <div class="fob-panel">
+      <div style="font-weight:600;color:#d46b08;margin-bottom:10px">💰 FOB报价测算</div>
+      <div class="fob-row">
+        <label>汇率 (CNY/USD)</label>
+        <input type="number" id="fobRate" value="7.2" step="0.01" oninput="recalcFOB()">
+      </div>
+      <div class="fob-row">
+        <label>综合利润系数</label>
+        <input type="number" id="profitCoef" value="0.795" step="0.001" oninput="recalcFOB()">
+      </div>
+
+      <div class="fob-breakdown">
+        <div class="row"><span>面料+物料去税成本</span><span id="fb1">¥0.00</span></div>
+        <div class="row"><span>床芯成本（去税）</span><span id="fb2">¥0.00</span></div>
+        <div class="row"><span>加工费</span><span id="fb3">¥0.00</span></div>
+        <div class="row sep"><span><strong>未税总成本</strong></span><span id="fb4" style="color:#1890ff;font-weight:600">¥0.00</span></div>
+        <div class="row" style="margin-top:4px"><span>÷ 汇率 ÷ 利润系数</span><span style="color:#999;font-size:11px">按Excel标准公式</span></div>
+      </div>
+
+      <div class="fob-total" id="fobFinal">$0.00</div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ====== 飞书配置 弹窗 ====== -->
+<div class="modal" id="feishuModal">
+  <div class="modal-content" style="max-width:600px">
+    <div class="modal-header">
+      <h2>⚙️ 飞书多维表配置</h2>
+      <button class="close-btn" onclick="closeFeishuConfig()">×</button>
+    </div>
+    <div class="feishu-config">
+      <h4>🔑 应用凭据</h4>
+      <div class="feishu-grid">
+        <div>
+          <label>App ID</label>
+          <input type="text" id="cfgAppId" placeholder="cli_xxx">
+        </div>
+        <div>
+          <label>App Secret</label>
+          <input type="password" id="cfgAppSecret" placeholder="••••••••">
+        </div>
+        <div style="grid-column:1/3">
+          <label>App Token（多维表应用Token）</label>
+          <input type="text" id="cfgAppToken" placeholder="OImvbDndCaCGRPsIiEDcLOKhnob">
+        </div>
+      </div>
+    </div>
+    <div style="background:#fafafa;border:1px solid #e8e8e8;border-radius:6px;padding:15px;margin-bottom:15px">
+      <h4 style="color:#1e3c72;font-size:14px;margin-bottom:10px">📋 Table ID 配置</h4>
+      <div class="feishu-grid">
+        <div><label>弹簧标准</label><input type="text" id="cfgSpringTable" placeholder="tbl5aQo2nWlJJSFz"></div>
+        <div><label>物料清单</label><input type="text" id="cfgMaterialTable" placeholder="tbl5ABFMH9wtZ69j"></div>
+        <div><label>棉种清单</label><input type="text" id="cfgCottonTable" placeholder="tbl6j6TatRgI3l0T"></div>
+        <div><label>面料清单</label><input type="text" id="cfgFabricTable" placeholder="tblUZdt70X0tvcYs"></div>
+        <div><label>工费标准</label><input type="text" id="cfgFeeTable" placeholder="tbl1HMW0g7Et5ZZh"></div>
+        <div><label>胶水及内套标准</label><input type="text" id="cfgGlueTable" placeholder="tbl6skTLdyrrBjxF"></div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-primary" style="flex:1" onclick="saveFeishuConfig()">💾 保存配置</button>
+      <button class="btn btn-success" style="flex:1" onclick="saveFeishuConfig();syncFeishu()">💾 保存并立即同步</button>
+    </div>
+    <div style="margin-top:12px;background:#fff7e6;border:1px solid #ffd591;border-radius:4px;padding:10px;font-size:12px;color:#874d00;line-height:1.7">
+      ⚠️ <strong>跨域说明：</strong>浏览器直接请求飞书API会被CORS拦截。解决方案：<br>
+      1. 将此HTML文件部署到<strong>同域服务器</strong>并配置代理<br>
+      2. 或使用 <strong>Chrome插件「Allow CORS」</strong>临时开启（仅限本地测试）<br>
+      3. 或使用飞书提供的<strong>H5页面SDK</strong>嵌入飞书内部<br>
+      当前版本：CORS失败时自动降级使用<strong>本地缓存数据</strong>
+    </div>
+  </div>
+</div>
+
+<!-- ====== 数据库管理 弹窗 ====== -->
+<div class="modal" id="dbModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>📚 本地数据库（飞书同步后的缓存）</h2>
+      <button class="close-btn" onclick="closeDBManager()">×</button>
+    </div>
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab(event,'tab-fabric')">🎨 面料库</div>
+      <div class="tab" onclick="switchTab(event,'tab-price')">📦 物料库</div>
+      <div class="tab" onclick="switchTab(event,'tab-cotton')">🌿 棉种清单</div>
+      <div class="tab" onclick="switchTab(event,'tab-spring')">🌀 弹簧参照</div>
+      <div class="tab" onclick="switchTab(event,'tab-fee')">💴 工费标准</div>
+      <div class="tab" onclick="switchTab(event,'tab-structure')">🏗️ 款式结构</div>
+    </div>
+
+    <!-- 面料库 -->
+    <div class="tab-content active" id="tab-fabric">
+      <div class="tab-desc">🎨 <strong>面料库</strong>：来自飞书「面料清单」表，共 <strong id="fabricCount">0</strong> 条 · 更新：<span id="fabricUpdate">--</span></div>
+      <div style="display:flex;gap:8px;margin-bottom:10px">
+        <button class="btn btn-primary btn-sm" onclick="downloadDB('fabric')">📥 导出CSV</button>
+        <label class="btn btn-success btn-sm" style="cursor:pointer">📤 导入CSV<input type="file" accept=".csv" style="display:none" onchange="uploadDB(event,'fabric')"></label>
+      </div>
+      <div style="max-height:400px;overflow:auto">
+        <table class="db-table"><thead><tr><th>面料名称</th><th>单位</th><th>含税单价</th><th>备注</th></tr></thead>
+        <tbody id="fabricBody"></tbody></table>
+      </div>
+    </div>
+
+    <!-- 物料库 -->
+    <div class="tab-content" id="tab-price">
+      <div class="tab-desc">📦 <strong>物料库</strong>：来自飞书「物料清单」表，共 <strong id="priceCount">0</strong> 条 · 更新：<span id="priceUpdate">--</span></div>
+      <div style="display:flex;gap:8px;margin-bottom:10px">
+        <button class="btn btn-primary btn-sm" onclick="downloadDB('price')">📥 导出CSV</button>
+        <label class="btn btn-success btn-sm" style="cursor:pointer">📤 导入CSV<input type="file" accept=".csv" style="display:none" onchange="uploadDB(event,'price')"></label>
+      </div>
+      <div style="max-height:400px;overflow:auto">
+        <table class="db-table"><thead><tr><th>物料名称</th><th>单位</th><th>形态</th><th>含税单价</th><th>备注</th></tr></thead>
+        <tbody id="priceBody"></tbody></table>
+      </div>
+    </div>
+
+    <!-- 棉种清单 -->
+    <div class="tab-content" id="tab-cotton">
+      <div class="tab-desc">🌿 <strong>棉种清单</strong>：来自飞书「棉种清单」表，共 <strong id="cottonCount">0</strong> 条</div>
+      <div style="max-height:400px;overflow:auto">
+        <table class="db-table"><thead><tr><th>编码</th><th>名称</th><th>大类</th><th>颜色</th><th>状态</th></tr></thead>
+        <tbody id="cottonBody"></tbody></table>
+      </div>
+    </div>
+
+    <!-- 弹簧参照 -->
+    <div class="tab-content" id="tab-spring">
+      <div class="tab-desc">🌀 <strong>弹簧参照表</strong>：共 <strong id="springCount">0</strong> 条</div>
+      <div style="max-height:400px;overflow:auto">
+        <table class="db-table"><thead><tr><th>高度</th><th>线径</th><th>无纺布门幅</th><th>单个弹簧克重(g)</th><th>单个无纺布克重(g)</th></tr></thead>
+        <tbody id="springBody"></tbody></table>
+      </div>
+    </div>
+
+    <!-- 工费标准 -->
+    <div class="tab-content" id="tab-fee">
+      <div class="tab-desc">💴 <strong>工费标准</strong>：按款式+宽度自动匹配</div>
+      <div style="max-height:400px;overflow:auto">
+        <table class="db-table"><thead><tr><th>款式</th><th>≤1.2m</th><th>1.2~1.6m</th><th>1.6~1.85m</th><th>>1.85m</th></tr></thead>
+        <tbody id="feeBody"></tbody></table>
+      </div>
+    </div>
+
+    <!-- 款式结构 -->
+    <div class="tab-content" id="tab-structure">
+      <div class="tab-desc">🏗️ <strong>款式结构</strong>：共 <strong id="structureCount">0</strong> 个款式（内置，与Excel对齐）</div>
+      <div id="structureView" style="max-height:400px;overflow:auto"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== 床芯计算器 弹窗 ====== -->
+<div class="modal" id="springModal">
+  <div class="modal-content" style="max-width:1000px">
+    <div class="modal-header">
+      <h2>⚙️ 床芯成本计算器</h2>
+      <button class="close-btn" onclick="closeSpringCalculator()">×</button>
+    </div>
+    <div class="spring-form">
+      <div>
+        <div class="spring-section">
+          <h3>📐 床芯参数</h3>
+          <div class="spring-row"><label>宽 (cm)</label><input type="number" id="sWidth" value="180" oninput="updateSpringLayout()"></div>
+          <div class="spring-row"><label>长 (cm)</label><input type="number" id="sLength" value="200" oninput="updateSpringLayout()"></div>
+          <div class="spring-row"><label>高度 (cm)</label>
+            <select id="sHeight" onchange="updateSpringLayout()">
+              <option value="16">16cm</option>
+              <option value="18">18cm</option>
+              <option value="20">20cm</option>
+              <option value="22" selected>22cm</option>
+              <option value="24">24cm</option>
+            </select>
+          </div>
+          <div class="spring-row"><label>节距 (cm)</label><input type="number" id="sPitch" value="6.3" step="0.1" oninput="updateSpringLayout()"></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;padding:8px;background:#fff;border-radius:4px;font-size:12px">
+            <div>宽排数：<strong id="widthCount" style="color:#1890ff">0</strong></div>
+            <div>长排数：<strong id="lengthCount" style="color:#1890ff">0</strong></div>
+            <div style="grid-column:1/3">总弹簧：<strong id="totalSprings" style="color:#f5222d;font-size:14px">0</strong> 个</div>
+          </div>
+        </div>
+        <div class="spring-section" style="margin-top:10px">
+          <h3>🌀 弹簧规格</h3>
+          <div class="spring-row"><label>软线径</label>
+            <select id="softWire" onchange="updateSpringLayout()">
+              <option value="钢线1.8">钢线1.8 (¥5.2/kg)</option>
+              <option value="钢线2.0" selected>钢线2.0 (¥5.1/kg)</option>
+              <option value="钢线2.2">钢线2.2 (¥5.0/kg)</option>
+            </select>
+          </div>
+          <div class="spring-row"><label>硬线径</label>
+            <select id="hardWire" onchange="updateSpringLayout()">
+              <option value="钢线1.8">钢线1.8 (¥5.2/kg)</option>
+              <option value="钢线2.0">钢线2.0 (¥5.1/kg)</option>
+              <option value="钢线2.2" selected>钢线2.2 (¥5.0/kg)</option>
+            </select>
+          </div>
+          <div class="spring-row" style="grid-template-columns:1fr"><label>分区方式</label>
+            <select id="zoneType" onchange="updateZoneInputs()" style="width:100%">
+              <option value="full">整网（全软）</option>
+              <option value="border">四周加硬</option>
+              <option value="3zone">三分区</option>
+              <option value="3zone_border">三分区+四周加硬</option>
+              <option value="5zone">五分区</option>
+              <option value="5zone_border">五分区+四周加硬</option>
+            </select>
+          </div>
+          <div id="zoneRowsContainer"></div>
+          <div class="zone-visual" id="zoneVisual" style="display:none">
+            <div class="zone-bar" id="zoneBar"></div>
+            <div style="font-size:11px;color:#666;text-align:center" id="zoneInfo"></div>
+          </div>
+          <button class="btn btn-default btn-sm" style="margin-top:8px;width:100%" onclick="suggestZoneRows()">📊 智能建议分区</button>
+        </div>
+      </div>
+      <div>
+        <div class="spring-section">
+          <h3>🧪 胶水（棉毡颗粒热熔胶）</h3>
+          <div class="spring-row"><label>胶水长度 (m)</label><input type="number" id="glueLen" value="2.00" step="0.01"></div>
+          <div class="spring-row"><label>胶水条数</label><input type="number" id="glueCount" value="25"></div>
+          <div class="spring-row"><label>每米克重 (g)</label><input type="number" id="glueWeight" value="100" step="1"></div>
+          <div class="spring-row"><label>损耗率</label><input type="number" id="glueLoss" value="0.02" step="0.01"></div>
+          <div class="spring-row"><label>含税单价 (¥/kg)</label><input type="number" id="gluePrice" value="16" step="0.1"></div>
+        </div>
+        <div class="spring-section" style="margin-top:10px">
+          <h3>🎁 无纺布袋</h3>
+          <div class="spring-row"><label>白色袋数（软）</label><input type="number" id="whiteBagCount" value="0"></div>
+          <div class="spring-row"><label>有色袋数（硬）</label><input type="number" id="colorBagCount" value="0"></div>
+          <div class="spring-row"><label>单袋克重 (g)</label><input type="number" id="bagUnitWeight" value="4.451" step="0.001"></div>
+          <div class="spring-row"><label>损耗率</label><input type="number" id="bagLoss" value="0.03" step="0.01"></div>
+          <div class="spring-row"><label>白袋单价 (¥/kg)</label><input type="number" id="whiteBagPrice" value="9.5" step="0.1"></div>
+          <div class="spring-row"><label>有色袋单价 (¥/kg)</label><input type="number" id="colorBagPrice" value="10" step="0.1"></div>
+        </div>
+        <div class="spring-section" style="margin-top:10px">
+          <h3>📦 包面无纺布（70克）</h3>
+          <div class="spring-row"><label>门幅 (cm)</label><input type="number" id="nwWidth" value="210"></div>
+          <div class="spring-row"><label>克重 (g/m²)</label><input type="number" id="nwGsm" value="70"></div>
+          <div class="spring-row"><label>用量宽 (m)</label><input type="number" id="nwLen" value="2.00" step="0.01"></div>
+          <div class="spring-row"><label>损耗率</label><input type="number" id="nwLoss" value="0.02" step="0.01"></div>
+          <div class="spring-row"><label>含税单价 (¥/kg)</label><input type="number" id="nwPrice" value="9.5" step="0.1"></div>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:15px;display:flex;gap:10px">
+      <button class="btn btn-primary" style="flex:1" onclick="calculateSpring()">🧮 开始计算</button>
+      <button class="btn btn-success" style="flex:1" onclick="applySpringCost()">✅ 应用到BOM</button>
+    </div>
+    <div id="springCostResult" class="spring-summary" style="display:none;margin-top:15px"></div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   飞书配置（已预填）
+   ============================================================ */
+const FEISHU_DEFAULT = {
+  appId:         'cli_aaac64081a389bd6',
+  appSecret:     'zL32n3LBgd3pKcM9oAZXBlI6drWW7q8D',
+  appToken:      'OImvbDndCaCGRPsIiEDcLOKhnob',
+  tables: {
+    spring:    'tbl5aQo2nWlJJSFz',
+    material:  'tbl5ABFMH9wtZ69j',
+    cotton:    'tbl6j6TatRgI3l0T',
+    fabric:    'tblUZdt70X0tvcYs',
+    fee:       'tbl1HMW0g7Et5ZZh',
+    glue:      'tbl6skTLdyrrBjxF'
+  }
+};
+
+/* ============================================================
+   工费标准（内置，对齐Excel）
+   ============================================================ */
+const FEE_STANDARD = {
+  '套子款（自制）':   { coef:1.0, fees:[85,100,110,130] },
+  '套子款（外购）':   { coef:0.7, fees:[59.5,70,77,91] },
+  'OT-洁之宝款式1':  { coef:1.0, fees:[85,100,110,130] },
+  'OT-洁之宝款式2':  { coef:1.0, fees:[85,100,110,130] },
+  'QT-两边款':       { coef:0.8, fees:[68,80,88,104] },
+  'PT-虎口款':       { coef:1.2, fees:[102,120,132,156] },
+  'ET-假三边款':     { coef:1.0, fees:[85,100,110,130] },
+  'ET-真三边款':     { coef:1.2, fees:[102,120,132,156] }
+};
+
+function getProcessingFee(mattressType, widthCm) {
+  const entry = FEE_STANDARD[mattressType];
+  if (!entry) return null;
+  const w = parseFloat(widthCm) || 0;
+  if (w <= 120)  return entry.fees[0];
+  if (w <= 160)  return entry.fees[1];
+  if (w <= 185)  return entry.fees[2];
+  return entry.fees[3];
+}
+
+/* ============================================================
+   床垫款式结构（内置6款，对齐Excel + txt文件）
+   ============================================================ */
+const MATTRESS_STRUCTURES = {
+  '套子款（外购）': {
+    layers:[
+      { name:'内套',      fabric:null,  materials:['全涤汗布内套'] },
+      { name:'床芯-舒适层', fabric:null, materials:['海绵A','海绵B'] },
+      { name:'床芯-弹簧', fabric:null,  materials:['弹簧床芯','上棉毡','下棉毡','底棉','长护边','宽护边'] },
+      { name:'胶水',      fabric:null,  materials:['PUR胶','热熔胶-350A','热熔胶-5804'] },
+      { name:'包材及辅料', fabric:null, materials:['拉链','边带','拉手','平卷纸箱','内套缝纫线','干燥剂','透明胶带'] }
+    ]
+  },
+  'OT-洁之宝款式1': {
+    layers:[
+      { name:'正面裥绵',   fabric:'正面面料',  materials:['无胶棉A','多针海绵A','多针海绵B','白色无纺布'] },
+      { name:'反面裥绵',   fabric:'反面面料',  materials:['无胶棉B','多针海绵C','多针海绵D','白色无纺布'] },
+      { name:'内套',       fabric:null,        materials:['全涤汗布内套'] },
+      { name:'床芯-舒适层',fabric:null,        materials:['海绵A','海绵B'] },
+      { name:'床芯-弹簧',  fabric:null,        materials:['弹簧床芯','上棉毡','下棉毡','底棉','长护边','宽护边'] },
+      { name:'胶水',       fabric:null,        materials:['PUR胶','热熔胶-350A','热熔胶-5804'] },
+      { name:'包材及辅料', fabric:null,        materials:['拉链','边带','拉手','平卷纸箱','标签','缝纫线-裥棉面线','缝纫线-裥棉底线','缝纫线-边布面线','缝纫线-缝纫底线','缝纫线-拷边线','缝纫线-包边线','干燥剂','透明胶带'] }
+    ]
+  },
+  'OT-洁之宝款式2': {
+    layers:[
+      { name:'正面裥绵',   fabric:'正面面料',  materials:['无胶棉A','多针海绵A','多针海绵B','白色无纺布'] },
+      { name:'边布裥绵',   fabric:'边布面料',  materials:['无胶棉B','卷棉','白色无纺布'] },
+      { name:'反面裥绵',   fabric:'反面面料',  materials:['无胶棉C','多针海绵C','多针海绵D','白色无纺布'] },
+      { name:'内套',       fabric:null,        materials:['全涤汗布内套'] },
+      { name:'床芯-舒适层',fabric:null,        materials:['海绵A','海绵B'] },
+      { name:'床芯-弹簧',  fabric:null,        materials:['弹簧床芯','上棉毡','下棉毡','底棉','长护边','宽护边'] },
+      { name:'胶水',       fabric:null,        materials:['PUR胶','热熔胶-350A','热熔胶-5804'] },
+      { name:'包材及辅料', fabric:null,        materials:['拉链','边带','拉手','平卷纸箱','标签','缝纫线-裥棉面线','缝纫线-裥棉底线','缝纫线-边布面线','缝纫线-缝纫底线','缝纫线-拷边线','缝纫线-包边线','干燥剂','透明胶带'] }
+    ]
+  },
+  'QT-两边款': {
+    layers:[
+      { name:'面布裥绵',   fabric:'面料',      materials:['无胶棉A','多针海绵A','多针海绵B','白色无纺布'] },
+      { name:'边布裥绵',   fabric:'边布面料',  materials:['无胶棉B','卷棉','白色无纺布'] },
+      { name:'底部裥绵',   fabric:'底部面料',  materials:['无胶棉C','多针海绵C','多针海绵D','白色无纺布'] },
+      { name:'床芯-弹簧',  fabric:null,        materials:['弹簧床芯','上棉毡','下棉毡','底棉','长护边','宽护边'] },
+      { name:'胶水',       fabric:null,        materials:['PUR胶','热熔胶-350A','热熔胶-5804'] },
+      { name:'包材及辅料', fabric:null,        materials:['边带','平卷纸箱','标签','缝纫线-裥棉面线','缝纫线-裥棉底线','缝纫线-边布面线','缝纫线-缝纫底线','缝纫线-拷边线','缝纫线-包边线','干燥剂','透明胶带'] }
+    ]
+  },
+  'PT-虎口款': {
+    layers:[
+      { name:'面布裥绵',   fabric:'面料',      materials:['无胶棉A','多针海绵A','多针海绵B','白色无纺布'] },
+      { name:'虎口',       fabric:'虎口面料',  materials:['无胶棉B','卷棉','白色无纺布'] },
+      { name:'隔层',       fabric:null,        materials:['白色无纺布-隔层'] },
+      { name:'大边裥绵',   fabric:'大边面料',  materials:['无胶棉C','卷棉B','白色无纺布'] },
+      { name:'底部裥绵',   fabric:'底部面料',  materials:['无胶棉D','多针海绵C','多针海绵D','白色无纺布'] },
+      { name:'床芯-虎口填充', fabric:null,     materials:['虎口填充海绵A','虎口填充海绵B'] },
+      { name:'床芯-弹簧',  fabric:null,        materials:['弹簧床芯','上棉毡','下棉毡','底棉','长护边','宽护边'] },
+      { name:'胶水',       fabric:null,        materials:['PUR胶','热熔胶-350A','热熔胶-5804','虎口胶水'] },
+      { name:'包材及辅料', fabric:null,        materials:['拉链','边带','拉手','平卷纸箱','标签','缝纫线-裥棉面线','缝纫线-裥棉底线','缝纫线-边布面线','缝纫线-缝纫底线','缝纫线-拷边线','缝纫线-包边线','干燥剂','透明胶带'] }
+    ]
+  },
+  'ET-真三边款': {
+    layers:[
+      { name:'面布裥绵',   fabric:'面料',      materials:['无胶棉A','多针海绵A','多针海绵B','白色无纺布'] },
+      { name:'小边裥绵',   fabric:'小边面料',  materials:['无胶棉B','卷棉','白色无纺布'] },
+      { name:'隔层',       fabric:null,        materials:['白色无纺布-隔层'] },
+      { name:'大边裥绵',   fabric:'大边面料',  materials:['无胶棉C','卷棉B','白色无纺布'] },
+      { name:'底部裥绵',   fabric:'底部面料',  materials:['无胶棉D','多针海绵C','多针海绵D','白色无纺布'] },
+      { name:'床芯-弹簧',  fabric:null,        materials:['弹簧床芯','上棉毡','下棉毡','底棉','长护边','宽护边'] },
+      { name:'胶水',       fabric:null,        materials:['PUR胶','热熔胶-350A','热熔胶-5804'] },
+      { name:'包材及辅料', fabric:null,        materials:['拉链','边带','拉手','平卷纸箱','标签','缝纫线-裥棉面线','缝纫线-裥棉底线','缝纫线-边布面线','缝纫线-缝纫底线','缝纫线-拷边线','缝纫线-包边线','干燥剂','透明胶带'] }
+    ]
+  },
+  'ET-假三边款': {
+    layers:[
+      { name:'面布裥绵',   fabric:'面料',      materials:['无胶棉A','多针海绵A','多针海绵B','白色无纺布'] },
+      { name:'大边裥绵',   fabric:'大边面料',  materials:['无胶棉B','卷棉','白色无纺布'] },
+      { name:'底部裥绵',   fabric:'底部面料',  materials:['无胶棉C','多针海绵C','白色无纺布'] },
+      { name:'床芯-弹簧',  fabric:null,        materials:['弹簧床芯','上棉毡','下棉毡','底棉','长护边','宽护边'] },
+      { name:'胶水',       fabric:null,        materials:['PUR胶','热熔胶-350A','热熔胶-5804'] },
+      { name:'包材及辅料', fabric:null,        materials:['拉链','边带','拉手','平卷纸箱','标签','缝纫线-裥棉面线','缝纫线-裥棉底线','缝纫线-边布面线','缝纫线-缝纫底线','缝纫线-拷边线','缝纫线-包边线','干燥剂','透明胶带'] }
+    ]
+  }
+};
+
+/* ============================================================
+   数据库 & 全局状态
+   ============================================================ */
+let DB = { fabric:[], price:[], cotton:[], spring:[], fabricUpdate:'', priceUpdate:'' };
+let currentMattress = null;
+let currentMattressType = '';
+let bomData = [];
+let springCost = 0; // 已去税的床芯成本
+
+/* ============================================================
+   飞书 API
+   ============================================================ */
+function getFeishuConfig() {
+  const saved = localStorage.getItem('feishuConfig');
+  if (saved) {
+    try { return JSON.parse(saved); } catch(e) {}
+  }
+  return FEISHU_DEFAULT;
+}
+
+// ============================================================
+// 所有飞书请求通过 Vercel 代理转发，彻底解决 CORS 问题
+// 代理地址：https://mattress-bom.vercel.app/api/feishu
+// ============================================================
+const PROXY_URL = 'https://mattress-bom.vercel.app/api/feishu';
+
+async function proxyFetch(feishuUrl, options = {}) {
+  const res = await fetch(PROXY_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      url: feishuUrl,
+      method: options.method || 'GET',
+      body: options.body || null
+    })
+  });
+  if (!res.ok) throw new Error('代理请求失败: ' + res.status);
+  return res.json();
+}
+
+async function getFeishuToken() {
+  const cfg = getFeishuConfig();
+  const data = await proxyFetch(
+    'https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal',
+    {
+      method: 'POST',
+      body: { app_id: cfg.appId, app_secret: cfg.appSecret }
+    }
+  );
+  if (!data.tenant_access_token) throw new Error('获取Token失败: ' + JSON.stringify(data));
+  return data.tenant_access_token;
+}
+
+async function fetchTableAll(tableId, token) {
+  const cfg = getFeishuConfig();
+  const records = [];
+  let pageToken = '';
+  do {
+    const feishuUrl = `https://open.feishu.cn/open-apis/bitable/v1/apps/${cfg.appToken}/tables/${tableId}/records?page_size=500${pageToken ? '&page_token=' + encodeURIComponent(pageToken) : ''}`;
+    // 通过代理转发，并在代理层带上 Authorization header
+    const res = await fetch(PROXY_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        url: feishuUrl,
+        method: 'GET',
+        authToken: token
+      })
+    });
+    if (!res.ok) throw new Error(`读取表失败 [${tableId}]: ${res.status}`);
+    const data = await res.json();
+    (data.data?.items || []).forEach(item => records.push(item.fields));
+    pageToken = data.data?.page_token || '';
+  } while (pageToken);
+  return records;
+}
+
+async function syncFeishu() {
+  showLoading('🔄 正在获取飞书授权...');
+  setSyncStatus('syncing', '同步中...');
+  const btn = document.getElementById('syncBtn');
+  btn.disabled = true;
+
+  try {
+    const token = await getFeishuToken();
+    const cfg = getFeishuConfig();
+
+    showLoading('📦 正在拉取物料清单...');
+    const materials = await fetchTableAll(cfg.tables.material, token);
+
+    showLoading('🎨 正在拉取面料清单...');
+    const fabrics = await fetchTableAll(cfg.tables.fabric, token);
+
+    showLoading('🌿 正在拉取棉种清单...');
+    const cottons = await fetchTableAll(cfg.tables.cotton, token);
+
+    showLoading('🌀 正在拉取弹簧标准...');
+    const springs = await fetchTableAll(cfg.tables.spring, token);
+
+    // 解析物料（字段名容错）
+    DB.price = materials.map(r => {
+      const name = r['物料名称'] || r['名称'] || r['品名'] || '';
+      if (!name) return null;
+      return {
+        name: String(name).trim(),
+        unit: String(r['单位'] || '件').trim(),
+        form: String(r['形态'] || r['物料形态'] || '').trim(),
+        price: parseFloat(r['含税单价'] || r['单价'] || r['价格'] || 0) || 0,
+        remark: String(r['备注'] || '').trim(),
+        keywords: String(r['关键词'] || name).trim()
+      };
+    }).filter(Boolean);
+
+    // 解析面料
+    DB.fabric = fabrics.map(r => {
+      const name = r['面料名称'] || r['名称'] || r['品名'] || '';
+      if (!name) return null;
+      return {
+        name: String(name).trim(),
+        unit: String(r['单位'] || 'm').trim(),
+        price: parseFloat(r['含税单价'] || r['单价'] || 0) || 0,
+        remark: String(r['备注'] || '').trim(),
+        keywords: String(r['关键词'] || name).trim()
+      };
+    }).filter(Boolean);
+
+    // 解析棉种
+    DB.cotton = cottons.map(r => ({
+      code:   String(r['编码'] || '').trim(),
+      name:   String(r['名称'] || r['棉种名称'] || '').trim(),
+      category: String(r['绵种大类'] || r['大类'] || '').trim(),
+      color:  String(r['颜色'] || '').trim(),
+      status: String(r['状态'] || '').trim()
+    })).filter(r => r.name || r.code);
+
+    // 解析弹簧（兼容飞书字段名）
+    DB.spring = springs.map(r => ({
+      height:       parseFloat(r['高度(cm)'] || r['高度'] || 0),
+      wire:         String(r['线径'] || '').trim(),
+      nwWidth:      parseFloat(r['袋装无纺布门幅'] || r['无纺布门幅'] || 0),
+      springWeight: parseFloat(r['单个弹簧克重(g)'] || r['弹簧克重'] || 0),
+      bagWeight:    parseFloat(r['单个无纺布克重(g)'] || r['无纺布克重'] || 0)
+    })).filter(r => r.height && r.wire);
+
+    DB.fabricUpdate = new Date().toLocaleString('zh-CN');
+    DB.priceUpdate  = new Date().toLocaleString('zh-CN');
+    saveDB();
+    refreshAllUI();
+    setSyncStatus('online', '飞书同步成功 ' + new Date().toLocaleTimeString('zh-CN'));
+
+    // 刷新下拉（面料/物料已更新）
+    if (currentMattress) { renderStructure(); renderBOM(); }
+
+  } catch(err) {
+    console.error('飞书同步失败:', err);
+    setSyncStatus('offline', '同步失败（使用本地缓存）');
+    // 提示CORS问题
+    const msg = err.message.includes('fetch') || err.message.includes('Failed')
+      ? `⚠️ 飞书同步失败（CORS跨域限制）\n\n错误：${err.message}\n\n解决方案：\n1. 安装Chrome插件「Allow CORS: Access-Control-Allow-Origin」并开启\n2. 或将此页面部署到服务器并配置飞书代理\n\n当前使用本地缓存数据。`
+      : `❌ 飞书同步失败：${err.message}`;
+    alert(msg);
+  }
+
+  hideLoading();
+  btn.disabled = false;
+}
+
+function setSyncStatus(state, text) {
+  const badge = document.getElementById('syncBadge');
+  const time  = document.getElementById('syncTime');
+  badge.className = 'sync-badge ' + state;
+  badge.textContent = state === 'online' ? '✅ 已同步' : state === 'syncing' ? '⏳ 同步中' : '⭕ 未同步';
+  time.textContent = text;
+}
+
+/* ============================================================
+   Loading
+   ============================================================ */
+function showLoading(text) {
+  document.getElementById('loadingText').textContent = text || '加载中...';
+  document.getElementById('loadingOverlay').classList.add('show');
+}
+function hideLoading() {
+  document.getElementById('loadingOverlay').classList.remove('show');
+}
+
+/* ============================================================
+   飞书配置弹窗
+   ============================================================ */
+function openFeishuConfig() {
+  const cfg = getFeishuConfig();
+  document.getElementById('cfgAppId').value       = cfg.appId || '';
+  document.getElementById('cfgAppSecret').value   = cfg.appSecret || '';
+  document.getElementById('cfgAppToken').value    = cfg.appToken || '';
+  document.getElementById('cfgSpringTable').value = cfg.tables?.spring || '';
+  document.getElementById('cfgMaterialTable').value = cfg.tables?.material || '';
+  document.getElementById('cfgCottonTable').value = cfg.tables?.cotton || '';
+  document.getElementById('cfgFabricTable').value = cfg.tables?.fabric || '';
+  document.getElementById('cfgFeeTable').value    = cfg.tables?.fee || '';
+  document.getElementById('cfgGlueTable').value   = cfg.tables?.glue || '';
+  document.getElementById('feishuModal').classList.add('show');
+}
+function closeFeishuConfig() { document.getElementById('feishuModal').classList.remove('show'); }
+function saveFeishuConfig() {
+  const cfg = {
+    appId:     document.getElementById('cfgAppId').value.trim(),
+    appSecret: document.getElementById('cfgAppSecret').value.trim(),
+    appToken:  document.getElementById('cfgAppToken').value.trim(),
+    tables: {
+      spring:   document.getElementById('cfgSpringTable').value.trim(),
+      material: document.getElementById('cfgMaterialTable').value.trim(),
+      cotton:   document.getElementById('cfgCottonTable').value.trim(),
+      fabric:   document.getElementById('cfgFabricTable').value.trim(),
+      fee:      document.getElementById('cfgFeeTable').value.trim(),
+      glue:     document.getElementById('cfgGlueTable').value.trim()
+    }
+  };
+  localStorage.setItem('feishuConfig', JSON.stringify(cfg));
+  closeFeishuConfig();
+  alert('✅ 飞书配置已保存');
+}
+
+/* ============================================================
+   本地存储
+   ============================================================ */
+function loadDB() {
+  try {
+    const saved = localStorage.getItem('mattressDB_v3');
+    if (saved) {
+      const d = JSON.parse(saved);
+      DB.fabric       = d.fabric       || [];
+      DB.price        = d.price        || [];
+      DB.cotton       = d.cotton       || [];
+      DB.spring       = d.spring       || getDefaultSpring();
+      DB.fabricUpdate = d.fabricUpdate || '';
+      DB.priceUpdate  = d.priceUpdate  || '';
+    } else {
+      DB.spring = getDefaultSpring();
+    }
+  } catch(e) { console.error(e); DB.spring = getDefaultSpring(); }
+}
+
+function getDefaultSpring() {
+  return [
+    {height:16,wire:'钢线1.8',nwWidth:175,springWeight:22,bagWeight:3.5},
+    {height:16,wire:'钢线2.0',nwWidth:175,springWeight:26,bagWeight:3.5},
+    {height:18,wire:'钢线1.8',nwWidth:190,springWeight:26,bagWeight:3.8},
+    {height:18,wire:'钢线2.0',nwWidth:190,springWeight:31,bagWeight:3.8},
+    {height:18,wire:'钢线2.2',nwWidth:190,springWeight:36,bagWeight:3.8},
+    {height:20,wire:'钢线1.8',nwWidth:210,springWeight:30,bagWeight:4.1},
+    {height:20,wire:'钢线2.0',nwWidth:210,springWeight:36,bagWeight:4.1},
+    {height:20,wire:'钢线2.2',nwWidth:210,springWeight:42,bagWeight:4.1},
+    {height:22,wire:'钢线1.8',nwWidth:220,springWeight:35,bagWeight:4.451},
+    {height:22,wire:'钢线2.0',nwWidth:220,springWeight:42,bagWeight:4.451},
+    {height:22,wire:'钢线2.2',nwWidth:220,springWeight:50,bagWeight:4.451},
+    {height:24,wire:'钢线2.0',nwWidth:240,springWeight:48,bagWeight:5.0},
+    {height:24,wire:'钢线2.2',nwWidth:240,springWeight:57,bagWeight:5.0},
+  ];
+}
+
+function saveDB() {
+  try { localStorage.setItem('mattressDB_v3', JSON.stringify(DB)); } catch(e) {}
+}
+
+/* ============================================================
+   初始化
+   ============================================================ */
+function init() {
+  loadDB();
+  refreshMattressTypes();
+  refreshAllUI();
+  updateSpringLayout();
+  // 预填飞书配置
+  const cfg = getFeishuConfig();
+  if (!localStorage.getItem('feishuConfig')) {
+    localStorage.setItem('feishuConfig', JSON.stringify(FEISHU_DEFAULT));
+  }
+}
+
+/* ============================================================
+   款式类型
+   ============================================================ */
+function refreshMattressTypes() {
+  const sel = document.getElementById('mattressType');
+  sel.innerHTML = '<option value="">-- 请选择款式 --</option>';
+  Object.keys(MATTRESS_STRUCTURES).forEach(k => {
+    const o = document.createElement('option');
+    o.value = k; o.textContent = k;
+    sel.appendChild(o);
+  });
+}
+
+function onMattressTypeChange() {
+  const t = document.getElementById('mattressType').value;
+  currentMattressType = t;
+  if (!t) {
+    document.getElementById('structureContainer').innerHTML = '<div class="empty-tip">请先选择床垫款式</div>';
+    document.getElementById('bomBody').innerHTML = '<tr><td colspan="6" style="text-align:center;color:#999;padding:30px">请先选择床垫款式</td></tr>';
+    currentMattress = null;
+    document.getElementById('feeMatchTip').textContent = '';
+    updateTotals();
+    return;
+  }
+  currentMattress = JSON.parse(JSON.stringify(MATTRESS_STRUCTURES[t]));
+  currentMattress.layers.forEach(layer => {
+    layer._fabricSel = '';
+    layer._materials = layer.materials.map(m => ({ label:m, sel:'', qty:1 }));
+  });
+  autoMatchFee();
+  autoSelectInnerSleeve();
+  renderStructure();
+  renderBOM();
+}
+
+function onSizeChange() {
+  autoMatchFee();
+  autoSelectInnerSleeve();
+  if (currentMattress) renderBOM();
+}
+
+/* 工费自动匹配 */
+function autoMatchFee() {
+  if (!currentMattressType) return;
+  const w = parseFloat(document.getElementById('mWidth').value) || 0;
+  const fee = getProcessingFee(currentMattressType, w);
+  if (fee !== null) {
+    document.getElementById('processingFee').value = fee;
+    document.getElementById('feeMatchTip').textContent = `✓ 已自动匹配 (宽${w}cm)`;
+  } else {
+    document.getElementById('feeMatchTip').textContent = '';
+  }
+  recalcFOB();
+}
+
+/* 内套自动提示 */
+function autoSelectInnerSleeve() {
+  const w = parseFloat(document.getElementById('mWidth').value) || 0;
+  const l = parseFloat(document.getElementById('mLength').value) || 0;
+  const tip = document.getElementById('innerSleeveTip');
+  if (!w) { tip.style.display='none'; return; }
+  let spec;
+  if (w < 130)       spec = '全涤汗布内套90cm门幅/90g (¥3.24/m)';
+  else if (w < 160)  spec = '全涤汗布内套115cm门幅/90g (¥4.14/m)';
+  else               spec = '全涤汗布内套150cm门幅/90g (¥5.4/m)';
+  const qty = l > 190 ? 2.7 : 2.6;
+  tip.style.display = 'inline-flex';
+  tip.textContent = `建议内套：${spec}，用量 ${qty}m`;
+}
+
+/* ============================================================
+   渲染结构层
+   ============================================================ */
+function renderStructure() {
+  if (!currentMattress) return;
+  const c = document.getElementById('structureContainer');
+  let html = '';
+  currentMattress.layers.forEach((layer, li) => {
+    html += `<div class="structure-group">
+      <div class="structure-group-title">▣ ${layer.name}</div>`;
+
+    if (layer.fabric) {
+      html += `<div class="structure-row">
+        <span class="label-text">${layer.fabric}</span>
+        <span class="category-badge badge-fabric">面料</span>
+        <select onchange="onFabricSelect(${li},this.value)">
+          <option value="">-- 选择面料 --</option>
+          ${DB.fabric.map(f=>`<option value="${escHtml(f.name)}" ${layer._fabricSel===f.name?'selected':''}>${escHtml(f.name)} ¥${f.price}</option>`).join('')}
+        </select>
+        <input type="number" value="1" disabled style="background:#f5f5f5;font-size:11px">
+      </div>`;
+    }
+
+    layer._materials.forEach((m, mi) => {
+      html += `<div class="structure-row">
+        <span class="label-text" title="${escHtml(m.label)}">${escHtml(m.label)}</span>
+        <span class="category-badge badge-material">物料</span>
+        <select onchange="onMaterialSelect(${li},${mi},this.value)">
+          <option value="">-- 选择物料 --</option>
+          ${DB.price.map(p=>`<option value="${escHtml(p.name)}" ${m.sel===p.name?'selected':''}>${escHtml(p.name)} ¥${p.price}</option>`).join('')}
+        </select>
+        <input type="number" value="${m.qty}" min="0" step="0.01"
+          class="${m._auto?'qty-auto':''}"
+          onchange="onQtyChange(${li},${mi},this.value)"
+          title="${m._auto?'自动计算':'手动输入'}">
+      </div>`;
+    });
+
+    html += `<button class="add-btn" onclick="addMaterialRow(${li})">+ 添加物料行</button></div>`;
+  });
+  c.innerHTML = html;
+}
+
+function escHtml(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function onFabricSelect(li,val){ currentMattress.layers[li]._fabricSel=val; renderBOM(); }
+function onMaterialSelect(li,mi,val){ currentMattress.layers[li]._materials[mi].sel=val; renderBOM(); }
+function onQtyChange(li,mi,v){ currentMattress.layers[li]._materials[mi].qty=parseFloat(v)||0; currentMattress.layers[li]._materials[mi]._auto=false; renderBOM(); }
+function addMaterialRow(li){ currentMattress.layers[li]._materials.push({label:'自定义', sel:'', qty:1}); renderStructure(); }
+
+/* ============================================================
+   渲染BOM（去税金额 = 含税单价 ÷ 1.13）
+   ============================================================ */
+function renderBOM() {
+  if (!currentMattress) { updateTotals(); return; }
+  const tb = document.getElementById('bomBody');
+  let html = '';
+  bomData = [];
+
+  currentMattress.layers.forEach(layer => {
+    html += `<tr class="group-row"><td colspan="6">▣ ${escHtml(layer.name)}</td></tr>`;
+
+    if (layer.fabric) {
+      const f = DB.fabric.find(x => x.name === layer._fabricSel);
+      if (f) {
+        const untaxed = f.price / 1.13;
+        bomData.push({layer:layer.name, label:layer.fabric, name:f.name, qty:1, unit:f.unit||'m', price:f.price, untaxedAmt:untaxed});
+        html += `<tr>
+          <td>${escHtml(layer.fabric)}<span class="category-badge badge-fabric" style="margin-left:4px">面料</span></td>
+          <td>${escHtml(f.name)}</td><td>1</td><td>${f.unit||'m'}</td>
+          <td>¥${f.price.toFixed(2)}</td><td style="color:#389e0d"><strong>¥${untaxed.toFixed(2)}</strong></td>
+        </tr>`;
+      } else {
+        html += `<tr class="unmatched">
+          <td>${escHtml(layer.fabric)}<span class="category-badge badge-fabric" style="margin-left:4px">面料</span></td>
+          <td colspan="5" style="color:#fa8c16">（未选择）</td></tr>`;
+      }
+    }
+
+    layer._materials.forEach(m => {
+      const p = DB.price.find(x => x.name === m.sel);
+      if (p) {
+        const untaxed = p.price * m.qty / 1.13;
+        bomData.push({layer:layer.name, label:m.label, name:p.name, qty:m.qty, unit:p.unit||'件', price:p.price, untaxedAmt:untaxed});
+        html += `<tr>
+          <td>${escHtml(m.label)}<span class="category-badge badge-material" style="margin-left:4px">物料</span></td>
+          <td>${escHtml(p.name)}</td><td>${m.qty}</td><td>${p.unit||'件'}</td>
+          <td>¥${p.price.toFixed(2)}</td><td style="color:#389e0d"><strong>¥${untaxed.toFixed(2)}</strong></td>
+        </tr>`;
+      } else {
+        html += `<tr class="unmatched">
+          <td>${escHtml(m.label)}<span class="category-badge badge-material" style="margin-left:4px">物料</span></td>
+          <td colspan="5" style="color:#fa8c16">（未填写）</td></tr>`;
+      }
+    });
+  });
+
+  tb.innerHTML = html;
+  updateTotals();
+}
+
+/* ============================================================
+   汇总 & FOB（对齐Excel公式）
+   ============================================================ */
+function updateTotals() {
+  const matUntaxed = bomData.reduce((s,r) => s + r.untaxedAmt, 0);
+  const fee = parseFloat(document.getElementById('processingFee').value) || 0;
+  const total = matUntaxed + springCost + fee;
+
+  document.getElementById('totalMaterial').textContent = '¥' + matUntaxed.toFixed(2);
+  document.getElementById('totalSpring').textContent   = '¥' + springCost.toFixed(2);
+  document.getElementById('totalFee').textContent      = '¥' + fee.toFixed(2);
+  document.getElementById('grandTotal').textContent    = '¥' + total.toFixed(2);
+  document.getElementById('springCostDisplay').innerHTML =
+    `床芯成本（去税）：<strong style="color:#f5222d">¥${springCost.toFixed(2)}</strong><span style="float:right;font-size:11px;color:#999">通过【床芯计算器】计算后点击"应用"</span>`;
+
+  recalcFOB();
+}
+
+function recalcFOB() {
+  const matUntaxed = bomData.reduce((s,r) => s + r.untaxedAmt, 0);
+  const fee    = parseFloat(document.getElementById('processingFee').value) || 0;
+  const rate   = parseFloat(document.getElementById('fobRate').value) || 7.2;
+  const pCoef  = parseFloat(document.getElementById('profitCoef').value) || 0.795;
+
+  // Excel公式：FOB = (未税材料 + 床芯 + 加工费) ÷ 汇率 ÷ 利润系数
+  const totalCNY = matUntaxed + springCost + fee;
+  const fobUSD   = rate > 0 && pCoef > 0 ? totalCNY / rate / pCoef : 0;
+
+  document.getElementById('fb1').textContent = '¥' + matUntaxed.toFixed(2);
+  document.getElementById('fb2').textContent = '¥' + springCost.toFixed(2);
+  document.getElementById('fb3').textContent = '¥' + fee.toFixed(2);
+  document.getElementById('fb4').textContent = '¥' + totalCNY.toFixed(2);
+  document.getElementById('fobFinal').textContent = '$' + fobUSD.toFixed(2);
+}
+
+/* ============================================================
+   数据库管理弹窗
+   ============================================================ */
+function openDBManager()  { document.getElementById('dbModal').classList.add('show'); refreshAllUI(); }
+function closeDBManager() { document.getElementById('dbModal').classList.remove('show'); }
+
+function switchTab(e,id) {
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+  e.currentTarget.classList.add('active');
+  document.getElementById(id).classList.add('active');
+}
+
+function refreshAllUI() {
+  refreshFabricUI();
+  refreshPriceUI();
+  refreshCottonUI();
+  refreshSpringUI();
+  refreshFeeUI();
+  refreshStructureView();
+}
+
+function refreshFabricUI() {
+  document.getElementById('fabricCount').textContent = DB.fabric.length;
+  document.getElementById('fabricUpdate').textContent = DB.fabricUpdate || '--';
+  const tb = document.getElementById('fabricBody');
+  tb.innerHTML = DB.fabric.length === 0
+    ? '<tr><td colspan="4" style="text-align:center;color:#bbb;padding:20px">无数据，请先同步飞书</td></tr>'
+    : DB.fabric.map(f=>`<tr><td>${f.name}</td><td>${f.unit||'m'}</td><td>¥${(f.price||0).toFixed(2)}</td><td>${f.remark||''}</td></tr>`).join('');
+}
+
+function refreshPriceUI() {
+  document.getElementById('priceCount').textContent = DB.price.length;
+  document.getElementById('priceUpdate').textContent = DB.priceUpdate || '--';
+  const tb = document.getElementById('priceBody');
+  tb.innerHTML = DB.price.length === 0
+    ? '<tr><td colspan="5" style="text-align:center;color:#bbb;padding:20px">无数据，请先同步飞书</td></tr>'
+    : DB.price.map(p=>`<tr><td>${p.name}</td><td>${p.unit||''}</td><td>${p.form||''}</td><td>¥${(p.price||0).toFixed(2)}</td><td>${p.remark||''}</td></tr>`).join('');
+}
+
+function refreshCottonUI() {
+  document.getElementById('cottonCount').textContent = DB.cotton.length;
+  const tb = document.getElementById('cottonBody');
+  tb.innerHTML = DB.cotton.length === 0
+    ? '<tr><td colspan="5" style="text-align:center;color:#bbb;padding:20px">无数据，请先同步飞书</td></tr>'
+    : DB.cotton.map(c=>`<tr><td>${c.code}</td><td>${c.name}</td><td>${c.category}</td><td>${c.color}</td><td>${c.status}</td></tr>`).join('');
+}
+
+function refreshSpringUI() {
+  document.getElementById('springCount').textContent = DB.spring.length;
+  const tb = document.getElementById('springBody');
+  tb.innerHTML = DB.spring.length === 0
+    ? '<tr><td colspan="5" style="text-align:center;color:#bbb;padding:20px">无数据</td></tr>'
+    : DB.spring.map(s=>`<tr><td>${s.height}cm</td><td>${s.wire}</td><td>${s.nwWidth}cm</td><td>${s.springWeight}g</td><td>${s.bagWeight}g</td></tr>`).join('');
+}
+
+function refreshFeeUI() {
+  const tb = document.getElementById('feeBody');
+  tb.innerHTML = Object.entries(FEE_STANDARD).map(([k,v])=>
+    `<tr><td>${k}</td>${v.fees.map(f=>`<td>¥${f}</td>`).join('')}</tr>`).join('');
+}
+
+function refreshStructureView() {
+  document.getElementById('structureCount').textContent = Object.keys(MATTRESS_STRUCTURES).length;
+  document.getElementById('structureView').innerHTML = Object.entries(MATTRESS_STRUCTURES).map(([k,v])=>`
+    <div style="background:#fafafa;padding:12px;border-radius:4px;margin-bottom:10px;border:1px solid #e8e8e8">
+      <h4 style="color:#1e3c72;margin-bottom:6px">📦 ${k}</h4>
+      <div style="font-size:12px;color:#666">${v.layers.length}层：${v.layers.map(l=>l.name).join(' → ')}</div>
+    </div>`).join('');
+}
+
+/* ============================================================
+   CSV 导入 / 导出（保留备用）
+   ============================================================ */
+function downloadCSV(filename, headers, rows) {
+  let csv = '\uFEFF';
+  csv += headers.join(',') + '\n';
+  rows.forEach(r => {
+    csv += r.map(v => {
+      const s = String(v==null?'':v);
+      return (s.includes(',')||s.includes('"')||s.includes('\n')) ? '"'+s.replace(/"/g,'""')+'"' : s;
+    }).join(',') + '\n';
+  });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
+  a.download = filename; a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 1000);
+}
+
+function downloadDB(type) {
+  if (type==='fabric') downloadCSV('面料库.csv',['面料名称','单位','含税单价','备注'],DB.fabric.map(f=>[f.name,f.unit,f.price,f.remark]));
+  if (type==='price')  downloadCSV('物料库.csv',['物料名称','单位','形态','含税单价','备注'],DB.price.map(p=>[p.name,p.unit,p.form,p.price,p.remark]));
+}
+
+function uploadDB(e, type) {
+  const f = e.target.files[0]; if(!f) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      let text = ev.target.result;
+      if(text.charCodeAt(0)===0xFEFF) text=text.slice(1);
+      text = text.replace(/\r\n/g,'\n').replace(/\r/g,'\n').trim();
+      const lines = text.split('\n').filter(l=>l.trim());
+      if(lines.length<2){alert('文件无数据');return;}
+      const headers = lines[0].split(',').map(h=>h.trim().replace(/^"|"$/g,''));
+      const rows = lines.slice(1).map(l=>{
+        const cells=[]; let cur='',inQ=false;
+        for(const ch of l){if(inQ){if(ch==='"')inQ=false;else cur+=ch;}else if(ch==='"')inQ=true;else if(ch===','){cells.push(cur.trim());cur='';}else cur+=ch;}
+        cells.push(cur.trim());
+        const obj={}; headers.forEach((h,i)=>{obj[h]=cells[i]||'';});
+        return obj;
+      });
+      if(type==='fabric'){
+        DB.fabric=rows.map(r=>({name:r['面料名称']||r['名称']||'',unit:r['单位']||'m',price:parseFloat(r['含税单价']||r['单价']||0)||0,remark:r['备注']||'',keywords:r['关键词']||r['面料名称']||''})).filter(r=>r.name);
+        DB.fabricUpdate=new Date().toLocaleString('zh-CN');
+      }else if(type==='price'){
+        DB.price=rows.map(r=>({name:r['物料名称']||r['名称']||'',unit:r['单位']||'件',form:r['形态']||'',price:parseFloat(r['含税单价']||r['单价']||0)||0,remark:r['备注']||'',keywords:r['关键词']||r['物料名称']||''})).filter(r=>r.name);
+        DB.priceUpdate=new Date().toLocaleString('zh-CN');
+      }
+      saveDB(); refreshAllUI();
+      if(currentMattress){renderStructure();renderBOM();}
+      alert(`✅ 导入${DB[type==='fabric'?'fabric':'price'].length}条`);
+    }catch(err){alert('解析失败：'+err.message);}
+    e.target.value='';
+  };
+  reader.readAsText(f,'UTF-8');
+}
+
+/* ============================================================
+   床芯计算器
+   ============================================================ */
+function openSpringCalculator() {
+  document.getElementById('springModal').classList.add('show');
+  document.getElementById('sWidth').value  = document.getElementById('mWidth').value;
+  document.getElementById('sLength').value = document.getElementById('mLength').value;
+  updateSpringLayout();
+  updateZoneInputs();
+  // 同步弹簧数量到无纺布袋输入
+}
+function closeSpringCalculator() { document.getElementById('springModal').classList.remove('show'); }
+
+function updateSpringLayout() {
+  const w = parseFloat(document.getElementById('sWidth').value)||0;
+  const l = parseFloat(document.getElementById('sLength').value)||0;
+  const p = parseFloat(document.getElementById('sPitch').value)||6.3;
+  const wc = Math.floor(w/p), lc = Math.floor(l/p);
+  document.getElementById('widthCount').textContent  = wc;
+  document.getElementById('lengthCount').textContent = lc;
+  document.getElementById('totalSprings').textContent = wc*lc;
+  updateZoneVisual();
+}
+
+function updateZoneInputs() {
+  const t = document.getElementById('zoneType').value;
+  const lc = parseInt(document.getElementById('lengthCount').textContent)||0;
+  const c = document.getElementById('zoneRowsContainer');
+  let zones = 0;
+  if(t.startsWith('3zone')) zones=3;
+  else if(t.startsWith('5zone')) zones=5;
+  if(zones===0){c.innerHTML='';updateZoneVisual();return;}
+  let html=`<div style="font-size:11px;color:#666;margin-top:8px">分区行数（共${lc}行）：</div><div class="zone-rows-input" style="grid-template-columns:repeat(${zones},1fr)">`;
+  for(let i=0;i<zones;i++) html+=`<input type="number" id="zoneRow${i}" value="${Math.floor(lc/zones)}" oninput="updateZoneVisual()" placeholder="区${i+1}">`;
+  html+='</div>';
+  c.innerHTML=html;
+  updateZoneVisual();
+}
+
+function suggestZoneRows() {
+  const t=document.getElementById('zoneType').value;
+  const lc=parseInt(document.getElementById('lengthCount').textContent)||0;
+  const zones=t.startsWith('3zone')?3:t.startsWith('5zone')?5:0;
+  if(!zones){alert('当前分区无需设置');return;}
+  const dists=zones===3?[0.3,0.4,0.3]:[0.18,0.22,0.2,0.22,0.18];
+  dists.forEach((d,i)=>{const el=document.getElementById('zoneRow'+i);if(el)el.value=Math.round(lc*d);});
+  updateZoneVisual();
+}
+
+function updateZoneVisual() {
+  const t=document.getElementById('zoneType').value;
+  const v=document.getElementById('zoneVisual');
+  if(!t.includes('zone')){v.style.display='none';return;}
+  v.style.display='block';
+  const zones=t.startsWith('5zone')?5:3;
+  const pattern=zones===3?['hard','soft','hard']:['hard','soft','hard','soft','hard'];
+  let total=0; const rows=[];
+  for(let i=0;i<zones;i++){const r=parseInt((document.getElementById('zoneRow'+i)||{}).value)||0;rows.push(r);total+=r;}
+  if(!total)total=1;
+  document.getElementById('zoneBar').innerHTML=rows.map((r,i)=>`<div class="zone-segment zone-${pattern[i]}" style="width:${(r/total*100).toFixed(1)}%">${r}</div>`).join('');
+  document.getElementById('zoneInfo').textContent=`${rows.length}区 / ${total}行`;
+}
+
+function calculateSpring() {
+  const w      = parseFloat(document.getElementById('sWidth').value)||0;
+  const l      = parseFloat(document.getElementById('sLength').value)||0;
+  const h      = parseInt(document.getElementById('sHeight').value)||18;
+  const p      = parseFloat(document.getElementById('sPitch').value)||6.3;
+  const softW  = document.getElementById('softWire').value;
+  const hardW  = document.getElementById('hardWire').value;
+  const zone   = document.getElementById('zoneType').value;
+
+  const wc = Math.floor(w/p), lc = Math.floor(l/p), total = wc*lc;
+
+  let softCount=0, hardCount=0;
+  if(zone==='full'){ softCount=total; }
+  else if(zone==='border'){ hardCount=wc*2+(lc-2)*2; softCount=total-hardCount; }
+  else {
+    const zones=zone.startsWith('5zone')?5:3;
+    const hasBorder=zone.includes('border');
+    const pattern=zones===3?['hard','soft','hard']:['hard','soft','hard','soft','hard'];
+    const zRows=[];
+    for(let i=0;i<zones;i++) zRows.push(parseInt((document.getElementById('zoneRow'+i)||{}).value)||0);
+    const sumR=zRows.reduce((a,b)=>a+b,0);
+    if(sumR>0) zRows.forEach((r,i)=>{ if(pattern[i]==='hard') hardCount+=r*wc; else softCount+=r*wc; });
+    else softCount=total;
+    if(hasBorder){ const bc=wc*2+(lc-2)*2; hardCount=Math.max(hardCount,bc); softCount=total-hardCount; }
+  }
+
+  // 弹簧克重（从DB查，fallback内置）
+  const softSpec = DB.spring.find(s=>s.height===h&&s.wire===softW) || DB.spring.find(s=>s.height===h) || {springWeight:35,bagWeight:4.451};
+  const hardSpec = DB.spring.find(s=>s.height===h&&s.wire===hardW) || softSpec;
+
+  // 弹簧单价（从物料库查，fallback）
+  const steelPrice = { '钢线1.8':5.2, '钢线2.0':5.1, '钢线2.2':5.0 };
+
+  const softSteelKg = softCount * softSpec.springWeight / 1000;
+  const hardSteelKg = hardCount * hardSpec.springWeight / 1000;
+  const softP = steelPrice[softW] || 5.1;
+  const hardP = steelPrice[hardW] || 5.0;
+  const steelCost = (softSteelKg*softP + hardSteelKg*hardP) / 1.13; // 去税
+
+  // 无纺布袋
+  const wBag  = parseInt(document.getElementById('whiteBagCount').value)||softCount;
+  const cBag  = parseInt(document.getElementById('colorBagCount').value)||hardCount;
+  const bagW  = parseFloat(document.getElementById('bagUnitWeight').value)||4.451;
+  const bagL  = parseFloat(document.getElementById('bagLoss').value)||0.03;
+  const wBagP = parseFloat(document.getElementById('whiteBagPrice').value)||9.5;
+  const cBagP = parseFloat(document.getElementById('colorBagPrice').value)||10;
+  // 实际输入bag count or auto
+  const wBagUse = (parseInt(document.getElementById('whiteBagCount').value)||0) > 0
+    ? parseInt(document.getElementById('whiteBagCount').value) : softCount;
+  const cBagUse = (parseInt(document.getElementById('colorBagCount').value)||0) > 0
+    ? parseInt(document.getElementById('colorBagCount').value) : hardCount;
+  const bagCost = (wBagUse*bagW/1000*(1+bagL)*wBagP + cBagUse*bagW/1000*(1+bagL)*cBagP) / 1.13;
+
+  // 包面无纺布
+  const nwW  = parseFloat(document.getElementById('nwWidth').value)||210;
+  const nwG  = parseFloat(document.getElementById('nwGsm').value)||70;
+  const nwL  = parseFloat(document.getElementById('nwLen').value)||2.0;
+  const nwLoss=parseFloat(document.getElementById('nwLoss').value)||0.02;
+  const nwP  = parseFloat(document.getElementById('nwPrice').value)||9.5;
+  const nwKg = (nwW/100)*nwL*nwG/1000*(1+nwLoss);
+  const nwCost = nwKg*nwP / 1.13;
+
+  // 胶水
+  const gLen  = parseFloat(document.getElementById('glueLen').value)||2.0;
+  const gCnt  = parseFloat(document.getElementById('glueCount').value)||25;
+  const gWg   = parseFloat(document.getElementById('glueWeight').value)||100; // g/m
+  const gLoss = parseFloat(document.getElementById('glueLoss').value)||0.02;
+  const gP    = parseFloat(document.getElementById('gluePrice').value)||16;
+  const glueKg = gLen*gCnt*gWg/1000*(1+gLoss);
+  const glueCost = glueKg*gP / 1.13;
+
+  const totalCost = steelCost + bagCost + nwCost + glueCost;
+  springCost = totalCost;
+
+  document.getElementById('springCostResult').style.display = 'block';
+  document.getElementById('springCostResult').innerHTML = `
+    📊 <strong>计算结果（已去税 ÷1.13）</strong><br>
+    总弹簧：<strong>${total}</strong>（软${softCount} + 硬${hardCount}）<br>
+    钢丝成本：<strong>¥${steelCost.toFixed(2)}</strong>（软${softSteelKg.toFixed(2)}kg + 硬${hardSteelKg.toFixed(2)}kg）<br>
+    无纺布袋：<strong>¥${bagCost.toFixed(2)}</strong>（白${wBagUse}个 + 有色${cBagUse}个）<br>
+    包面无纺布：<strong>¥${nwCost.toFixed(2)}</strong>（${nwKg.toFixed(3)}kg）<br>
+    热熔胶：<strong>¥${glueCost.toFixed(2)}</strong>（${glueKg.toFixed(3)}kg）<br>
+    <hr style="margin:8px 0;border-color:#b7eb8f">
+    💰 床芯去税成本：<strong style="color:#f5222d;font-size:16px">¥${totalCost.toFixed(2)}</strong>
+  `;
+}
+
+function applySpringCost() {
+  if (springCost <= 0) { alert('请先点击【开始计算】'); return; }
+  updateTotals();
+  alert('✅ 床芯成本已应用：¥' + springCost.toFixed(2) + '（去税）');
+  closeSpringCalculator();
+}
+
+/* ============================================================
+   导出BOM
+   ============================================================ */
+function exportBOM() {
+  if (!currentMattress) { alert('请先选择床垫款式'); return; }
+  const fee = parseFloat(document.getElementById('processingFee').value)||0;
+  const matU = bomData.reduce((s,r)=>s+r.untaxedAmt,0);
+  const headers = ['结构层','字段','物料名称','用量','单位','含税单价','去税金额'];
+  const rows = bomData.map(r=>[r.layer,r.label,r.name,r.qty,r.unit,r.price.toFixed(2),r.untaxedAmt.toFixed(2)]);
+  rows.push(['','','面料+物料去税合计','','','',matU.toFixed(2)]);
+  rows.push(['','','床芯成本（去税）','','','',springCost.toFixed(2)]);
+  rows.push(['','','加工费','','','',fee.toFixed(2)]);
+  rows.push(['','','未税材料总计','','','',(matU+springCost+fee).toFixed(2)]);
+  downloadCSV(`BOM_${currentMattressType}_${Date.now()}.csv`, headers, rows);
+}
+
+function resetAll() {
+  if (!confirm('确定重置所有BOM内容？')) return;
+  document.getElementById('mattressType').value = '';
+  springCost = 0; currentMattress = null; currentMattressType = ''; bomData = [];
+  document.getElementById('structureContainer').innerHTML = '<div class="empty-tip">请先选择床垫款式</div>';
+  document.getElementById('bomBody').innerHTML = '<tr><td colspan="6" style="text-align:center;color:#999;padding:30px">请先选择床垫款式</td></tr>';
+  document.getElementById('feeMatchTip').textContent = '';
+  document.getElementById('innerSleeveTip').style.display = 'none';
+  updateTotals();
+}
+
+/* ============================================================
+   启动
+   ============================================================ */
+init();
+</script>
+</body>
+</html>
