@@ -1293,7 +1293,10 @@ function onMattressTypeChange() {
   currentMattress = JSON.parse(JSON.stringify(MATTRESS_STRUCTURES[t]));
   currentMattress.layers.forEach(layer => {
     layer._fabricSel = '';
-    layer._fabricQty = 1;
+    layer._fabricCoef = 1;      // 系数（Excel黄色列）
+    layer._fabricWidth = 0;     // 门幅cm（0=从数据库读）
+    layer._fabricDrop = 15;     // 下垂量cm（面布默认15）
+    layer._fabricQty = 0;       // 最终计算米数（自动）
     layer._fabricManual = false;
     layer._fabricManualName = '';
     layer._fabricManualPrice = 0;
@@ -1455,29 +1458,48 @@ function renderStructure() {
           </button>
         </div>`;
       } else {
-        // 搜索模式
-        html += `<div class="structure-row" style="grid-template-columns:100px 50px 1fr 70px 60px">
-          <span class="label-text">${escHtml(layer.fabric)}</span>
-          <span class="category-badge badge-fabric">面料</span>
-          <div class="search-wrap" style="position:relative">
-            <input type="text" class="search-input"
-              placeholder="输入关键词筛选面料..."
-              value="${escHtml(displayVal)}"
-              data-type="fabric" data-li="${li}" data-mi=""
-              oninput="onSearchInput(this)"
-              onfocus="onSearchFocus(this)"
-              onblur="onSearchBlur(this)"
-              autocomplete="off">
-            <div class="search-dropdown" style="display:none"></div>
+        // 搜索模式：系数+门幅+自动算米数
+        const selF = DB.fabric.find(f=>f.name===sel)||DB.price.find(f=>f.name===sel);
+        const dbWidth = selF ? (selF.width || 0) : 0;
+        const dispWidth = layer._fabricWidth || dbWidth || 220;
+        const coef = layer._fabricCoef != null ? layer._fabricCoef : 1;
+        const drop = layer._fabricDrop != null ? layer._fabricDrop : 15;
+        const calcResult = calcFabricQtyM(dispWidth, coef, drop, 0.05);
+        const calcM = calcResult.final;
+        html += `<div style="margin-bottom:6px">
+          <div class="structure-row" style="grid-template-columns:100px 50px 1fr 50px 50px 60px">
+            <span class="label-text">${escHtml(layer.fabric)}</span>
+            <span class="category-badge badge-fabric">面料</span>
+            <div class="search-wrap" style="position:relative">
+              <input type="text" class="search-input"
+                placeholder="输入关键词筛选面料..."
+                value="${escHtml(displayVal)}"
+                data-type="fabric" data-li="${li}" data-mi=""
+                oninput="onSearchInput(this)"
+                onfocus="onSearchFocus(this)"
+                onblur="onSearchBlur(this)"
+                autocomplete="off">
+              <div class="search-dropdown" style="display:none"></div>
+            </div>
+            <input type="number" value="${coef}" min="0" step="0.5"
+              style="font-size:11px;border:1px solid #b7eb8f;border-radius:3px;padding:3px 5px;background:#f6ffed"
+              onchange="onFabricCoefChange(${li},this.value)"
+              title="系数（如1=1层, 1.5=1.5层, 0=不用）">
+            <input type="number" value="${dispWidth}" min="0" step="10"
+              style="font-size:11px;border:1px solid #ffd591;border-radius:3px;padding:3px 5px;background:#fffbe6"
+              onchange="onFabricWidthChange(${li},this.value)"
+              title="门幅（cm），自动从数据库读取，可手动覆盖">
+            <button onclick="toggleFabricManual(${li},true)"
+              style="font-size:11px;padding:3px 6px;border:1px solid #d9d9d9;border-radius:3px;cursor:pointer;background:#fff;white-space:nowrap">
+              手动
+            </button>
           </div>
-          <input type="number" value="${layer._fabricQty||1}" min="0" step="0.01"
-            style="font-size:11px;border:1px solid #d9d9d9;border-radius:3px;padding:4px 6px"
-            onchange="onFabricQtyChange(${li},this.value)"
-            title="面料用量（米）">
-          <button onclick="toggleFabricManual(${li},true)"
-            style="font-size:11px;padding:3px 6px;border:1px solid #d9d9d9;border-radius:3px;cursor:pointer;background:#fff;white-space:nowrap">
-            手动
-          </button>
+          <div style="font-size:11px;color:#666;padding:2px 0 0 156px;display:flex;gap:12px">
+            <span>门幅 <strong style="color:#fa8c16">${dispWidth}cm</strong></span>
+            <span>系数 <strong style="color:#52c41a">${coef}</strong></span>
+            <span>→ 最终用量 <strong style="color:#1890ff" id="fabricM_${li}">${calcM.toFixed(3)}m</strong></span>
+            <span style="color:#bbb">（下垂${drop}cm，损耗5%）</span>
+          </div>
         </div>`;
       }
     }
@@ -1485,31 +1507,96 @@ function renderStructure() {
     layer._materials.forEach((m, mi) => {
       const selItem = DB.price.find(p => p.name === m.sel);
       const displayVal = selItem ? `${selItem.name}${selItem.altName?' ('+selItem.altName+')':''} ¥${selItem.price}` : '';
-      // 单位：优先用手动设置的，其次从数据库读，fallback 件
+      // 判断是否需要自动计算（公斤类物料）
+      const calcType = !m._manualQty ? detectMaterialCalcType(m.sel, m.label) : null;
       const dbUnit = selItem ? (selItem.unit||'件') : '件';
       const curUnit = m._unit || dbUnit;
       const unitOptions = ['件','米','公斤','克','g/m²','cm','mm','平方米','T02','双平方'].map(u=>
         `<option value="${u}" ${curUnit===u?'selected':''}>${u}</option>`).join('');
-      html += `<div class="structure-row">
-        <span class="label-text" title="${escHtml(m.label)}">${escHtml(m.label)}</span>
-        <span class="category-badge badge-material">物料</span>
-        <div class="search-wrap" style="position:relative">
-          <input type="text" class="search-input"
-            placeholder="输入关键词筛选物料..."
-            value="${escHtml(displayVal)}"
-            data-type="material" data-li="${li}" data-mi="${mi}"
-            oninput="onSearchInput(this)"
-            onfocus="onSearchFocus(this)"
-            onblur="onSearchBlur(this)"
-            autocomplete="off">
-          <div class="search-dropdown" style="display:none"></div>
+
+      // 计算参数 & 当前计算值
+      const cp = m._calcParams || {};
+      let autoKg = null, paramHtml = '';
+
+      if (calcType === 'foam') {
+        const thick   = cp.thick   != null ? cp.thick   : 0;
+        const density = cp.density != null ? cp.density : (parseFoamDensity(m.sel)||25);
+        const coef    = cp.coef    != null ? cp.coef    : 1;
+        autoKg = (thick > 0) ? calcKgQty('foam', {thick, density, coef, name:m.sel}) : null;
+        paramHtml = `
+          <div style="font-size:11px;background:#f0f7ff;border-radius:3px;padding:4px 6px;margin-top:2px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <label style="color:#666">厚度</label>
+            <input type="number" value="${thick}" min="0" step="0.5" placeholder="cm"
+              style="width:48px;padding:2px 4px;font-size:11px;border:1px solid #91d5ff;border-radius:3px"
+              onchange="onCalcParam(${li},${mi},'thick',this.value)" title="厚度（cm）">
+            <span style="color:#999">cm</span>
+            <label style="color:#666">密度</label>
+            <input type="number" value="${density}" min="0" step="1"
+              style="width:44px;padding:2px 4px;font-size:11px;border:1px solid #91d5ff;border-radius:3px"
+              onchange="onCalcParam(${li},${mi},'density',this.value)" title="密度kg/m³">
+            <span style="color:#999">kg/m³</span>
+            <label style="color:#666">系数</label>
+            <input type="number" value="${coef}" min="0" step="0.1"
+              style="width:40px;padding:2px 4px;font-size:11px;border:1px solid #b7eb8f;border-radius:3px;background:#f6ffed"
+              onchange="onCalcParam(${li},${mi},'coef',this.value)" title="系数（蛋形=0.8，常规=1）">
+            ${autoKg!=null?`<strong style="color:#1890ff;margin-left:4px">= ${autoKg.toFixed(3)} kg</strong>`:''}
+          </div>`;
+      } else if (calcType === 'felt' || calcType === 'nw') {
+        const gsm = cp.gsm != null ? cp.gsm : (calcType==='felt'?200:25);
+        autoKg = calcKgQty(calcType, {gsm});
+        paramHtml = `
+          <div style="font-size:11px;background:#f0f7ff;border-radius:3px;padding:4px 6px;margin-top:2px;display:flex;gap:8px;align-items:center">
+            <label style="color:#666">克重</label>
+            <input type="number" value="${gsm}" min="0" step="10"
+              style="width:54px;padding:2px 4px;font-size:11px;border:1px solid #91d5ff;border-radius:3px"
+              onchange="onCalcParam(${li},${mi},'gsm',this.value)" title="克重 g/m²">
+            <span style="color:#999">g/m²</span>
+            <strong style="color:#1890ff;margin-left:4px">= ${autoKg.toFixed(3)} kg</strong>
+          </div>`;
+      } else if (calcType === 'edge_long' || calcType === 'edge_wide') {
+        const edgeH   = cp.edgeH   != null ? cp.edgeH   : 10;
+        const density = cp.density != null ? cp.density : 35;
+        autoKg = calcKgQty(calcType, {edgeH, density});
+        paramHtml = `
+          <div style="font-size:11px;background:#f0f7ff;border-radius:3px;padding:4px 6px;margin-top:2px;display:flex;gap:8px;align-items:center">
+            <label style="color:#666">护边高</label>
+            <input type="number" value="${edgeH}" min="0" step="1"
+              style="width:44px;padding:2px 4px;font-size:11px;border:1px solid #91d5ff;border-radius:3px"
+              onchange="onCalcParam(${li},${mi},'edgeH',this.value)" title="护边高度cm">
+            <span style="color:#999">cm</span>
+            <label style="color:#666">密度</label>
+            <input type="number" value="${density}" min="0" step="1"
+              style="width:44px;padding:2px 4px;font-size:11px;border:1px solid #91d5ff;border-radius:3px"
+              onchange="onCalcParam(${li},${mi},'density',this.value)" title="密度kg/m³">
+            <span style="color:#999">kg/m³</span>
+            <strong style="color:#1890ff;margin-left:4px">= ${autoKg.toFixed(3)} kg</strong>
+          </div>`;
+      }
+
+      const showQtyVal = (autoKg != null && !m._manualQty) ? autoKg.toFixed(3) : m.qty;
+
+      html += `<div style="margin-bottom:4px">
+        <div class="structure-row">
+          <span class="label-text" title="${escHtml(m.label)}">${escHtml(m.label)}</span>
+          <span class="category-badge badge-material">物料</span>
+          <div class="search-wrap" style="position:relative">
+            <input type="text" class="search-input"
+              placeholder="输入关键词筛选物料..."
+              value="${escHtml(displayVal)}"
+              data-type="material" data-li="${li}" data-mi="${mi}"
+              oninput="onSearchInput(this)"
+              onfocus="onSearchFocus(this)"
+              onblur="onSearchBlur(this)"
+              autocomplete="off">
+            <div class="search-dropdown" style="display:none"></div>
+          </div>
+          <input type="number" value="${showQtyVal}" min="0" step="0.001"
+            class="${!m._manualQty && autoKg!=null ? 'qty-auto' : ''}"
+            onchange="onQtyInputWithConvert(${li},${mi},this.value)"
+            title="${autoKg!=null&&!m._manualQty?'自动计算（修改后转为手动）':'手动输入'}">
+          <select class="unit-select" onchange="onUnitChange(${li},${mi},this.value)">${unitOptions}</select>
         </div>
-        <input type="number" value="${m.qty}" min="0" step="0.01"
-          class="${m._auto?'qty-auto':''}"
-          onchange="onQtyInputWithConvert(${li},${mi},this.value)"
-          title="${m._unit==='cm'&&parseFoamDensity(m.sel)?'输入厚度cm，自动换算kg':m._auto?'自动计算':'手动输入'}">
-        <select class="unit-select" onchange="onUnitChange(${li},${mi},this.value)">${unitOptions}</select>
-        ${m._unit==='cm'&&parseFoamDensity(m.sel)?`<span id="kgtip_${li}_${mi}" style="font-size:10px;color:#52c41a;grid-column:3/6;margin-top:-4px">${m._kgQty?'≈ '+m._kgQty.toFixed(3)+' kg':''}</span>`:''}
+        ${paramHtml}
       </div>`;
     });
 
@@ -1639,12 +1726,27 @@ function onSearchSelect(e, type, li, mi, name, src) {
     }
   });
 
-  // 选中物料后，如果单位未手动设过，自动同步数据库单位
+  // 选中物料后，自动同步单位；选中面料时自动同步门幅
   if (type === 'material') {
     const m = currentMattress.layers[li]._materials[parseInt(mi)];
-    if (m && !m._unitManual) {
-      m._unit = item.unit || '件';
+    if (m && !m._unitManual) { m._unit = item.unit || '件'; }
+    // 自动填入密度（从物料编码识别）
+    if (m && !m._calcParams) m._calcParams = {};
+    if (m) {
+      const ct2 = detectMaterialCalcType(item.name, m.label);
+      if (ct2 === 'foam' && !m._calcParams.density) {
+        m._calcParams.density = parseFoamDensity(item.name) || 25;
+      }
     }
+  }
+  if (type === 'fabric') {
+    // 面料选中后，自动从数据库读取门幅（如未手动设过）
+    const layer = currentMattress.layers[li];
+    if (!layer._fabricWidthManual && item.width) {
+      layer._fabricWidth = item.width;
+      syncLayerMaterialWidth(li, item.width);
+    }
+    syncFabricQty(li);
   }
   renderBOM();
 }
@@ -1675,6 +1777,54 @@ function onFabricQtyChange(li, val) {
   renderBOM();
 }
 
+function onFabricCoefChange(li, val) {
+  const coef = parseFloat(val);
+  currentMattress.layers[li]._fabricCoef = isNaN(coef) ? 1 : coef;
+  // 同步更新用量
+  syncFabricQty(li);
+  renderStructure();
+  renderBOM();
+}
+
+function onFabricWidthChange(li, val) {
+  const w = parseFloat(val) || 220;
+  currentMattress.layers[li]._fabricWidth = w;
+  currentMattress.layers[li]._fabricWidthManual = true;
+  syncLayerMaterialWidth(li, w);
+  syncFabricQty(li);
+  renderStructure();
+  renderBOM();
+}
+
+function syncFabricQty(li) {
+  const layer = currentMattress.layers[li];
+  const selF = DB.fabric.find(f=>f.name===layer._fabricSel)||DB.price.find(f=>f.name===layer._fabricSel);
+  const dbWidth = selF ? (selF.width || 0) : 0;
+  const w = layer._fabricWidth || dbWidth || 220;
+  const c = layer._fabricCoef != null ? layer._fabricCoef : 1;
+  const d = layer._fabricDrop != null ? layer._fabricDrop : 15;
+  layer._fabricQty = calcFabricQtyM(w, c, d, 0.05).final;
+}
+
+// 当面料门幅变化时，同层的无胶棉/卷棉门幅同步（它们通常门幅相同）
+function syncLayerMaterialWidth(li, widthCm) {
+  const layer = currentMattress.layers[li];
+  layer._materials.forEach(m => {
+    // 只同步「面料类」物料：无胶棉、卷棉、无纺布
+    const label = m.label || '';
+    const isFabricType = label.includes('无胶棉') || label.includes('卷棉') ||
+                         label.includes('无纺布') || label.includes('面料');
+    if (isFabricType && !m._widthManual) {
+      m._fabricWidth = widthCm;
+      // 重算用量
+      if (m.qty > 0 || m._coef != null) {
+        const coef = m._coef != null ? m._coef : m.qty;
+        m._computedQty = calcFabricQtyM(widthCm, coef, 0, 0.05).final;
+      }
+    }
+  });
+}
+
 function onFabricManualPrice(li, val) {
   currentMattress.layers[li]._fabricManualPrice = parseFloat(val) || 0;
   renderBOM();
@@ -1695,6 +1845,110 @@ function onUnitChange(li, mi, val) {
   renderBOM();
 }
 
+
+/* 面料/无胶棉/卷棉 用量计算（对齐Excel）
+   widthCm:  面料门幅（cm），如220
+   coef:     系数（层数/厚度），如1, 1.5, 0
+   dropCm:   下垂量（cm），面布默认15cm，边布默认=边布高度
+   loss:     损耗率，默认0.05
+   返回：最终用量（米）和标准用量（米）
+*/
+function calcFabricQtyM(widthCm, coef, dropCm, loss) {
+  const mW = parseFloat(document.getElementById('mWidth').value)  || 180;
+  const mL = parseFloat(document.getElementById('mLength').value) || 200;
+  const w   = parseFloat(widthCm) || 220;
+  const c   = parseFloat(coef)    || 0;
+  const d   = parseFloat(dropCm)  || 0;
+  const l   = parseFloat(loss)    != null ? parseFloat(loss) : 0.05;
+  if (c === 0) return { std: 0, final: 0 };
+  // 标准用量（米）= (床垫宽 + 2*下垂量) / 门幅 × (床垫长 + 2*下垂量) / 100
+  // 简化版（与Excel对齐）：(mL + 2*dropCm) / 100 * (mW + 2*dropCm) / w
+  // 实际Excel用的是：标准用量 = (mL+2*d)/100  ← 单位是"米"（以门幅宽度为1米幅宽）
+  // 即：用量(米) = 裁片长(m) = (mL+2*d)/100  当门幅能覆盖床垫宽时
+  // 当需要多幅时：幅数 = ceil((mW+2*d) / w)
+  const strips = Math.ceil((mW + 2*d) / w);  // 需要几幅
+  const std = (mL + 2*d) / 100 * strips;      // 标准用量（米）
+  const final = std * (1 + l) * c;
+  return { std: parseFloat(std.toFixed(4)), final: parseFloat(final.toFixed(4)) };
+}
+
+/* ============================================================
+   公斤类物料用量自动计算（对齐Excel）
+   ============================================================ */
+
+// 判断物料类型（用于自动选择计算模式）
+function detectMaterialCalcType(name, label) {
+  if (!name && !label) return null;
+  const n = (name||'').toLowerCase();
+  const lb = (label||'').toLowerCase();
+  const all = n + ' ' + lb;
+
+  // 海绵/片绵（按体积）
+  if (/^[pmaqldzw]\d/.test(name) || all.includes('海绵') || all.includes('记忆棉') ||
+      all.includes('乳胶') || all.includes('片绵') || all.includes('底绵') ||
+      all.includes('舒适层') || all.includes('填充')) return 'foam';
+
+  // 棉毡（按面积×克重）
+  if (all.includes('棉毡') || all.includes('绵毡')) return 'felt';
+
+  // 无纺布（按面积×克重）
+  if (all.includes('无纺布') && !all.includes('袋')) return 'nw';
+
+  // 长护边（按长度×高度×密度）
+  if (all.includes('长护边') || (all.includes('护边') && all.includes('长'))) return 'edge_long';
+
+  // 宽护边
+  if (all.includes('宽护边') || (all.includes('护边') && all.includes('宽'))) return 'edge_wide';
+
+  return null;
+}
+
+// 自动计算公斤用量
+function calcKgQty(calcType, params) {
+  const W = parseFloat(document.getElementById('mWidth').value)  || 180;
+  const L = parseFloat(document.getElementById('mLength').value) || 200;
+  const H = parseFloat(document.getElementById('mHeight').value) || 25;
+  const loss = params.loss != null ? params.loss : 0;
+
+  let qty = 0;
+  switch (calcType) {
+    case 'foam': {
+      // kg = 长×宽×厚度cm / 1,000,000 × 密度kg/m³ × 系数
+      const thick    = parseFloat(params.thick)   || 0;
+      const density  = parseFloat(params.density) || parseFoamDensity(params.name) || 25;
+      const coef     = parseFloat(params.coef)    || 1;
+      qty = (L/100) * (W/100) * (thick/100) * density * coef;
+      break;
+    }
+    case 'felt': {
+      // kg = 长×宽 / 1,000,000 × 克重gsm
+      const gsm = parseFloat(params.gsm) || 200;
+      qty = (L * W / 1000000) * gsm / 1000;
+      break;
+    }
+    case 'nw': {
+      // kg = 长×宽 / 1,000,000 × 克重gsm
+      const gsm = parseFloat(params.gsm) || 25;
+      qty = (L * W / 1000000) * gsm / 1000;
+      break;
+    }
+    case 'edge_long': {
+      // kg = 长/100 × 护边高/100 × 密度 × 2（两条长边）
+      const edgeH   = parseFloat(params.edgeH)   || 10;
+      const density = parseFloat(params.density) || 35;
+      qty = (L/100) * (edgeH/100) * density * 2;
+      break;
+    }
+    case 'edge_wide': {
+      // kg = 宽/100 × 护边高/100 × 密度 × 2（两条短边）
+      const edgeH   = parseFloat(params.edgeH)   || 10;
+      const density = parseFloat(params.density) || 35;
+      qty = (W/100) * (edgeH/100) * density * 2;
+      break;
+    }
+  }
+  return qty * (1 + loss);
+}
 /* 从物料编码/名称解析密度（kg/m³）
    编码规律：P2270W → 密度22, P25120W → 密度25, M4055B → 密度40, A3050B → 密度30
    取编码开头字母后的数字前2-3位 */
@@ -1742,6 +1996,16 @@ function onQtyInputWithConvert(li, mi, val) {
 }
 function addMaterialRow(li){ currentMattress.layers[li]._materials.push({label:'自定义', sel:'', qty:1}); renderStructure(); }
 
+// 计算参数修改（厚度/密度/克重/护边高/系数）
+function onCalcParam(li, mi, key, val) {
+  const m = currentMattress.layers[li]._materials[parseInt(mi)];
+  if (!m._calcParams) m._calcParams = {};
+  m._calcParams[key] = parseFloat(val) || 0;
+  m._manualQty = false; // 参数修改后恢复自动计算
+  renderStructure();
+  renderBOM();
+}
+
 /* ============================================================
    渲染BOM（去税金额 = 含税单价 ÷ 1.13）
    ============================================================ */
@@ -1759,13 +2023,16 @@ function renderBOM() {
         // 手动录入模式
         const mName  = layer._fabricManualName || '';
         const mPrice = layer._fabricManualPrice || 0;
-        const mQty   = layer._fabricQty || 1;
+        const mCoef  = layer._fabricCoef  != null ? layer._fabricCoef  : 1;
+        const mWidth = layer._fabricWidth || 220;
+        const mDrop  = layer._fabricDrop  || 15;
+        const mQty   = mCoef===0 ? 0 : calcFabricQtyM(mWidth, mCoef, mDrop, 0.05).final;
         if (mName && mPrice > 0) {
           const untaxed = mPrice * mQty / 1.13;
           bomData.push({layer:layer.name, label:layer.fabric, name:mName, qty:mQty, unit:'m', price:mPrice, untaxedAmt:untaxed});
           html += `<tr>
             <td>${escHtml(layer.fabric)}<span class="category-badge badge-fabric" style="margin-left:4px">面料</span><span style="font-size:10px;color:#fa8c16;margin-left:4px">手动</span></td>
-            <td>${escHtml(mName)}</td><td>${mQty}</td><td>m</td>
+            <td>${escHtml(mName)}</td><td>${mQty.toFixed(3)}m</td><td>m</td>
             <td>¥${mPrice.toFixed(2)}</td><td style="color:#389e0d"><strong>¥${untaxed.toFixed(2)}</strong></td>
           </tr>`;
         } else {
@@ -1778,12 +2045,19 @@ function renderBOM() {
         const f = DB.fabric.find(x => x.name === layer._fabricSel)
                || DB.price.find(x => x.name === layer._fabricSel);
         if (f) {
-          const qty = layer._fabricQty || 1;
+          // 用计算出的用量（系数×门幅×尺寸），如果还没算过则现算
+          const dbW = f.width || 220;
+          const w   = layer._fabricWidth || dbW;
+          const coef = layer._fabricCoef != null ? layer._fabricCoef : 1;
+          const drop = layer._fabricDrop  != null ? layer._fabricDrop : 15;
+          const qty  = coef === 0 ? 0 : calcFabricQtyM(w, coef, drop, 0.05).final;
           const untaxed = f.price * qty / 1.13;
-          bomData.push({layer:layer.name, label:layer.fabric, name:f.name, qty, unit:f.unit||'m', price:f.price, untaxedAmt:untaxed});
+          bomData.push({layer:layer.name, label:layer.fabric, name:f.name, qty, unit:'m', price:f.price, untaxedAmt:untaxed});
+          const coefTip = coef===0?'(系数0, 不计费)': '';
           html += `<tr>
             <td>${escHtml(layer.fabric)}<span class="category-badge badge-fabric" style="margin-left:4px">面料</span></td>
-            <td>${escHtml(f.name)}</td><td>${qty}</td><td>${f.unit||'m'}</td>
+            <td>${escHtml(f.name)}</td>
+            <td title="系数${coef}×门幅${w}cm">${qty.toFixed(3)}m ${coefTip}</td><td>m</td>
             <td>¥${f.price.toFixed(2)}</td><td style="color:#389e0d"><strong>¥${untaxed.toFixed(2)}</strong></td>
           </tr>`;
         } else {
@@ -1801,22 +2075,48 @@ function renderBOM() {
         ? (DB.fabric.find(x => x.name === m.sel) || DB.price.find(x => x.name === m.sel))
         : (DB.price.find(x => x.name === m.sel) || DB.fabric.find(x => x.name === m.sel));
       if (p) {
-        const untaxed = p.price * m.qty / 1.13;
         const isFabricSrc = !!DB.fabric.find(x => x.name === m.sel) && !DB.price.find(x => x.name === m.sel);
         const srcBadge = isFabricSrc
           ? '<span class="category-badge badge-fabric" style="margin-left:4px">面料</span>'
           : '<span class="category-badge badge-material" style="margin-left:4px">物料</span>';
         const dispUnit = m._unit || p.unit || '件';
-        // 如果单位是cm（厚度），用换算后的kg数量计价
-        const calcQty = (dispUnit === 'cm' && m._kgQty) ? m._kgQty : m.qty;
-        const calcUnit = (dispUnit === 'cm' && m._kgQty) ? '公斤' : dispUnit;
-        const untaxed2 = p.price * calcQty / 1.13;
-        bomData.push({layer:layer.name, label:m.label, name:p.name, qty:calcQty, unit:calcUnit, price:p.price, untaxedAmt:untaxed2});
-        const showQty = dispUnit==='cm' && m._kgQty ? `${m.qty}cm→${m._kgQty.toFixed(3)}kg` : calcQty;
+
+        // 优先用自动计算结果
+        const ct = !m._manualQty ? detectMaterialCalcType(m.sel, m.label) : null;
+        const cp2 = m._calcParams || {};
+        let finalQty = m.qty;
+        let finalUnit = dispUnit;
+        let autoLabel = '';
+
+        if (ct === 'foam') {
+          const thick   = cp2.thick   != null ? cp2.thick   : 0;
+          const density = cp2.density != null ? cp2.density : (parseFoamDensity(m.sel)||25);
+          const coef    = cp2.coef    != null ? cp2.coef    : 1;
+          if (thick > 0) {
+            finalQty  = calcKgQty('foam', {thick, density, coef, name:m.sel});
+            finalUnit = '公斤';
+            autoLabel = `${thick}cm`;
+          }
+        } else if (ct === 'felt' || ct === 'nw') {
+          const gsm = cp2.gsm != null ? cp2.gsm : (ct==='felt'?200:25);
+          finalQty  = calcKgQty(ct, {gsm});
+          finalUnit = '公斤';
+          autoLabel = `${gsm}g/m²`;
+        } else if (ct === 'edge_long' || ct === 'edge_wide') {
+          const edgeH   = cp2.edgeH   != null ? cp2.edgeH   : 10;
+          const density = cp2.density != null ? cp2.density : 35;
+          finalQty  = calcKgQty(ct, {edgeH, density});
+          finalUnit = '公斤';
+          autoLabel = `${edgeH}cm护边`;
+        }
+
+        const untaxedFinal = p.price * finalQty / 1.13;
+        bomData.push({layer:layer.name, label:m.label, name:p.name, qty:finalQty, unit:finalUnit, price:p.price, untaxedAmt:untaxedFinal});
+        const showQty = autoLabel ? `${finalQty.toFixed(3)}` : finalQty;
         html += `<tr>
-          <td>${escHtml(m.label)}${srcBadge}</td>
-          <td>${escHtml(p.name)}</td><td>${showQty}</td><td>${calcUnit}</td>
-          <td>¥${p.price.toFixed(2)}</td><td style="color:#389e0d"><strong>¥${untaxed2.toFixed(2)}</strong></td>
+          <td>${escHtml(m.label)}${srcBadge}${autoLabel?`<span style="font-size:10px;color:#1890ff;margin-left:3px">${autoLabel}</span>`:''}</td>
+          <td>${escHtml(p.name)}</td><td>${showQty}</td><td>${finalUnit}</td>
+          <td>¥${p.price.toFixed(2)}</td><td style="color:#389e0d"><strong>¥${untaxedFinal.toFixed(2)}</strong></td>
         </tr>`;
       } else {
         html += `<tr class="unmatched">
