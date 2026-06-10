@@ -909,44 +909,46 @@ const GLUE_DEFAULTS = {
 // 包材用量公式（w=宽cm, l=长cm, h=高cm）
 function calcPackagingDefaults(mattressType, w, l, h) {
   const W=parseFloat(w)||180, L=parseFloat(l)||200, H=parseFloat(h)||25;
-  const perimeter = (W+L)*2/100; // 周长（m）
-
-  // 边带系数：QT=2圈，PT/ET=3圈，其余=0
-  const edgeTapeRounds = mattressType==='QT-两边款'?2 : (mattressType.startsWith('PT')||mattressType.startsWith('ET'))?3 : 0;
-
-  // 纸箱尺寸（平卷）：压缩后高度 ≈ H*0.8，宽≈L*0.85+6，长≈W+6
-  const boxH = Math.round(H*0.8+2);
-  const boxL = Math.round(L*0.85+6);
-  const boxW = Math.round(W+6);
-  // 纸箱双平方 = (boxL+boxW)*2*(boxH+boxW)*2 / 10000 (双平方)
-  const boxSqm = ((boxL+boxH)*2 + (boxW+boxH)*2) / 100 * (boxL+boxW+boxH*2)/100;
-
-  // PE压缩膜用量（米）：长+宽+高约
-  const peFilmQty = parseFloat(((W+H*2)/100/0.255 + 0.5).toFixed(2));
-
-  // 缠绕膜用量（米）：固定约4m
-  const wrapFilmQty = parseFloat((L/100*2+0.5).toFixed(2));
-
+  const perim = (W+L)*2/100;
+  const edgeRounds = mattressType==='QT-两边款'?2:(mattressType==='PT-虎口款'||mattressType.startsWith('ET'))?3:0;
+  // 纸箱（精确公式）
+  const isOT = mattressType.startsWith('OT');
+  const bH = Math.round(H+13), bW = bH;
+  const bL = isOT ? Math.round(L*0.96+3) : Math.round(L*0.80+3);
+  const boxSqm = parseFloat(((bL+bW)*2*(bH+5)/10000).toFixed(4));
+  // PE压缩膜（精确公式：÷2）
+  const peFilm = parseFloat(((H*2+W)/100/0.255/2*1.02).toFixed(3));
+  // 缠绕膜
+  const wrapFilm = parseFloat((L/100*2*1.02).toFixed(3));
+  // 拉链：(L+W)/100*2+0.1（精确）
+  const zipperQty = parseFloat(((L+W)/100*2+0.1).toFixed(2));
+  // 边带：周长×圈数×1.03
+  const edgeTape = edgeRounds>0 ? parseFloat((perim*edgeRounds*1.03).toFixed(3)) : 0;
   return {
-    '拉链':        { qty: parseFloat((perimeter+0.1).toFixed(2)), unit:'米', note:'周长+余量' },
-    '边带':        { qty: edgeTapeRounds>0 ? parseFloat((perimeter*edgeTapeRounds*(1+0.03)).toFixed(2)) : 0, unit:'米', note:`${edgeTapeRounds}圈×周长×1.03` },
-    '拉手':        { qty: 1, unit:'件' },
-    '平卷纸箱':    { qty: parseFloat((boxSqm).toFixed(3)), unit:'双平方', note:`${boxW}×${boxL}×${boxH}` },
-    'PE压缩膜':    { qty: peFilmQty, unit:'米' },
-    '缠绕膜':      { qty: wrapFilmQty, unit:'米' },
-    '标签':        { qty: 1, unit:'件' },
-    '开包器':      { qty: 1, unit:'件' },
-    '干燥剂':      { qty: 3, unit:'个', note:'3包/张' },
-    '透明胶带':    { qty: parseFloat((7*(1+0.02)).toFixed(2)), unit:'米' },
-    '裥棉面线':    { qty: 2550, unit:'米', note:'固定2500×1.02' },
-    '裥棉底线':    { qty: 2550, unit:'米', note:'固定' },
-    '边布面线':    { qty: 510, unit:'米', note:'固定500×1.02' },
-    '缝纫底线':    { qty: 510, unit:'米' },
-    '拷边线':      { qty: 510, unit:'米' },
-    '包边线':      { qty: 612, unit:'米', note:'固定600×1.02' },
-    '绣花线':      { qty: 510, unit:'米' }
+    '拉链':              {qty:zipperQty, unit:'米',     price:0,    note:`(${L}+${W})/100×2+0.1`, needSelect:true, autoCalc:true},
+    '边带':              {qty:edgeTape,  unit:'米',     price:0.5,  note:`${edgeRounds}圈×周长×1.03`,autoCalc:true},
+    '拉手':              {qty:1,         unit:'件',     price:1,    autoCalc:true},
+    '平卷纸箱':          {qty:boxSqm,    unit:'双平方', price:10.5, note:`箱${bW}×${bL}×${bH}cm`, autoCalc:true},
+    '黄卡纸箱（平卷）':  {qty:boxSqm,    unit:'双平方', price:10.5, note:`箱${bW}×${bL}×${bH}cm`, autoCalc:true},
+    'PE压缩膜':          {qty:peFilm,    unit:'米',     price:1.628,autoCalc:true},
+    '制袋PE压缩膜':      {qty:peFilm,    unit:'米',     price:1.628,autoCalc:true},
+    '缠绕膜':            {qty:wrapFilm,  unit:'米',     price:0.936,autoCalc:true},
+    'WM缠绕膜':          {qty:wrapFilm,  unit:'米',     price:0.936,autoCalc:true},
+    '标签':              {qty:1,         unit:'件',     price:0.5,  autoCalc:true},
+    '开包器':            {qty:1,         unit:'件',     price:5,    autoCalc:true},
+    '缝纫线-裥棉面线':   {qty:2550,      unit:'米',     price:0.002,note:'2500×1.02',autoCalc:true},
+    '缝纫线-裥棉底线':   {qty:2550,      unit:'米',     price:0.002,autoCalc:true},
+    '缝纫线-边布面线':   {qty:510,       unit:'米',     price:0.002,note:'500×1.02', autoCalc:true},
+    '缝纫线-缝纫底线':   {qty:510,       unit:'米',     price:0.002,autoCalc:true},
+    '缝纫线-拷边线':     {qty:510,       unit:'米',     price:0.001,autoCalc:true},
+    '缝纫线-包边线':     {qty:612,       unit:'米',     price:0.001,note:'600×1.02', autoCalc:true},
+    '缝纫线-绣花线':     {qty:510,       unit:'米',     price:0.003,autoCalc:true},
+    '干燥剂':            {qty:3,         unit:'T02',    price:0.11, note:'3包',      autoCalc:true},
+    '透明胶带':          {qty:7.14,      unit:'米',     price:0.06, note:'7×1.02',   autoCalc:true},
+    '内套缝纫线':        {qty:153,       unit:'米',     price:0.001,note:'150×1.02', autoCalc:true},
   };
 }
+
 
 // 胶水用量计算（w=宽cm, l=长cm）
 function calcGlueDefaults(mattressType, w, l) {
@@ -1499,22 +1501,19 @@ const MATERIAL_LABEL_MAP = {
 
 function autoFillGlueAndPackaging() {
   if (!currentMattress || !currentMattressType) return;
-  const w = document.getElementById('mWidth').value;
-  const l = document.getElementById('mLength').value;
-  const h = document.getElementById('mHeight').value;
-
-  const glueDefaults = calcGlueDefaults(currentMattressType, w, l);
-  const pkgDefaults  = calcPackagingDefaults(currentMattressType, w, l, h);
-  const allDefaults  = {...glueDefaults, ...pkgDefaults};
-
-  currentMattress.layers.forEach(layer => {
-    layer._materials.forEach(m => {
-      const key = MATERIAL_LABEL_MAP[m.label];
-      if (key && allDefaults[key] && !m._manualQty) {
-        // 只有未手动修改过的才自动填入
-        m.qty = allDefaults[key].qty;
-        m._autoDefault = true;
-        m._defaultNote = allDefaults[key].note || '';
+  const w=document.getElementById('mWidth').value;
+  const l=document.getElementById('mLength').value;
+  const h=document.getElementById('mHeight').value;
+  const pkgD=calcPackagingDefaults(currentMattressType,w,l,h);
+  const glD=calcGlueDefaults(currentMattressType,w,l);
+  const all={...pkgD,...glD};
+  currentMattress.layers.forEach(layer=>{
+    layer._materials.forEach(m=>{
+      const def=all[m.label]||all[MATERIAL_LABEL_MAP[m.label]];
+      if(def&&!m._manualQty){
+        m.qty=def.qty; m._autoDefault=true; m._defaultNote=def.note||'';
+        if(!m._unitManual) m._unit=def.unit;
+        if(def.price) m._defaultPrice=def.price;
       }
     });
   });
@@ -1633,7 +1632,39 @@ function renderStructure() {
     }
 
     layer._materials.forEach((m, mi) => {
-      // === 标准辅料渲染（只显示系数输入框）===
+      // === 拉链：下拉选型号，自动算用量 ===
+      if (m.label === '拉链' && !m._manual) {
+        const W2 = parseFloat(document.getElementById('mWidth').value)||180;
+        const L2 = parseFloat(document.getElementById('mLength').value)||200;
+        const zipQty = parseFloat(((W2+L2)/100*2+0.1).toFixed(2));
+        const ZIPPER_PRICES = {'3#尼龙正装拉链':0.5,'5#尼龙正装拉链':1,'5#尼龙反装拉链':1.1,'7#尼龙正装拉链':1.3};
+        const selZip  = m._zipperType || '5#尼龙正装拉链';
+        const zipP    = ZIPPER_PRICES[selZip] || 1;
+        const coefZ   = m._stdCoef != null ? m._stdCoef : 1;
+        const finalQZ = parseFloat((zipQty * coefZ).toFixed(2));
+        const untaxedZ = parseFloat((zipP * finalQZ / 1.13).toFixed(2));
+        const zipOpts  = Object.entries(ZIPPER_PRICES).map(([k,v])=>
+          `<option value="${k}" ${selZip===k?'selected':''}>${k} ¥${v}/m</option>`).join('');
+        html += `<div style="margin-bottom:4px">
+          <div style="display:grid;grid-template-columns:90px 44px 1fr 44px 30px;gap:5px;align-items:center">
+            <span class="label-text">拉链</span>
+            <span class="category-badge badge-material">辅料</span>
+            <select style="font-size:12px;border:1px solid #d9d9d9;border-radius:3px;padding:3px 6px;width:100%"
+              onchange="onZipperTypeChange(${li},${mi},this.value)">${zipOpts}</select>
+            <input type="number" value="${coefZ}" min="0" step="1"
+              style="font-size:12px;border:1px solid #b7eb8f;border-radius:3px;padding:3px 5px;background:#f6ffed;text-align:center"
+              onchange="onStdCoefChange(${li},${mi},this.value)" title="系数">
+            <span style="font-size:10px;color:#999">系数</span>
+          </div>
+          <div style="font-size:11px;color:#888;padding:2px 0 2px 140px">
+            用量 <strong style="color:#1890ff">${finalQZ}m</strong>
+            × ¥${zipP} ÷1.13 = <strong style="color:#52c41a">¥${untaxedZ}</strong>
+          </div>
+        </div>`;
+        return;
+      }
+
+      // === 标准辅料：只显示系数，自动带出用量和金额 ===
       const STD_S = new Set([
         'PUR胶','热熔胶-350A','热熔胶-5804','虎口胶水',
         '边带','拉手','平卷纸箱','黄卡纸箱（平卷）',
@@ -1644,31 +1675,33 @@ function renderStructure() {
         '干燥剂','透明胶带','内套缝纫线'
       ]);
       if (STD_S.has(m.label) && !m._manual) {
-        const pkgDS = calcPackagingDefaults(currentMattressType||'QT-两边款',
-          document.getElementById('mWidth').value||180,
-          document.getElementById('mLength').value||200,
-          document.getElementById('mHeight').value||25);
-        const glDS = calcGlueDefaults(currentMattressType||'QT-两边款',
-          document.getElementById('mWidth').value||180,
-          document.getElementById('mLength').value||200);
-        const defS = pkgDS[m.label] || glDS[m.label];
+        const pkgDS = calcPackagingDefaults(currentMattressType||'',
+          document.getElementById('mWidth').value,
+          document.getElementById('mLength').value,
+          document.getElementById('mHeight').value);
+        const glDS  = calcGlueDefaults(currentMattressType||'',
+          document.getElementById('mWidth').value,
+          document.getElementById('mLength').value);
+        const defS  = pkgDS[m.label] || glDS[m.label];
         const coefS = m._stdCoef != null ? m._stdCoef : 1;
         const baseQ = defS ? defS.qty : 0;
         const unitS = defS ? defS.unit : '件';
+        const priceS= defS ? defS.price : 0;
         const noteS = defS ? (defS.note||'') : '';
         const finalQS = parseFloat((baseQ * coefS).toFixed(4));
+        const untaxedS = coefS>0 ? parseFloat((priceS*finalQS/1.13).toFixed(2)) : 0;
         html += `<div style="margin-bottom:3px">
-          <div style="display:grid;grid-template-columns:90px 44px 1fr 56px 30px;gap:5px;align-items:center">
+          <div style="display:grid;grid-template-columns:90px 44px 1fr 44px 30px;gap:5px;align-items:center">
             <span class="label-text">${escHtml(m.label)}</span>
             <span class="category-badge badge-material">辅料</span>
             <span style="font-size:12px;color:#888">
               ${noteS?`<span style="font-size:11px">${escHtml(noteS)} → </span>`:''}
               <strong style="color:${coefS>0?'#1890ff':'#bbb'}">${finalQS} ${unitS}</strong>
+              ${coefS>0?`<span style="color:#52c41a;font-size:11px"> ¥${untaxedS}</span>`:''}
             </span>
             <input type="number" value="${coefS}" min="0" step="1"
               style="font-size:12px;border:1px solid #b7eb8f;border-radius:3px;padding:3px 5px;background:#f6ffed;text-align:center"
-              onchange="onStdCoefChange(${li},${mi},this.value)"
-              title="系数：1=计费，0=不计费">
+              onchange="onStdCoefChange(${li},${mi},this.value)" title="系数：1=计费，0=不计费">
             <span style="font-size:10px;color:#999">系数</span>
           </div>
         </div>`;
@@ -2166,11 +2199,13 @@ function onQtyInputWithConvert(li, mi, val) {
 }
 function addMaterialRow(li){ currentMattress.layers[li]._materials.push({label:'自定义', sel:'', qty:1}); renderStructure(); }
 
+function onZipperTypeChange(li, mi, val) {
+  currentMattress.layers[li]._materials[parseInt(mi)]._zipperType = val;
+  renderStructure(); renderBOM();
+}
 function onStdCoefChange(li, mi, val) {
-  const m = currentMattress.layers[li]._materials[parseInt(mi)];
-  m._stdCoef = parseFloat(val) >= 0 ? parseFloat(val) : 1;
-  renderStructure();
-  renderBOM();
+  currentMattress.layers[li]._materials[parseInt(mi)]._stdCoef = parseFloat(val)>=0?parseFloat(val):1;
+  renderStructure(); renderBOM();
 }
 
 // 计算参数修改（厚度/密度/克重/护边高/系数）
@@ -2246,8 +2281,30 @@ function renderBOM() {
     }
 
     layer._materials.forEach(m => {
-      // === 标准辅料：只用系数控制，自动带出用量和金额 ===
-      const STD_SET = new Set([
+      // === 拉链 BOM ===
+      if (m.label === '拉链' && !m._manual) {
+        const W3=parseFloat(document.getElementById('mWidth').value)||180;
+        const L3=parseFloat(document.getElementById('mLength').value)||200;
+        const zipQty3 = parseFloat(((W3+L3)/100*2+0.1).toFixed(2));
+        const ZIPPER_P={'3#尼龙正装拉链':0.5,'5#尼龙正装拉链':1,'5#尼龙反装拉链':1.1,'7#尼龙正装拉链':1.3};
+        const zipType3 = m._zipperType||'5#尼龙正装拉链';
+        const zipP3    = ZIPPER_P[zipType3]||1;
+        const coef3    = m._stdCoef!=null?m._stdCoef:1;
+        if (coef3>0) {
+          const qty3 = parseFloat((zipQty3*coef3).toFixed(2));
+          const untaxed3 = zipP3*qty3/1.13;
+          bomData.push({layer:layer.name,label:'拉链',name:zipType3,qty:qty3,unit:'米',price:zipP3,untaxedAmt:untaxed3});
+          html += `<tr>
+            <td>拉链<span class="category-badge badge-material" style="margin-left:4px">辅料</span></td>
+            <td>${zipType3}</td><td>${qty3}</td><td>米</td>
+            <td>¥${zipP3}</td><td style="color:#389e0d"><strong>¥${untaxed3.toFixed(2)}</strong></td>
+          </tr>`;
+        }
+        return;
+      }
+
+      // === 标准辅料 BOM ===
+      const STD_SET=new Set([
         'PUR胶','热熔胶-350A','热熔胶-5804','虎口胶水',
         '边带','拉手','平卷纸箱','黄卡纸箱（平卷）',
         'PE压缩膜','制袋PE压缩膜','缠绕膜','WM缠绕膜',
@@ -2257,26 +2314,26 @@ function renderBOM() {
         '干燥剂','透明胶带','内套缝纫线'
       ]);
       if (STD_SET.has(m.label) && !m._manual) {
-        const pkgD = calcPackagingDefaults(currentMattressType,
+        const pkgD4=calcPackagingDefaults(currentMattressType||'',
           document.getElementById('mWidth').value,
           document.getElementById('mLength').value,
           document.getElementById('mHeight').value);
-        const glD = calcGlueDefaults(currentMattressType,
+        const glD4=calcGlueDefaults(currentMattressType||'',
           document.getElementById('mWidth').value,
           document.getElementById('mLength').value);
-        const def = pkgD[m.label] || glD[m.label];
-        if (def) {
-          const coef = m._stdCoef != null ? m._stdCoef : 1;
-          const qty  = parseFloat((def.qty * coef).toFixed(4));
-          if (coef > 0 && qty > 0) {
-            const untaxed = def.price * qty / 1.13;
-            bomData.push({layer:layer.name, label:m.label, name:m.label, qty, unit:def.unit, price:def.price, untaxedAmt:untaxed});
-            html += `<tr>
+        const def4=pkgD4[m.label]||glD4[m.label];
+        if (def4) {
+          const coef4=m._stdCoef!=null?m._stdCoef:1;
+          const qty4=parseFloat((def4.qty*coef4).toFixed(4));
+          if (coef4>0&&qty4>0) {
+            const untaxed4=def4.price*qty4/1.13;
+            bomData.push({layer:layer.name,label:m.label,name:m.label,qty:qty4,unit:def4.unit,price:def4.price,untaxedAmt:untaxed4});
+            html+=`<tr>
               <td>${escHtml(m.label)}<span class="category-badge badge-material" style="margin-left:4px">辅料</span></td>
-              <td><span style="color:#888;font-size:11px">${def.note||'标准'}</span></td>
-              <td>${qty}</td><td>${def.unit}</td>
-              <td>¥${def.price}</td>
-              <td style="color:#389e0d"><strong>¥${untaxed.toFixed(2)}</strong></td>
+              <td><span style="color:#888;font-size:11px">${def4.note||'标准'}</span></td>
+              <td>${qty4}</td><td>${def4.unit}</td>
+              <td>¥${def4.price}</td>
+              <td style="color:#389e0d"><strong>¥${untaxed4.toFixed(2)}</strong></td>
             </tr>`;
           }
         }
