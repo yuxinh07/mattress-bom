@@ -2240,8 +2240,7 @@ function renderBOM() {
           <td>${escHtml(p.name)}</td><td>${showQty}</td><td>${finalUnit}</td>
           <td>¥${p.price.toFixed(2)}</td><td style="color:#389e0d"><strong>¥${untaxedFinal.toFixed(2)}</strong></td>
         </tr>`;
-      } else {
-        } else if (m._defaultPrice && m.qty > 0) {
+      } else if (m._defaultPrice && m.qty > 0) {
         // 有标准单价（辅料通用值）：直接用默认价计算，无需从数据库选
         const dispUnitD = m._unit || '件';
         const untaxedD  = m._defaultPrice * m.qty / 1.13;
