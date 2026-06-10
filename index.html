@@ -906,40 +906,58 @@ const GLUE_DEFAULTS = {
   'ET-假三边款':    { pur:1, glue350A:6, glue5804:4, glueFactor:1 }
 };
 
-// 包材用量公式（精确对齐Excel各Sheet）
+// 包材用量公式（精确对齐Excel，反推验证）
 function calcPackagingDefaults(mattressType, w, l, h) {
   const W=parseFloat(w)||180, L=parseFloat(l)||200, H=parseFloat(h)||25;
-  const perim = (W+L)*2/100;
-  const edgeRounds = mattressType==='QT-两边款'?2:(mattressType==='PT-虎口款'||mattressType.startsWith('ET'))?3:0;
-  const boxH = Math.round(H*0.8);
-  const boxW = Math.round(W+6);
-  const boxL = Math.round(L*0.85+6);
-  const boxSqm = parseFloat((((boxL+boxW)*2*(boxH+boxW*0.1))/10000).toFixed(4));
-  const peFilm   = parseFloat(((H*2+W)/100/0.255*1.02).toFixed(3));
+  const perim = (W+L)*2/100; // 周长(m)
+
+  // 边带圈数
+  const edgeRounds = mattressType==='QT-两边款'?2
+    :(mattressType==='PT-虎口款'||mattressType.startsWith('ET'))?3:0;
+
+  // === 纸箱（平卷）精确公式 ===
+  // bH = bW = H + 13（床垫总高+13cm余量）
+  // bL = L×0.80+3（普通款）或 L×0.96+3（OT厚款，裥棉层多）
+  // 双平方 = (bL+bW)×2×(bH+5) / 10000
+  const isOT = mattressType.startsWith('OT');
+  const bH = Math.round(H + 13);
+  const bW = bH;
+  const bL = isOT ? Math.round(L*0.96+3) : Math.round(L*0.80+3);
+  const boxSqm = parseFloat(((bL+bW)*2*(bH+5)/10000).toFixed(4));
+
+  // === PE压缩膜（米）精确公式 ===
+  // qty = (H×2+W)/100/0.255/2 × 1.02（6C×255cm规格）
+  const peFilm = parseFloat(((H*2+W)/100/0.255/2*1.02).toFixed(3));
+
+  // === 缠绕膜（米）精确公式 ===
+  // qty ≈ L/100×2×1.02（8C×110cm规格）
   const wrapFilm = parseFloat((L/100*2*1.02).toFixed(3));
-  const zipperLen= parseFloat(perim.toFixed(2));
-  const edgeTape = edgeRounds>0?parseFloat((perim*edgeRounds*1.03).toFixed(3)):0;
+
+  // 拉链、边带
+  const zipperLen = parseFloat(perim.toFixed(2));
+  const edgeTape  = edgeRounds>0 ? parseFloat((perim*edgeRounds*1.03).toFixed(3)) : 0;
+
   return {
-    '拉链':             {qty:zipperLen,unit:'米',    price:1,    note:`周长${zipperLen}m`,autoCalc:true},
-    '边带':             {qty:edgeTape, unit:'米',    price:0.5,  note:`${edgeRounds}圈×周长×1.03`,autoCalc:edgeRounds>0},
-    '拉手':             {qty:1,        unit:'件',    price:1,    autoCalc:true},
-    '平卷纸箱':         {qty:boxSqm,   unit:'双平方',price:10.5, note:`${boxW}×${boxL}×${boxH}cm`,autoCalc:true},
-    '黄卡纸箱（平卷）': {qty:boxSqm,   unit:'双平方',price:10.5, note:`${boxW}×${boxL}×${boxH}cm`,autoCalc:true},
-    'PE压缩膜':         {qty:peFilm,   unit:'米',    price:1.628,autoCalc:true},
-    '制袋PE压缩膜':     {qty:peFilm,   unit:'米',    price:1.628,autoCalc:true},
-    '缠绕膜':           {qty:wrapFilm, unit:'米',    price:0.936,autoCalc:true},
-    'WM缠绕膜':         {qty:wrapFilm, unit:'米',    price:0.936,autoCalc:true},
-    '标签':             {qty:1,        unit:'件',    price:0.5,  autoCalc:true},
-    '开包器':           {qty:1,        unit:'件',    price:5,    autoCalc:true},
-    '缝纫线-裥棉面线':  {qty:2550,     unit:'米',    price:0.002,note:'2500×1.02',autoCalc:true},
-    '缝纫线-裥棉底线':  {qty:2550,     unit:'米',    price:0.002,autoCalc:true},
-    '缝纫线-边布面线':  {qty:510,      unit:'米',    price:0.002,note:'500×1.02',autoCalc:true},
-    '缝纫线-缝纫底线':  {qty:510,      unit:'米',    price:0.002,autoCalc:true},
-    '缝纫线-拷边线':    {qty:510,      unit:'米',    price:0.001,autoCalc:true},
-    '缝纫线-包边线':    {qty:612,      unit:'米',    price:0.001,note:'600×1.02',autoCalc:true},
-    '缝纫线-绣花线':    {qty:510,      unit:'米',    price:0.003,autoCalc:true},
-    '干燥剂':           {qty:3,        unit:'T02',   price:0.11, note:'3包',autoCalc:true},
-    '透明胶带':         {qty:7.14,     unit:'米',    price:0.06, note:'7×1.02',autoCalc:true},
+    '拉链':              {qty:zipperLen, unit:'米',     price:1,      note:`(长+宽)×2=${zipperLen}m`,          autoCalc:true},
+    '边带':              {qty:edgeTape,  unit:'米',     price:0.5,    note:`${edgeRounds}圈×${perim.toFixed(2)}m×1.03`, autoCalc:edgeRounds>0},
+    '拉手':              {qty:1,         unit:'件',     price:1,      autoCalc:true},
+    '平卷纸箱':          {qty:boxSqm,    unit:'双平方', price:10.5,   note:`箱${bW}×${bL}×${bH}cm`, autoCalc:true},
+    '黄卡纸箱（平卷）':  {qty:boxSqm,    unit:'双平方', price:10.5,   note:`箱${bW}×${bL}×${bH}cm`, autoCalc:true},
+    'PE压缩膜':          {qty:peFilm,    unit:'米',     price:1.628,  note:`(${H}×2+${W})/100/0.255/2×1.02`, autoCalc:true},
+    '制袋PE压缩膜':      {qty:peFilm,    unit:'米',     price:1.628,  autoCalc:true},
+    '缠绕膜':            {qty:wrapFilm,  unit:'米',     price:0.936,  note:`${L}/100×2×1.02`, autoCalc:true},
+    'WM缠绕膜':          {qty:wrapFilm,  unit:'米',     price:0.936,  autoCalc:true},
+    '标签':              {qty:1,         unit:'件',     price:0.5,    autoCalc:true},
+    '开包器':            {qty:1,         unit:'件',     price:5,      autoCalc:true},
+    '缝纫线-裥棉面线':   {qty:2550,      unit:'米',     price:0.002,  note:'2500×1.02', autoCalc:true},
+    '缝纫线-裥棉底线':   {qty:2550,      unit:'米',     price:0.002,  autoCalc:true},
+    '缝纫线-边布面线':   {qty:510,       unit:'米',     price:0.002,  note:'500×1.02',  autoCalc:true},
+    '缝纫线-缝纫底线':   {qty:510,       unit:'米',     price:0.002,  autoCalc:true},
+    '缝纫线-拷边线':     {qty:510,       unit:'米',     price:0.001,  autoCalc:true},
+    '缝纫线-包边线':     {qty:612,       unit:'米',     price:0.001,  note:'600×1.02',  autoCalc:true},
+    '缝纫线-绣花线':     {qty:510,       unit:'米',     price:0.003,  autoCalc:true},
+    '干燥剂':            {qty:3,         unit:'T02',    price:0.11,   note:'3包',       autoCalc:true},
+    '透明胶带':          {qty:7.14,      unit:'米',     price:0.06,   note:'7×1.02',    autoCalc:true},
   };
 }
 
@@ -2240,8 +2258,8 @@ function renderBOM() {
           <td>${escHtml(p.name)}</td><td>${showQty}</td><td>${finalUnit}</td>
           <td>¥${p.price.toFixed(2)}</td><td style="color:#389e0d"><strong>¥${untaxedFinal.toFixed(2)}</strong></td>
         </tr>`;
-      } else if (m._defaultPrice && m.qty > 0) {
-        // 有标准单价（辅料通用值）：直接用默认价计算，无需从数据库选
+      } else {
+    } else if (m._defaultPrice && m.qty > 0) {
         const dispUnitD = m._unit || '件';
         const untaxedD  = m._defaultPrice * m.qty / 1.13;
         bomData.push({layer:layer.name, label:m.label, name:'标准价', qty:m.qty, unit:dispUnitD, price:m._defaultPrice, untaxedAmt:untaxedD});
@@ -2250,7 +2268,7 @@ function renderBOM() {
           <td><span style="color:#888;font-size:11px">标准单价¥${m._defaultPrice}（可搜索覆盖）</span></td>
           <td>${typeof m.qty==='number'?m.qty.toFixed(3):m.qty}</td>
           <td>${dispUnitD}</td>
-          <td>¥${m._defaultPrice.toFixed ? m._defaultPrice.toFixed(3) : m._defaultPrice}</td>
+          <td>¥${m._defaultPrice.toFixed?m._defaultPrice.toFixed(3):m._defaultPrice}</td>
           <td style="color:#389e0d"><strong>¥${untaxedD.toFixed(2)}</strong></td>
         </tr>`;
       } else {
