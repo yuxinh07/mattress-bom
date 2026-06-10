@@ -1,41 +1,50 @@
-export default async function handler(req, res) {
-  // CORS 预检
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
-
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
-
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: '只支持POST请求' });
-  }
+export async function onRequestPost(context) {
+  const corsHeaders = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type,Authorization',
+  };
 
   try {
-    const { url, method = 'GET', body, authToken } = req.body || {};
+    const { url, method = 'GET', body, authToken } = await context.request.json();
 
-    // 安全校验：只允许转发飞书域名
+    // 安全校验：只允许飞书域名
     if (!url || !url.startsWith('https://open.feishu.cn')) {
-      return res.status(400).json({ error: '非法请求地址，只允许飞书域名' });
+      return new Response(JSON.stringify({ error: '非法请求地址' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json', ...corsHeaders }
+      });
     }
 
     const headers = { 'Content-Type': 'application/json' };
-    if (authToken) {
-      headers['Authorization'] = 'Bearer ' + authToken;
-    }
+    if (authToken) headers['Authorization'] = 'Bearer ' + authToken;
 
     const fetchOpts = { method, headers };
-    if (body && method !== 'GET') {
-      fetchOpts.body = JSON.stringify(body);
-    }
+    if (body && method !== 'GET') fetchOpts.body = JSON.stringify(body);
 
     const response = await fetch(url, fetchOpts);
     const data = await response.json();
-    return res.status(200).json(data);
+
+    return new Response(JSON.stringify(data), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json', ...corsHeaders }
+    });
 
   } catch (err) {
-    console.error('代理错误:', err);
-    return res.status(500).json({ error: err.message });
+    return new Response(JSON.stringify({ error: err.message }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json', ...corsHeaders }
+    });
   }
+}
+
+export async function onRequestOptions() {
+  return new Response(null, {
+    status: 200,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type,Authorization',
+    }
+  });
 }
