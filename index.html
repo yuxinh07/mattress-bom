@@ -103,7 +103,7 @@ body {
   display:flex; align-items:center; gap:5px;
 }
 .structure-row {
-  display:grid; grid-template-columns:100px 50px 1fr 70px;
+  display:grid; grid-template-columns:100px 50px 1fr 60px 52px;
   gap:6px; margin-bottom:6px; align-items:center;
 }
 .structure-row .label-text {
@@ -118,6 +118,10 @@ body {
   outline:none; border-color:#40a9ff;
 }
 .qty-auto { background:#f6ffed !important; border-color:#b7eb8f !important; }
+.unit-select {
+  padding:3px 2px; font-size:11px; border:1px solid #d9d9d9; border-radius:3px;
+  width:100%; background:#fff; color:#555;
+}
 
 /* 搜索输入框 */
 .search-wrap { position:relative; width:100%; }
@@ -590,12 +594,13 @@ body {
 
 <!-- ====== 床芯计算器 弹窗 ====== -->
 <div class="modal" id="springModal">
-  <div class="modal-content" style="max-width:1000px">
+  <div class="modal-content" style="max-width:1100px">
     <div class="modal-header">
       <h2>⚙️ 床芯成本计算器</h2>
       <button class="close-btn" onclick="closeSpringCalculator()">×</button>
     </div>
     <div class="spring-form">
+      <!-- 左：床芯参数 + 弹簧规格 -->
       <div>
         <div class="spring-section">
           <h3>📐 床芯参数</h3>
@@ -603,32 +608,49 @@ body {
           <div class="spring-row"><label>长 (cm)</label><input type="number" id="sLength" value="200" oninput="updateSpringLayout()"></div>
           <div class="spring-row"><label>高度 (cm)</label>
             <select id="sHeight" onchange="updateSpringLayout()">
-              <option value="16">16cm</option>
-              <option value="18">18cm</option>
-              <option value="20">20cm</option>
-              <option value="22" selected>22cm</option>
+              <option value="16">16cm</option><option value="18">18cm</option>
+              <option value="20">20cm</option><option value="22" selected>22cm</option>
               <option value="24">24cm</option>
             </select>
           </div>
           <div class="spring-row"><label>节距 (cm)</label><input type="number" id="sPitch" value="6.3" step="0.1" oninput="updateSpringLayout()"></div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;padding:8px;background:#fff;border-radius:4px;font-size:12px">
-            <div>宽排数：<strong id="widthCount" style="color:#1890ff">0</strong></div>
-            <div>长排数：<strong id="lengthCount" style="color:#1890ff">0</strong></div>
-            <div style="grid-column:1/3">总弹簧：<strong id="totalSprings" style="color:#f5222d;font-size:14px">0</strong> 个</div>
+
+          <!-- 排列数：自动计算 + 可手动覆盖 -->
+          <div style="background:#fff;border-radius:4px;padding:8px;margin-top:8px;font-size:12px">
+            <div style="color:#666;margin-bottom:6px">弹簧排列数 <span style="color:#999">（自动计算，可手动修改）</span></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+              <div>
+                <label style="color:#666">宽排数</label>
+                <input type="number" id="widthCountInput" value="0" min="1"
+                  style="width:100%;padding:3px 6px;font-size:12px;border:1px solid #d9d9d9;border-radius:3px;margin-top:2px"
+                  oninput="onManualLayout()">
+              </div>
+              <div>
+                <label style="color:#666">长排数</label>
+                <input type="number" id="lengthCountInput" value="0" min="1"
+                  style="width:100%;padding:3px 6px;font-size:12px;border:1px solid #d9d9d9;border-radius:3px;margin-top:2px"
+                  oninput="onManualLayout()">
+              </div>
+            </div>
+            <div style="margin-top:8px;padding:6px;background:#f0f7ff;border-radius:3px">
+              <span>计算总数：<strong id="calcTotal" style="color:#1890ff">0</strong></span>
+              <span style="margin-left:12px">输入总数：<strong id="inputTotal" style="color:#fa8c16">0</strong></span>
+              <span style="margin-left:12px" id="totalCheck"></span>
+            </div>
           </div>
         </div>
+
         <div class="spring-section" style="margin-top:10px">
           <h3>🌀 弹簧规格</h3>
           <div class="spring-row"><label>软线径 <span style="color:#999;font-size:10px">（≤1.8mm）</span></label>
-            <select id="softWire" onchange="updateSpringLayout()">
-              <option value="钢线1.2">钢线1.2</option>
-              <option value="钢线1.4">钢线1.4</option>
+            <select id="softWire" onchange="updateZoneInputs()">
+              <option value="钢线1.2">钢线1.2</option><option value="钢线1.4">钢线1.4</option>
               <option value="钢线1.6">钢线1.6</option>
               <option value="钢线1.8" selected>钢线1.8 (¥5.2/kg)</option>
             </select>
           </div>
           <div class="spring-row"><label>硬线径 <span style="color:#999;font-size:10px">（>1.8mm）</span></label>
-            <select id="hardWire" onchange="updateSpringLayout()">
+            <select id="hardWire" onchange="updateZoneInputs()">
               <option value="钢线2.0" selected>钢线2.0 (¥5.1/kg)</option>
               <option value="钢线2.2">钢线2.2 (¥5.0/kg)</option>
               <option value="钢线2.4">钢线2.4</option>
@@ -652,8 +674,16 @@ body {
             <div style="font-size:11px;color:#666;text-align:center" id="zoneInfo"></div>
           </div>
           <button class="btn btn-default btn-sm" style="margin-top:8px;width:100%" onclick="suggestZoneRows()">📊 智能建议分区</button>
+
+          <!-- 弹簧分区数量明细（动态显示） -->
+          <div id="springBreakdown" style="margin-top:8px;font-size:12px;background:#fff;border-radius:4px;padding:8px;display:none">
+            <div style="color:#666;margin-bottom:4px;font-weight:500">弹簧数量明细：</div>
+            <div id="springBreakdownContent"></div>
+          </div>
         </div>
       </div>
+
+      <!-- 右：辅料参数 -->
       <div>
         <div class="spring-section">
           <h3>🧪 胶水（棉毡颗粒热熔胶）</h3>
@@ -664,9 +694,14 @@ body {
           <div class="spring-row"><label>含税单价 (¥/kg)</label><input type="number" id="gluePrice" value="16" step="0.1"></div>
         </div>
         <div class="spring-section" style="margin-top:10px">
-          <h3>🎁 无纺布袋</h3>
-          <div class="spring-row"><label>白色袋数（软）</label><input type="number" id="whiteBagCount" value="0"></div>
-          <div class="spring-row"><label>有色袋数（硬）</label><input type="number" id="colorBagCount" value="0"></div>
+          <h3>🎁 无纺布袋 <span style="font-size:11px;color:#999;font-weight:400">（白色=软区，有色=硬区）</span></h3>
+          <div class="spring-row"><label>白色袋数（软区）</label>
+            <input type="number" id="whiteBagCount" value="0" style="background:#e6f7ff">
+          </div>
+          <div class="spring-row"><label>有色袋数（硬区）</label>
+            <input type="number" id="colorBagCount" value="0" style="background:#fff2e8">
+          </div>
+          <div style="font-size:11px;color:#52c41a;margin-bottom:6px" id="bagAutoTip">↑ 选好分区后点「开始计算」自动填入</div>
           <div class="spring-row"><label>单袋克重 (g)</label><input type="number" id="bagUnitWeight" value="4.451" step="0.001"></div>
           <div class="spring-row"><label>损耗率</label><input type="number" id="bagLoss" value="0.03" step="0.01"></div>
           <div class="spring-row"><label>白袋单价 (¥/kg)</label><input type="number" id="whiteBagPrice" value="9.5" step="0.1"></div>
@@ -1357,7 +1392,33 @@ function autoFillGlueAndPackaging() {
 /* ============================================================
    渲染结构层
    ============================================================ */
+function syncDOMToData() {
+  // renderStructure 前调用：把DOM里已填的搜索框值同步回数据对象，防止重渲染丢失
+  if (!currentMattress) return;
+  document.querySelectorAll('.search-input').forEach(inp => {
+    // 只同步有值且已选中的（即 _fabricSel / m.sel 已有值的不需要再处理）
+    // 主要保护：qty 输入框的值
+  });
+  // 同步所有 qty 输入框（structure-row 里的 number input）
+  document.querySelectorAll('.structure-row').forEach(row => {
+    const qtyInput = row.querySelector('input[type="number"]:not([disabled])');
+    const searchInput = row.querySelector('.search-input');
+    if (!qtyInput || !searchInput) return;
+    const li = parseInt(searchInput.dataset.li);
+    const mi = searchInput.dataset.mi;
+    const type = searchInput.dataset.type;
+    if (isNaN(li)) return;
+    if (type === 'fabric') {
+      currentMattress.layers[li]._fabricQty = parseFloat(qtyInput.value) || 1;
+    } else if (mi !== '' && mi !== undefined) {
+      const m = currentMattress.layers[li]._materials[parseInt(mi)];
+      if (m) m.qty = parseFloat(qtyInput.value) || 0;
+    }
+  });
+}
+
 function renderStructure() {
+  syncDOMToData(); // 先把DOM里的值存回数据，再重渲染
   if (!currentMattress) return;
   const c = document.getElementById('structureContainer');
   let html = '';
@@ -1424,6 +1485,11 @@ function renderStructure() {
     layer._materials.forEach((m, mi) => {
       const selItem = DB.price.find(p => p.name === m.sel);
       const displayVal = selItem ? `${selItem.name}${selItem.altName?' ('+selItem.altName+')':''} ¥${selItem.price}` : '';
+      // 单位：优先用手动设置的，其次从数据库读，fallback 件
+      const dbUnit = selItem ? (selItem.unit||'件') : '件';
+      const curUnit = m._unit || dbUnit;
+      const unitOptions = ['件','米','公斤','克','g/m²','cm','mm','平方米','T02','双平方'].map(u=>
+        `<option value="${u}" ${curUnit===u?'selected':''}>${u}</option>`).join('');
       html += `<div class="structure-row">
         <span class="label-text" title="${escHtml(m.label)}">${escHtml(m.label)}</span>
         <span class="category-badge badge-material">物料</span>
@@ -1440,8 +1506,10 @@ function renderStructure() {
         </div>
         <input type="number" value="${m.qty}" min="0" step="0.01"
           class="${m._auto?'qty-auto':''}"
-          onchange="onQtyChange(${li},${mi},this.value)"
-          title="${m._auto?'自动计算':'手动输入'}">
+          onchange="onQtyInputWithConvert(${li},${mi},this.value)"
+          title="${m._unit==='cm'&&parseFoamDensity(m.sel)?'输入厚度cm，自动换算kg':m._auto?'自动计算':'手动输入'}">
+        <select class="unit-select" onchange="onUnitChange(${li},${mi},this.value)">${unitOptions}</select>
+        ${m._unit==='cm'&&parseFoamDensity(m.sel)?`<span id="kgtip_${li}_${mi}" style="font-size:10px;color:#52c41a;grid-column:3/6;margin-top:-4px">${m._kgQty?'≈ '+m._kgQty.toFixed(3)+' kg':''}</span>`:''}
       </div>`;
     });
 
@@ -1571,6 +1639,13 @@ function onSearchSelect(e, type, li, mi, name, src) {
     }
   });
 
+  // 选中物料后，如果单位未手动设过，自动同步数据库单位
+  if (type === 'material') {
+    const m = currentMattress.layers[li]._materials[parseInt(mi)];
+    if (m && !m._unitManual) {
+      m._unit = item.unit || '件';
+    }
+  }
   renderBOM();
 }
 
@@ -1609,8 +1684,61 @@ function onQtyChange(li,mi,v){
   const m = currentMattress.layers[li]._materials[parseInt(mi)];
   m.qty = parseFloat(v)||0; 
   m._auto = false; 
-  m._manualQty = true; // 标记已手动修改，不再自动覆盖
+  m._manualQty = true;
   renderBOM(); 
+}
+
+function onUnitChange(li, mi, val) {
+  const m = currentMattress.layers[li]._materials[parseInt(mi)];
+  m._unit = val;
+  m._unitManual = true;
+  renderBOM();
+}
+
+/* 从物料编码/名称解析密度（kg/m³）
+   编码规律：P2270W → 密度22, P25120W → 密度25, M4055B → 密度40, A3050B → 密度30
+   取编码开头字母后的数字前2-3位 */
+function parseFoamDensity(name) {
+  if (!name) return null;
+  // 匹配 P22, P25, M40, A30, L45 等前缀数字
+  const m = name.match(/^[PMAQLDZW](\d{2,3})\d/);
+  if (m) return parseInt(m[1]);
+  // 匹配 "25#", "40D", "30kg" 等
+  const m2 = name.match(/(\d{2,3})[#Dkg]/);
+  if (m2) return parseInt(m2[1]);
+  return null;
+}
+
+/* 厚度(cm) → 公斤，需要知道床垫长宽和海绵密度 */
+function calcFoamKg(thicknessCm, densityKgM3) {
+  const w = parseFloat(document.getElementById('mWidth').value)||180;
+  const l = parseFloat(document.getElementById('mLength').value)||200;
+  if (!thicknessCm || !densityKgM3) return null;
+  return (w/100) * (l/100) * (thicknessCm/100) * densityKgM3;
+}
+
+/* 用量输入：如果单位是cm且物料是海绵，旁边显示换算后的公斤 */
+function onQtyInputWithConvert(li, mi, val) {
+  const m = currentMattress.layers[li]._materials[parseInt(mi)];
+  m.qty = parseFloat(val)||0;
+  m._auto = false;
+  m._manualQty = true;
+
+  // 如果单位是cm，尝试换算成kg存入 _kgQty
+  if (m._unit === 'cm' && m.sel) {
+    const density = parseFoamDensity(m.sel);
+    if (density) {
+      m._kgQty = calcFoamKg(m.qty, density);
+    }
+  } else {
+    m._kgQty = null;
+  }
+  renderBOM();
+  // 更新换算提示（不触发完整重渲染，直接更新对应提示span）
+  const tipId = `kgtip_${li}_${mi}`;
+  const tip = document.getElementById(tipId);
+  if (tip && m._kgQty) tip.textContent = `≈ ${m._kgQty.toFixed(3)} kg`;
+  else if (tip) tip.textContent = '';
 }
 function addMaterialRow(li){ currentMattress.layers[li]._materials.push({label:'自定义', sel:'', qty:1}); renderStructure(); }
 
@@ -1678,11 +1806,17 @@ function renderBOM() {
         const srcBadge = isFabricSrc
           ? '<span class="category-badge badge-fabric" style="margin-left:4px">面料</span>'
           : '<span class="category-badge badge-material" style="margin-left:4px">物料</span>';
-        bomData.push({layer:layer.name, label:m.label, name:p.name, qty:m.qty, unit:p.unit||'件', price:p.price, untaxedAmt:untaxed});
+        const dispUnit = m._unit || p.unit || '件';
+        // 如果单位是cm（厚度），用换算后的kg数量计价
+        const calcQty = (dispUnit === 'cm' && m._kgQty) ? m._kgQty : m.qty;
+        const calcUnit = (dispUnit === 'cm' && m._kgQty) ? '公斤' : dispUnit;
+        const untaxed2 = p.price * calcQty / 1.13;
+        bomData.push({layer:layer.name, label:m.label, name:p.name, qty:calcQty, unit:calcUnit, price:p.price, untaxedAmt:untaxed2});
+        const showQty = dispUnit==='cm' && m._kgQty ? `${m.qty}cm→${m._kgQty.toFixed(3)}kg` : calcQty;
         html += `<tr>
           <td>${escHtml(m.label)}${srcBadge}</td>
-          <td>${escHtml(p.name)}</td><td>${m.qty}</td><td>${p.unit||'件'}</td>
-          <td>¥${p.price.toFixed(2)}</td><td style="color:#389e0d"><strong>¥${untaxed.toFixed(2)}</strong></td>
+          <td>${escHtml(p.name)}</td><td>${showQty}</td><td>${calcUnit}</td>
+          <td>¥${p.price.toFixed(2)}</td><td style="color:#389e0d"><strong>¥${untaxed2.toFixed(2)}</strong></td>
         </tr>`;
       } else {
         html += `<tr class="unmatched">
@@ -1888,45 +2022,151 @@ function openSpringCalculator() {
   document.getElementById('sLength').value = document.getElementById('mLength').value;
   updateSpringLayout();
   updateZoneInputs();
-  // 同步弹簧数量到无纺布袋输入
 }
 function closeSpringCalculator() { document.getElementById('springModal').classList.remove('show'); }
 
+/* 线径 → 钢线单价（¥/kg，不含税） */
+const WIRE_PRICE = { '钢线1.2':5.4,'钢线1.4':5.3,'钢线1.6':5.25,'钢线1.8':5.2,'钢线2.0':5.1,'钢线2.2':5.0,'钢线2.4':4.9 };
+
+/* 自动计算排列数 */
 function updateSpringLayout() {
   const w = parseFloat(document.getElementById('sWidth').value)||0;
   const l = parseFloat(document.getElementById('sLength').value)||0;
   const p = parseFloat(document.getElementById('sPitch').value)||6.3;
   const wc = Math.floor(w/p), lc = Math.floor(l/p);
-  document.getElementById('widthCount').textContent  = wc;
-  document.getElementById('lengthCount').textContent = lc;
-  document.getElementById('totalSprings').textContent = wc*lc;
+  document.getElementById('widthCountInput').value = wc;
+  document.getElementById('lengthCountInput').value = lc;
+  updateTotalCheck();
   updateZoneVisual();
+}
+
+/* 手动修改排列数 */
+function onManualLayout() {
+  updateTotalCheck();
+  updateZoneVisual();
+}
+
+function getWC() { return parseInt(document.getElementById('widthCountInput').value)||0; }
+function getLC() { return parseInt(document.getElementById('lengthCountInput').value)||0; }
+
+/* 校验总数 */
+function updateTotalCheck() {
+  const wc = getWC(), lc = getLC();
+  const calc = wc * lc;
+  document.getElementById('calcTotal').textContent = calc;
+  // 输入总数：从分区明细里算
+  updateSpringBreakdown();
+}
+
+/* 计算各区弹簧数量并显示明细 */
+function updateSpringBreakdown() {
+  const wc = getWC(), lc = getLC(), total = wc * lc;
+  const zone = document.getElementById('zoneType').value;
+  const hasBorder = zone.includes('border');
+  const zonesNum = zone.startsWith('7zone')?7:zone.startsWith('5zone')?5:zone.startsWith('3zone')?3:0;
+
+  let softCount=0, hardCount=0, borderCount=0;
+  const bd = document.getElementById('springBreakdown');
+  const bdc = document.getElementById('springBreakdownContent');
+
+  if (zone === 'full') {
+    softCount = total; hardCount = 0; borderCount = 0;
+    bd.style.display = 'none';
+  } else if (zone === 'border') {
+    borderCount = wc*2 + (lc-2)*2;
+    softCount = total - borderCount;
+    bd.style.display = 'block';
+    bdc.innerHTML = `
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;color:#555">
+        <div>🔵 软区：<strong style="color:#1890ff">${softCount}</strong></div>
+        <div>🔴 四周硬：<strong style="color:#fa541c">${borderCount}</strong></div>
+        <div>合计：<strong>${softCount+borderCount}</strong></div>
+      </div>`;
+  } else {
+    // 分区
+    const pattern = zonesNum===3?['hard','soft','hard']:
+                    zonesNum===5?['hard','soft','hard','soft','hard']:
+                    ['hard','soft','hard','soft','hard','soft','hard'];
+    let zRows = [];
+    for(let i=0;i<zonesNum;i++) zRows.push(parseInt((document.getElementById('zoneRow'+i)||{}).value)||0);
+    const sumR = zRows.reduce((a,b)=>a+b,0);
+    if (sumR > 0) {
+      zRows.forEach((r,i) => {
+        if(pattern[i]==='hard') hardCount += r*wc;
+        else softCount += r*wc;
+      });
+    } else { softCount = total; }
+
+    if (hasBorder) {
+      borderCount = wc*2 + (lc-2)*2;
+      // 四周加硬从已有数量里扣除再加border
+      const innerTotal = softCount + hardCount;
+      softCount = total - hardCount - borderCount;
+      if (softCount < 0) softCount = 0;
+    }
+
+    bd.style.display = 'block';
+    let html = `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;color:#555;font-size:11px">`;
+    html += `<div>🔵 软区：<strong style="color:#1890ff">${softCount}</strong></div>`;
+    html += `<div>🔴 硬区：<strong style="color:#fa541c">${hardCount}</strong></div>`;
+    if (hasBorder) html += `<div>🟠 四周加硬：<strong style="color:#fa8c16">${borderCount}</strong></div>`;
+    html += `<div style="grid-column:1/4;margin-top:4px;border-top:1px solid #f0f0f0;padding-top:4px">`;
+    const inputSum = softCount + hardCount + borderCount;
+    const calcSum = total;
+    const match = inputSum === calcSum;
+    html += `合计：<strong style="color:${match?'#52c41a':'#f5222d'}">${inputSum}</strong>`;
+    html += ` / 计算总数：<strong>${calcSum}</strong>`;
+    html += ` <span style="color:${match?'#52c41a':'#f5222d'}">${match?'✅ 核对一致':'⚠️ 不一致，请检查分区行数'}</span>`;
+    html += `</div></div>`;
+    bdc.innerHTML = html;
+  }
+
+  // 更新顶部核对
+  const inputTotal = softCount + hardCount + borderCount;
+  document.getElementById('inputTotal').textContent = inputTotal;
+  const match = (inputTotal === total) || zone === 'full';
+  document.getElementById('totalCheck').innerHTML = match
+    ? '<span style="color:#52c41a">✅ 一致</span>'
+    : `<span style="color:#f5222d">⚠️ 差 ${Math.abs(inputTotal-total)} 个</span>`;
+
+  // 同步软/硬袋数到输入框（仅作参考，可手动覆盖）
+  if (document.getElementById('whiteBagCount').value == '0' || document.getElementById('whiteBagCount').dataset.auto) {
+    document.getElementById('whiteBagCount').value = softCount;
+    document.getElementById('whiteBagCount').dataset.auto = '1';
+  }
+  if (document.getElementById('colorBagCount').value == '0' || document.getElementById('colorBagCount').dataset.auto) {
+    document.getElementById('colorBagCount').value = hardCount + borderCount;
+    document.getElementById('colorBagCount').dataset.auto = '1';
+  }
 }
 
 function updateZoneInputs() {
   const t = document.getElementById('zoneType').value;
-  const lc = parseInt(document.getElementById('lengthCount').textContent)||0;
+  const lc = getLC();
   const c = document.getElementById('zoneRowsContainer');
   let zones = 0;
   if(t.startsWith('3zone')) zones=3;
   else if(t.startsWith('5zone')) zones=5;
   else if(t.startsWith('7zone')) zones=7;
-  if(zones===0){c.innerHTML='';updateZoneVisual();return;}
-  let html=`<div style="font-size:11px;color:#666;margin-top:8px">分区行数（共${lc}行）：</div><div class="zone-rows-input" style="grid-template-columns:repeat(${zones},1fr)">`;
-  for(let i=0;i<zones;i++) html+=`<input type="number" id="zoneRow${i}" value="${Math.floor(lc/zones)}" oninput="updateZoneVisual()" placeholder="区${i+1}">`;
+  if(zones===0){c.innerHTML='';updateZoneVisual();updateSpringBreakdown();return;}
+  let html=`<div style="font-size:11px;color:#666;margin-top:8px">分区行数（共${lc}行）：</div>
+  <div class="zone-rows-input" style="grid-template-columns:repeat(${zones},1fr)">`;
+  for(let i=0;i<zones;i++) html+=`<input type="number" id="zoneRow${i}" value="${Math.floor(lc/zones)}" oninput="updateZoneVisual();updateSpringBreakdown()" placeholder="区${i+1}">`;
   html+='</div>';
   c.innerHTML=html;
   updateZoneVisual();
+  updateSpringBreakdown();
 }
 
 function suggestZoneRows() {
   const t=document.getElementById('zoneType').value;
-  const lc=parseInt(document.getElementById('lengthCount').textContent)||0;
-  const zones=t.startsWith('3zone')?3:t.startsWith('5zone')?5:0;
+  const lc=getLC();
+  const zones=t.startsWith('7zone')?7:t.startsWith('5zone')?5:t.startsWith('3zone')?3:0;
   if(!zones){alert('当前分区无需设置');return;}
   const dists=zones===3?[0.3,0.4,0.3]:zones===5?[0.18,0.22,0.2,0.22,0.18]:[0.12,0.14,0.14,0.12,0.14,0.14,0.12];
   dists.forEach((d,i)=>{const el=document.getElementById('zoneRow'+i);if(el)el.value=Math.round(lc*d);});
   updateZoneVisual();
+  updateSpringBreakdown();
 }
 
 function updateZoneVisual() {
@@ -1947,82 +2187,98 @@ function calculateSpring() {
   const w      = parseFloat(document.getElementById('sWidth').value)||0;
   const l      = parseFloat(document.getElementById('sLength').value)||0;
   const h      = parseInt(document.getElementById('sHeight').value)||18;
-  const p      = parseFloat(document.getElementById('sPitch').value)||6.3;
+  const wc     = getWC(), lc = getLC();
+  const total  = wc * lc;
   const softW  = document.getElementById('softWire').value;
   const hardW  = document.getElementById('hardWire').value;
   const zone   = document.getElementById('zoneType').value;
+  const hasBorder = zone.includes('border');
+  const zonesNum  = zone.startsWith('7zone')?7:zone.startsWith('5zone')?5:zone.startsWith('3zone')?3:0;
 
-  const wc = Math.floor(w/p), lc = Math.floor(l/p), total = wc*lc;
-
-  let softCount=0, hardCount=0;
-  if(zone==='full'){ softCount=total; }
-  else if(zone==='border'){ hardCount=wc*2+(lc-2)*2; softCount=total-hardCount; }
-  else {
-    const zones=zone.startsWith('7zone')?7:zone.startsWith('5zone')?5:3;
-    const hasBorder=zone.includes('border');
-    const pattern=zones===3?['hard','soft','hard']:zones===5?['hard','soft','hard','soft','hard']:['hard','soft','hard','soft','hard','soft','hard'];
+  // 计算各区弹簧数量（对齐Excel逻辑）
+  let softCount=0, hardCount=0, borderCount=0;
+  if (zone==='full') { softCount=total; }
+  else if (zone==='border') {
+    borderCount = wc*2 + (lc-2)*2;
+    softCount = total - borderCount;
+  } else {
+    const pattern = zonesNum===3?['hard','soft','hard']:
+                    zonesNum===5?['hard','soft','hard','soft','hard']:
+                    ['hard','soft','hard','soft','hard','soft','hard'];
     const zRows=[];
-    for(let i=0;i<zones;i++) zRows.push(parseInt((document.getElementById('zoneRow'+i)||{}).value)||0);
+    for(let i=0;i<zonesNum;i++) zRows.push(parseInt((document.getElementById('zoneRow'+i)||{}).value)||0);
     const sumR=zRows.reduce((a,b)=>a+b,0);
     if(sumR>0) zRows.forEach((r,i)=>{ if(pattern[i]==='hard') hardCount+=r*wc; else softCount+=r*wc; });
     else softCount=total;
-    if(hasBorder){ const bc=wc*2+(lc-2)*2; hardCount=Math.max(hardCount,bc); softCount=total-hardCount; }
+    if(hasBorder){ borderCount=wc*2+(lc-2)*2; softCount=total-hardCount-borderCount; if(softCount<0)softCount=0; }
   }
 
-  // 弹簧克重（从DB查，fallback内置）
-  const softSpec = DB.spring.find(s=>s.height===h&&s.wire===softW) || DB.spring.find(s=>s.height===h) || {springWeight:35,bagWeight:4.451};
-  const hardSpec = DB.spring.find(s=>s.height===h&&s.wire===hardW) || softSpec;
+  // 从弹簧参照表查单个克重
+  const softSpec  = DB.spring.find(s=>s.height===h && s.wire===softW) || {springWeight:30, bagWeight:4.0};
+  const hardSpec  = DB.spring.find(s=>s.height===h && s.wire===hardW) || softSpec;
+  const brdSpec   = hardSpec; // 四周加硬用硬线径规格
 
-  // 弹簧单价（从物料库查，fallback）
-  const steelPrice = { '钢线1.8':5.2, '钢线2.0':5.1, '钢线2.2':5.0 };
+  // 钢丝用量（kg），含2%损耗
+  const softSteelKg   = softCount   * softSpec.springWeight / 1000 * 1.02;
+  const hardSteelKg   = hardCount   * hardSpec.springWeight / 1000 * 1.02;
+  const borderSteelKg = borderCount * brdSpec.springWeight  / 1000 * 1.02;
 
-  const softSteelKg = softCount * softSpec.springWeight / 1000;
-  const hardSteelKg = hardCount * hardSpec.springWeight / 1000;
-  const softP = steelPrice[softW] || 5.1;
-  const hardP = steelPrice[hardW] || 5.0;
-  const steelCost = (softSteelKg*softP + hardSteelKg*hardP) / 1.13; // 去税
+  // 钢丝单价（从物料库读，fallback内置）
+  const getWirePrice = (wire) => {
+    const item = DB.price.find(p => p.name === wire || (p.keywords||'').includes(wire));
+    return item ? item.price / 1.13 : (WIRE_PRICE[wire] || 5.1);
+  };
+  const softP  = getWirePrice(softW);
+  const hardP  = getWirePrice(hardW);
+  const softSteelCost  = softSteelKg   * softP;
+  const hardSteelCost  = hardSteelKg   * hardP;
+  const brdSteelCost   = borderSteelKg * hardP;
+  const totalSteelCost = softSteelCost + hardSteelCost + brdSteelCost;
 
   // 无纺布袋
-  const wBag  = parseInt(document.getElementById('whiteBagCount').value)||softCount;
-  const cBag  = parseInt(document.getElementById('colorBagCount').value)||hardCount;
+  const wBag  = parseInt(document.getElementById('whiteBagCount').value) || softCount;
+  const cBag  = parseInt(document.getElementById('colorBagCount').value) || (hardCount + borderCount);
   const bagW  = parseFloat(document.getElementById('bagUnitWeight').value)||4.451;
   const bagL  = parseFloat(document.getElementById('bagLoss').value)||0.03;
   const wBagP = parseFloat(document.getElementById('whiteBagPrice').value)||9.5;
   const cBagP = parseFloat(document.getElementById('colorBagPrice').value)||10;
-  // 实际输入bag count or auto
-  const wBagUse = (parseInt(document.getElementById('whiteBagCount').value)||0) > 0
-    ? parseInt(document.getElementById('whiteBagCount').value) : softCount;
-  const cBagUse = (parseInt(document.getElementById('colorBagCount').value)||0) > 0
-    ? parseInt(document.getElementById('colorBagCount').value) : hardCount;
-  const bagCost = (wBagUse*bagW/1000*(1+bagL)*wBagP + cBagUse*bagW/1000*(1+bagL)*cBagP) / 1.13;
+  const wBagKg = wBag * bagW / 1000 * (1+bagL);
+  const cBagKg = cBag * bagW / 1000 * (1+bagL);
+  const bagCost = (wBagKg * wBagP + cBagKg * cBagP) / 1.13;
 
   // 包面无纺布
-  const nwW  = parseFloat(document.getElementById('nwWidth').value)||210;
-  const nwG  = parseFloat(document.getElementById('nwGsm').value)||70;
-  const nwL  = parseFloat(document.getElementById('nwLen').value)||2.0;
-  const nwLoss=parseFloat(document.getElementById('nwLoss').value)||0.02;
-  const nwP  = parseFloat(document.getElementById('nwPrice').value)||9.5;
-  const nwKg = (nwW/100)*nwL*nwG/1000*(1+nwLoss);
-  const nwCost = nwKg*nwP / 1.13;
+  const nwW = parseFloat(document.getElementById('nwWidth').value)||210;
+  const nwG = parseFloat(document.getElementById('nwGsm').value)||70;
+  const nwL = parseFloat(document.getElementById('nwLen').value)||2.0;
+  const nwLoss = parseFloat(document.getElementById('nwLoss').value)||0.02;
+  const nwP = parseFloat(document.getElementById('nwPrice').value)||9.5;
+  const nwKg = (nwW/100) * nwL * nwG/1000 * (1+nwLoss);
+  const nwCost = nwKg * nwP / 1.13;
 
   // 胶水
   const gLen  = parseFloat(document.getElementById('glueLen').value)||2.0;
   const gCnt  = parseFloat(document.getElementById('glueCount').value)||25;
-  const gWg   = parseFloat(document.getElementById('glueWeight').value)||100; // g/m
+  const gWg   = parseFloat(document.getElementById('glueWeight').value)||100;
   const gLoss = parseFloat(document.getElementById('glueLoss').value)||0.02;
   const gP    = parseFloat(document.getElementById('gluePrice').value)||16;
-  const glueKg = gLen*gCnt*gWg/1000*(1+gLoss);
-  const glueCost = glueKg*gP / 1.13;
+  const glueKg = gLen * gCnt * gWg/1000 * (1+gLoss);
+  const glueCost = glueKg * gP / 1.13;
 
-  const totalCost = steelCost + bagCost + nwCost + glueCost;
+  const totalCost = totalSteelCost + bagCost + nwCost + glueCost;
   springCost = totalCost;
 
-  document.getElementById('springCostResult').style.display = 'block';
+  // 生成明细
+  let steelDetail = `软区钢丝：${softCount}个×${softSpec.springWeight}g=${softSteelKg.toFixed(3)}kg × ¥${softP.toFixed(2)} = ¥${softSteelCost.toFixed(2)}`;
+  if (hardCount > 0) steelDetail += `<br>硬区钢丝：${hardCount}个×${hardSpec.springWeight}g=${hardSteelKg.toFixed(3)}kg × ¥${hardP.toFixed(2)} = ¥${hardSteelCost.toFixed(2)}`;
+  if (borderCount > 0) steelDetail += `<br>四周加硬：${borderCount}个×${brdSpec.springWeight}g=${borderSteelKg.toFixed(3)}kg × ¥${hardP.toFixed(2)} = ¥${brdSteelCost.toFixed(2)}`;
+
+  document.getElementById('springCostResult').style.display='block';
   document.getElementById('springCostResult').innerHTML = `
-    📊 <strong>计算结果（已去税 ÷1.13）</strong><br>
-    总弹簧：<strong>${total}</strong>（软${softCount} + 硬${hardCount}）<br>
-    钢丝成本：<strong>¥${steelCost.toFixed(2)}</strong>（软${softSteelKg.toFixed(2)}kg + 硬${hardSteelKg.toFixed(2)}kg）<br>
-    无纺布袋：<strong>¥${bagCost.toFixed(2)}</strong>（白${wBagUse}个 + 有色${cBagUse}个）<br>
+    <strong>📊 计算结果（已去税 ÷1.13）</strong><br>
+    弹簧排列：宽${wc}×长${lc} = ${total}个（软${softCount} + 硬${hardCount} + 四周加硬${borderCount}）<br>
+    <div style="margin:4px 0;padding:6px;background:#fff;border-radius:3px;font-size:11px;color:#555">${steelDetail}</div>
+    钢丝合计：<strong>¥${totalSteelCost.toFixed(2)}</strong><br>
+    无纺布袋：<strong>¥${bagCost.toFixed(2)}</strong>（白色${wBag}个 + 有色${cBag}个）<br>
     包面无纺布：<strong>¥${nwCost.toFixed(2)}</strong>（${nwKg.toFixed(3)}kg）<br>
     热熔胶：<strong>¥${glueCost.toFixed(2)}</strong>（${glueKg.toFixed(3)}kg）<br>
     <hr style="margin:8px 0;border-color:#b7eb8f">
@@ -2036,6 +2292,7 @@ function applySpringCost() {
   alert('✅ 床芯成本已应用：¥' + springCost.toFixed(2) + '（去税）');
   closeSpringCalculator();
 }
+
 
 /* ============================================================
    导出BOM
