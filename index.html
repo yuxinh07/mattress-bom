@@ -2258,8 +2258,7 @@ function renderBOM() {
           <td>${escHtml(p.name)}</td><td>${showQty}</td><td>${finalUnit}</td>
           <td>¥${p.price.toFixed(2)}</td><td style="color:#389e0d"><strong>¥${untaxedFinal.toFixed(2)}</strong></td>
         </tr>`;
-      } else {
-    } else if (m._defaultPrice && m.qty > 0) {
+      } else if (m._defaultPrice && m.qty > 0) {
         const dispUnitD = m._unit || '件';
         const untaxedD  = m._defaultPrice * m.qty / 1.13;
         bomData.push({layer:layer.name, label:m.label, name:'标准价', qty:m.qty, unit:dispUnitD, price:m._defaultPrice, untaxedAmt:untaxedD});
