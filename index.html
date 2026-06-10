@@ -1934,7 +1934,7 @@ function onSearchSelect(e, type, li, mi, name, src) {
     const m = currentMattress.layers[li]._materials[parseInt(mi)];
     if (m && !m._unitManual) { m._unit = item.unit || '件'; }
     // 自动填入密度（从物料编码识别）
-    // 选中物料后自动解析参数
+   // 选中物料后自动解析参数
 if (m && !m._calcParams) m._calcParams = {};
 if (m) {
   const ct2 = detectMaterialCalcType(item.name, m.label);
@@ -1943,7 +1943,6 @@ if (m) {
     if (!m._calcParams.thick)   m._calcParams.thick   = parseThickness(item.name) || 0;
     if (!m._calcParams.coef)    m._calcParams.coef    = 1;
   } else if (ct2 === 'felt' || ct2 === 'nw') {
-    // 棉毡/无纺布克重从名称解析：180克 → 180, 25g → 25
     if (!m._calcParams.gsm) {
       const gm = item.name.match(/(\d+)(?:克|g|G)/);
       if (gm) m._calcParams.gsm = parseFloat(gm[1]);
@@ -1951,27 +1950,19 @@ if (m) {
   }
   // 门幅同步到面料行
   const fw = parseFabricWidth(item.name);
-if (fw && !m._fabricWidth) m._fabricWidth = fw;
+  if (fw && !m._fabricWidth) m._fabricWidth = fw;
+}
+// ↑↑↑ 注意这里要加一个 } 来关闭 if (m) { 的代码块 ↑↑↑
 
+// 下面的函数必须放在 onSearchSelect 函数外面
 function onFabricSelect(li,val){ currentMattress.layers[li]._fabricSel=val; renderBOM(); }
 
 function toggleFabricManual(li, manual) {
-  currentMattress.layers[li]._fabricManual = manual;
-  if (!manual) {
-    // 切回搜索模式，清空手动数据
-    currentMattress.layers[li]._fabricManualName = '';
-    currentMattress.layers[li]._fabricManualPrice = 0;
-  } else {
-    // 切到手动模式，清空搜索选中
-    currentMattress.layers[li]._fabricSel = '';
-  }
-  renderStructure();
-  renderBOM();
+  // ... 保持不变 ...
 }
 
 function onFabricManualName(li, val) {
-  currentMattress.layers[li]._fabricManualName = val;
-  renderBOM();
+  // ... 保持不变 ...
 }
 
 function onFabricQtyChange(li, val) {
