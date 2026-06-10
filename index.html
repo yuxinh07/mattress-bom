@@ -55,7 +55,7 @@ body {
 .btn:disabled { opacity:0.5; cursor:not-allowed; }
 
 .main-layout {
-  display:grid; grid-template-columns: 400px 1fr; gap:15px;
+  display:grid; grid-template-columns: 460px 1fr; gap:15px;
   margin-bottom:15px;
 }
 
@@ -94,7 +94,7 @@ body {
 
 .structure-group {
   background:#fafafa; border:1px solid #e8e8e8; border-radius:6px;
-  margin-bottom:10px; padding:10px;
+  margin-bottom:10px; padding:12px 12px 8px;
 }
 .structure-group-title {
   font-size:13px; font-weight:600; color:#1890ff;
@@ -103,19 +103,33 @@ body {
   display:flex; align-items:center; gap:5px;
 }
 .structure-row {
-  display:grid; grid-template-columns:100px 50px 1fr 60px 52px;
-  gap:6px; margin-bottom:6px; align-items:center;
+  display:grid; grid-template-columns:90px 44px 1fr 64px 50px;
+  gap:5px; margin-bottom:4px; align-items:center;
 }
 .structure-row .label-text {
   font-size:12px; color:#555;
   white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
 }
 .structure-row select, .structure-row input {
-  padding:4px 8px; font-size:12px; border:1px solid #d9d9d9; border-radius:3px;
-  width:100%;
+  padding:4px 6px; font-size:12px; border:1px solid #d9d9d9; border-radius:3px;
+  width:100%; min-width:0;
 }
 .structure-row select:focus, .structure-row input:focus {
   outline:none; border-color:#40a9ff;
+}
+/* 参数行（厚度/密度/克重等）*/
+.calc-param-row {
+  font-size:11px; background:#f0f7ff; border-radius:4px;
+  padding:5px 8px; margin-top:2px; margin-bottom:4px;
+  display:flex; gap:6px; align-items:center; flex-wrap:wrap;
+}
+.calc-param-row label { color:#888; white-space:nowrap; }
+.calc-param-row input {
+  width:52px; padding:2px 4px; font-size:11px;
+  border:1px solid #91d5ff; border-radius:3px;
+}
+.calc-param-row .result {
+  color:#1890ff; font-weight:600; margin-left:4px; white-space:nowrap;
 }
 .qty-auto { background:#f6ffed !important; border-color:#b7eb8f !important; }
 .unit-select {
@@ -600,64 +614,80 @@ body {
       <button class="close-btn" onclick="closeSpringCalculator()">×</button>
     </div>
     <div class="spring-form">
-      <!-- 左：床芯参数 + 弹簧规格 -->
+      <!-- 左：床芯参数 + 分区方式 + 线径 -->
       <div>
         <div class="spring-section">
           <h3>📐 床芯参数</h3>
-          <div class="spring-row"><label>宽 (cm)</label><input type="number" id="sWidth" value="180" oninput="updateSpringLayout()"></div>
-          <div class="spring-row"><label>长 (cm)</label><input type="number" id="sLength" value="200" oninput="updateSpringLayout()"></div>
-          <div class="spring-row"><label>高度 (cm)</label>
-            <select id="sHeight" onchange="updateSpringLayout()">
-              <option value="16">16cm</option><option value="18">18cm</option>
-              <option value="20">20cm</option><option value="22" selected>22cm</option>
-              <option value="24">24cm</option>
-            </select>
-          </div>
-          <div class="spring-row"><label>节距 (cm)</label><input type="number" id="sPitch" value="6.3" step="0.1" oninput="updateSpringLayout()"></div>
 
-          <!-- 排列数：自动计算 + 可手动覆盖 -->
-          <div style="background:#fff;border-radius:4px;padding:8px;margin-top:8px;font-size:12px">
-            <div style="color:#666;margin-bottom:6px">弹簧排列数 <span style="color:#999">（自动计算，可手动修改）</span></div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+          <!-- 从床垫尺寸自动填入提示 -->
+          <div style="background:#e6f7ff;border:1px solid #91d5ff;border-radius:4px;padding:6px 10px;margin-bottom:10px;font-size:12px;color:#1890ff;display:flex;justify-content:space-between;align-items:center">
+            <span>📋 自动读取床垫尺寸</span>
+            <button onclick="syncFromMattressSize()" class="btn btn-primary btn-sm" style="padding:3px 10px;font-size:11px">重新同步</button>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <div>
+              <label style="font-size:12px;color:#666;display:block;margin-bottom:3px">床芯宽 (cm)</label>
+              <input type="number" id="sWidth" value="178"
+                style="width:100%;padding:6px 8px;font-size:13px;border:1px solid #d9d9d9;border-radius:4px"
+                oninput="updateSpringLayout()">
+              <div style="font-size:10px;color:#999;margin-top:2px">床垫宽 - 2cm</div>
+            </div>
+            <div>
+              <label style="font-size:12px;color:#666;display:block;margin-bottom:3px">床芯长 (cm)</label>
+              <input type="number" id="sLength" value="198"
+                style="width:100%;padding:6px 8px;font-size:13px;border:1px solid #d9d9d9;border-radius:4px"
+                oninput="updateSpringLayout()">
+              <div style="font-size:10px;color:#999;margin-top:2px">床垫长 - 2cm</div>
+            </div>
+            <div>
+              <label style="font-size:12px;color:#666;display:block;margin-bottom:3px">床网高度 (cm)</label>
+              <select id="sHeight" onchange="updateSpringLayout()"
+                style="width:100%;padding:6px 8px;font-size:13px;border:1px solid #d9d9d9;border-radius:4px">
+                <option value="16">16cm</option><option value="18">18cm</option>
+                <option value="20">20cm</option><option value="22" selected>22cm</option>
+                <option value="24">24cm</option>
+              </select>
+            </div>
+            <div>
+              <label style="font-size:12px;color:#666;display:block;margin-bottom:3px">节距 (cm)</label>
+              <input type="number" id="sPitch" value="6.3" step="0.1"
+                style="width:100%;padding:6px 8px;font-size:13px;border:1px solid #d9d9d9;border-radius:4px"
+                oninput="updateSpringLayout()">
+            </div>
+          </div>
+
+          <!-- 排列数 -->
+          <div style="background:#fff;border-radius:4px;padding:10px;margin-top:10px;border:1px solid #f0f0f0">
+            <div style="font-size:12px;color:#666;margin-bottom:8px;font-weight:500">弹簧排列数
+              <span style="font-weight:400;color:#999">（自动计算，可手动修改）</span>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
               <div>
-                <label style="color:#666">宽排数</label>
+                <label style="font-size:11px;color:#666;display:block;margin-bottom:3px">宽排数</label>
                 <input type="number" id="widthCountInput" value="0" min="1"
-                  style="width:100%;padding:3px 6px;font-size:12px;border:1px solid #d9d9d9;border-radius:3px;margin-top:2px"
+                  style="width:100%;padding:5px 8px;font-size:13px;border:1px solid #d9d9d9;border-radius:4px"
                   oninput="onManualLayout()">
               </div>
               <div>
-                <label style="color:#666">长排数</label>
+                <label style="font-size:11px;color:#666;display:block;margin-bottom:3px">长排数</label>
                 <input type="number" id="lengthCountInput" value="0" min="1"
-                  style="width:100%;padding:3px 6px;font-size:12px;border:1px solid #d9d9d9;border-radius:3px;margin-top:2px"
+                  style="width:100%;padding:5px 8px;font-size:13px;border:1px solid #d9d9d9;border-radius:4px"
                   oninput="onManualLayout()">
               </div>
             </div>
-            <div style="margin-top:8px;padding:6px;background:#f0f7ff;border-radius:3px">
+            <div style="margin-top:8px;padding:6px 8px;background:#f0f7ff;border-radius:3px;font-size:12px;display:flex;gap:16px;align-items:center">
               <span>计算总数：<strong id="calcTotal" style="color:#1890ff">0</strong></span>
-              <span style="margin-left:12px">输入总数：<strong id="inputTotal" style="color:#fa8c16">0</strong></span>
-              <span style="margin-left:12px" id="totalCheck"></span>
+              <span>输入总数：<strong id="inputTotal" style="color:#fa8c16">0</strong></span>
+              <span id="totalCheck"></span>
             </div>
           </div>
-        </div>
 
-        <div class="spring-section" style="margin-top:10px">
-          <h3>🌀 弹簧规格</h3>
-          <div class="spring-row"><label>软线径 <span style="color:#999;font-size:10px">（≤1.8mm）</span></label>
-            <select id="softWire" onchange="updateZoneInputs()">
-              <option value="钢线1.2">钢线1.2</option><option value="钢线1.4">钢线1.4</option>
-              <option value="钢线1.6">钢线1.6</option>
-              <option value="钢线1.8" selected>钢线1.8 (¥5.2/kg)</option>
-            </select>
-          </div>
-          <div class="spring-row"><label>硬线径 <span style="color:#999;font-size:10px">（>1.8mm）</span></label>
-            <select id="hardWire" onchange="updateZoneInputs()">
-              <option value="钢线2.0" selected>钢线2.0 (¥5.1/kg)</option>
-              <option value="钢线2.2">钢线2.2 (¥5.0/kg)</option>
-              <option value="钢线2.4">钢线2.4</option>
-            </select>
-          </div>
-          <div class="spring-row" style="grid-template-columns:1fr"><label>分区方式</label>
-            <select id="zoneType" onchange="updateZoneInputs()" style="width:100%">
+          <!-- 分区方式（紧接尺寸后）-->
+          <div style="margin-top:10px">
+            <label style="font-size:12px;color:#666;display:block;margin-bottom:4px;font-weight:500">🗂️ 分区方式</label>
+            <select id="zoneType" onchange="updateZoneInputs()"
+              style="width:100%;padding:6px 8px;font-size:13px;border:1px solid #d9d9d9;border-radius:4px">
               <option value="full">整网（全软）</option>
               <option value="border">四周加硬</option>
               <option value="3zone">三分区（硬软硬）</option>
@@ -668,52 +698,146 @@ body {
               <option value="7zone_border">七分区+四周加硬</option>
             </select>
           </div>
-          <div id="zoneRowsContainer"></div>
-          <div class="zone-visual" id="zoneVisual" style="display:none">
+
+          <!-- 分区行数输入 + 可视化 -->
+          <div id="zoneRowsContainer" style="margin-top:6px"></div>
+          <div class="zone-visual" id="zoneVisual" style="display:none;margin-top:6px">
             <div class="zone-bar" id="zoneBar"></div>
             <div style="font-size:11px;color:#666;text-align:center" id="zoneInfo"></div>
           </div>
-          <button class="btn btn-default btn-sm" style="margin-top:8px;width:100%" onclick="suggestZoneRows()">📊 智能建议分区</button>
+          <button class="btn btn-default btn-sm" style="margin-top:6px;width:100%" onclick="suggestZoneRows()">📊 智能建议分区</button>
 
-          <!-- 弹簧分区数量明细（动态显示） -->
-          <div id="springBreakdown" style="margin-top:8px;font-size:12px;background:#fff;border-radius:4px;padding:8px;display:none">
+          <!-- 弹簧数量明细 -->
+          <div id="springBreakdown" style="margin-top:8px;font-size:12px;background:#fff;border-radius:4px;padding:8px;display:none;border:1px solid #f0f0f0">
             <div style="color:#666;margin-bottom:4px;font-weight:500">弹簧数量明细：</div>
             <div id="springBreakdownContent"></div>
           </div>
         </div>
+
+        <!-- 线径 -->
+        <div class="spring-section" style="margin-top:10px">
+          <h3>🌀 弹簧线径</h3>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <div>
+              <label style="font-size:12px;color:#666;display:block;margin-bottom:3px">软线径 <span style="color:#999;font-size:10px">≤1.8mm</span></label>
+              <select id="softWire" onchange="updateZoneInputs()"
+                style="width:100%;padding:5px 8px;font-size:12px;border:1px solid #d9d9d9;border-radius:4px">
+                <option value="钢线1.2">钢线1.2</option>
+                <option value="钢线1.4">钢线1.4</option>
+                <option value="钢线1.6">钢线1.6</option>
+                <option value="钢线1.8" selected>钢线1.8 (¥5.2/kg)</option>
+              </select>
+            </div>
+            <div>
+              <label style="font-size:12px;color:#666;display:block;margin-bottom:3px">硬线径 <span style="color:#999;font-size:10px">&gt;1.8mm（分区用）</span></label>
+              <select id="hardWire" onchange="updateZoneInputs()"
+                style="width:100%;padding:5px 8px;font-size:12px;border:1px solid #d9d9d9;border-radius:4px">
+                <option value="钢线2.0" selected>钢线2.0 (¥5.1/kg)</option>
+                <option value="钢线2.2">钢线2.2 (¥5.0/kg)</option>
+                <option value="钢线2.4">钢线2.4</option>
+              </select>
+            </div>
+          </div>
+          <!-- 四周加硬线径：只在有border时显示 -->
+          <div id="borderWireRow" style="margin-top:8px;display:none">
+            <label style="font-size:12px;color:#fa8c16;display:block;margin-bottom:3px">🟠 四周加硬线径 <span style="color:#999;font-size:10px">（单独指定，默认同硬线径）</span></label>
+            <select id="borderWire"
+              style="width:100%;padding:5px 8px;font-size:12px;border:1px solid #ffd591;border-radius:4px;background:#fffbe6">
+              <option value="">同硬线径</option>
+              <option value="钢线2.0">钢线2.0 (¥5.1/kg)</option>
+              <option value="钢线2.2" selected>钢线2.2 (¥5.0/kg)</option>
+              <option value="钢线2.4">钢线2.4</option>
+            </select>
+          </div>
+        </div>
       </div>
 
-      <!-- 右：辅料参数 -->
+      <!-- 右：辅料参数（实时计算） -->
       <div>
         <div class="spring-section">
           <h3>🧪 胶水（棉毡颗粒热熔胶）</h3>
-          <div class="spring-row"><label>胶水长度 (m)</label><input type="number" id="glueLen" value="2.00" step="0.01"></div>
-          <div class="spring-row"><label>胶水条数</label><input type="number" id="glueCount" value="25"></div>
-          <div class="spring-row"><label>每米克重 (g)</label><input type="number" id="glueWeight" value="100" step="1"></div>
-          <div class="spring-row"><label>损耗率</label><input type="number" id="glueLoss" value="0.02" step="0.01"></div>
-          <div class="spring-row"><label>含税单价 (¥/kg)</label><input type="number" id="gluePrice" value="16" step="0.1"></div>
+          <div style="background:#e6f7ff;border-radius:4px;padding:6px 10px;margin-bottom:8px;font-size:12px;color:#1890ff">
+            胶水条数 = 长排数，每条长度 = 床芯长(m)
+            <span id="glueAutoTip" style="float:right;font-weight:600"></span>
+          </div>
+          <div class="spring-row"><label>胶水长度 (m)</label>
+            <input type="number" id="glueLen" value="2.00" step="0.01" oninput="autoCalcAccessories()">
+          </div>
+          <div class="spring-row"><label>胶水条数</label>
+            <input type="number" id="glueCount" value="25" oninput="autoCalcAccessories()">
+          </div>
+          <div class="spring-row"><label>每米克重 (g)</label>
+            <input type="number" id="glueWeight" value="100" step="1" oninput="autoCalcAccessories()">
+          </div>
+          <div class="spring-row"><label>损耗率</label>
+            <input type="number" id="glueLoss" value="0.02" step="0.01" oninput="autoCalcAccessories()">
+          </div>
+          <div class="spring-row"><label>含税单价 (¥/kg)</label>
+            <input type="number" id="gluePrice" value="16" step="0.1" oninput="autoCalcAccessories()">
+          </div>
+          <div style="font-size:12px;color:#52c41a;margin-top:4px">
+            用量：<strong id="glueKgDisplay">-</strong> kg &nbsp;|&nbsp; 去税金额：<strong id="glueCostDisplay">-</strong>
+          </div>
         </div>
+
         <div class="spring-section" style="margin-top:10px">
-          <h3>🎁 无纺布袋 <span style="font-size:11px;color:#999;font-weight:400">（白色=软区，有色=硬区）</span></h3>
-          <div class="spring-row"><label>白色袋数（软区）</label>
-            <input type="number" id="whiteBagCount" value="0" style="background:#e6f7ff">
+          <h3>🎁 无纺布袋</h3>
+          <div style="background:#f6ffed;border-radius:4px;padding:6px 10px;margin-bottom:8px;font-size:12px;color:#52c41a">
+            🔵 白色=软区 &nbsp; 🔴 有色=硬区+四周加硬 &nbsp;
+            <span id="bagAutoLabel" style="color:#fa8c16"></span>
           </div>
-          <div class="spring-row"><label>有色袋数（硬区）</label>
-            <input type="number" id="colorBagCount" value="0" style="background:#fff2e8">
+          <div class="spring-row">
+            <label>🔵 白色袋数（软区）</label>
+            <input type="number" id="whiteBagCount" value="0"
+              style="background:#e6f7ff" oninput="autoCalcAccessories()">
           </div>
-          <div style="font-size:11px;color:#52c41a;margin-bottom:6px" id="bagAutoTip">↑ 选好分区后点「开始计算」自动填入</div>
-          <div class="spring-row"><label>单袋克重 (g)</label><input type="number" id="bagUnitWeight" value="4.451" step="0.001"></div>
-          <div class="spring-row"><label>损耗率</label><input type="number" id="bagLoss" value="0.03" step="0.01"></div>
-          <div class="spring-row"><label>白袋单价 (¥/kg)</label><input type="number" id="whiteBagPrice" value="9.5" step="0.1"></div>
-          <div class="spring-row"><label>有色袋单价 (¥/kg)</label><input type="number" id="colorBagPrice" value="10" step="0.1"></div>
+          <div class="spring-row">
+            <label>🔴 有色袋数（硬+加硬）</label>
+            <input type="number" id="colorBagCount" value="0"
+              style="background:#fff2e8" oninput="autoCalcAccessories()">
+          </div>
+          <div class="spring-row"><label>单袋克重 (g)</label>
+            <input type="number" id="bagUnitWeight" value="4.451" step="0.001" oninput="autoCalcAccessories()">
+          </div>
+          <div class="spring-row"><label>损耗率</label>
+            <input type="number" id="bagLoss" value="0.03" step="0.01" oninput="autoCalcAccessories()">
+          </div>
+          <div class="spring-row"><label>白袋单价 (¥/kg)</label>
+            <input type="number" id="whiteBagPrice" value="9.5" step="0.1" oninput="autoCalcAccessories()">
+          </div>
+          <div class="spring-row"><label>有色袋单价 (¥/kg)</label>
+            <input type="number" id="colorBagPrice" value="10" step="0.1" oninput="autoCalcAccessories()">
+          </div>
+          <div style="font-size:12px;color:#52c41a;margin-top:4px">
+            用量：<strong id="bagKgDisplay">-</strong> kg &nbsp;|&nbsp; 去税金额：<strong id="bagCostDisplay">-</strong>
+          </div>
         </div>
+
         <div class="spring-section" style="margin-top:10px">
           <h3>📦 包面无纺布（70克）</h3>
-          <div class="spring-row"><label>门幅 (cm)</label><input type="number" id="nwWidth" value="210"></div>
-          <div class="spring-row"><label>克重 (g/m²)</label><input type="number" id="nwGsm" value="70"></div>
-          <div class="spring-row"><label>用量宽 (m)</label><input type="number" id="nwLen" value="2.00" step="0.01"></div>
-          <div class="spring-row"><label>损耗率</label><input type="number" id="nwLoss" value="0.02" step="0.01"></div>
-          <div class="spring-row"><label>含税单价 (¥/kg)</label><input type="number" id="nwPrice" value="9.5" step="0.1"></div>
+          <div style="background:#f9f0ff;border-radius:4px;padding:6px 10px;margin-bottom:8px;font-size:12px;color:#722ed1">
+            门幅宽(m) × 床芯长(m) × 克重 = 用量
+            <span id="nwAutoTip" style="float:right;font-weight:600"></span>
+          </div>
+          <div class="spring-row"><label>门幅 (cm)</label>
+            <input type="number" id="nwWidth" value="210" oninput="autoCalcAccessories()">
+          </div>
+          <div class="spring-row"><label>克重 (g/m²)</label>
+            <input type="number" id="nwGsm" value="70" oninput="autoCalcAccessories()">
+          </div>
+          <div class="spring-row"><label>用量宽 (m) <span style="color:#999;font-size:10px">自动计算</span></label>
+            <input type="number" id="nwLen" value="2.00" step="0.01" oninput="autoCalcAccessories()"
+              style="background:#f6ffed">
+          </div>
+          <div class="spring-row"><label>损耗率</label>
+            <input type="number" id="nwLoss" value="0.02" step="0.01" oninput="autoCalcAccessories()">
+          </div>
+          <div class="spring-row"><label>含税单价 (¥/kg)</label>
+            <input type="number" id="nwPrice" value="9.5" step="0.1" oninput="autoCalcAccessories()">
+          </div>
+          <div style="font-size:12px;color:#52c41a;margin-top:4px">
+            用量：<strong id="nwKgDisplay">-</strong> kg &nbsp;|&nbsp; 去税金额：<strong id="nwCostDisplay">-</strong>
+          </div>
         </div>
       </div>
     </div>
@@ -1314,6 +1438,10 @@ function onSizeChange() {
   autoMatchFee();
   autoSelectInnerSleeve();
   if (currentMattress) { autoFillGlueAndPackaging(); renderBOM(); }
+  // 床垫尺寸改变时，如果弹簧计算器已打开则自动同步
+  if (document.getElementById('springModal').classList.contains('show')) {
+    syncFromMattressSize();
+  }
 }
 
 /* 工费自动匹配 */
@@ -1467,7 +1595,7 @@ function renderStructure() {
         const calcResult = calcFabricQtyM(dispWidth, coef, drop, 0.05);
         const calcM = calcResult.final;
         html += `<div style="margin-bottom:6px">
-          <div class="structure-row" style="grid-template-columns:100px 50px 1fr 50px 50px 60px">
+          <div class="structure-row" style="grid-template-columns:90px 44px 1fr 48px 52px 52px">
             <span class="label-text">${escHtml(layer.fabric)}</span>
             <span class="category-badge badge-fabric">面料</span>
             <div class="search-wrap" style="position:relative">
@@ -1494,7 +1622,7 @@ function renderStructure() {
               手动
             </button>
           </div>
-          <div style="font-size:11px;color:#666;padding:2px 0 0 156px;display:flex;gap:12px">
+          <div style="font-size:11px;color:#888;padding:3px 0 3px 140px;display:flex;gap:10px;flex-wrap:wrap">
             <span>门幅 <strong style="color:#fa8c16">${dispWidth}cm</strong></span>
             <span>系数 <strong style="color:#52c41a">${coef}</strong></span>
             <span>→ 最终用量 <strong style="color:#1890ff" id="fabricM_${li}">${calcM.toFixed(3)}m</strong></span>
@@ -1524,52 +1652,52 @@ function renderStructure() {
         const coef    = cp.coef    != null ? cp.coef    : 1;
         autoKg = (thick > 0) ? calcKgQty('foam', {thick, density, coef, name:m.sel}) : null;
         paramHtml = `
-          <div style="font-size:11px;background:#f0f7ff;border-radius:3px;padding:4px 6px;margin-top:2px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-            <label style="color:#666">厚度</label>
+          <div class="calc-param-row">
+            <label>厚度</label>
             <input type="number" value="${thick}" min="0" step="0.5" placeholder="cm"
               style="width:48px;padding:2px 4px;font-size:11px;border:1px solid #91d5ff;border-radius:3px"
               onchange="onCalcParam(${li},${mi},'thick',this.value)" title="厚度（cm）">
             <span style="color:#999">cm</span>
-            <label style="color:#666">密度</label>
+            <label>密度</label>
             <input type="number" value="${density}" min="0" step="1"
               style="width:44px;padding:2px 4px;font-size:11px;border:1px solid #91d5ff;border-radius:3px"
               onchange="onCalcParam(${li},${mi},'density',this.value)" title="密度kg/m³">
             <span style="color:#999">kg/m³</span>
-            <label style="color:#666">系数</label>
+            <label>系数</label>
             <input type="number" value="${coef}" min="0" step="0.1"
               style="width:40px;padding:2px 4px;font-size:11px;border:1px solid #b7eb8f;border-radius:3px;background:#f6ffed"
               onchange="onCalcParam(${li},${mi},'coef',this.value)" title="系数（蛋形=0.8，常规=1）">
-            ${autoKg!=null?`<strong style="color:#1890ff;margin-left:4px">= ${autoKg.toFixed(3)} kg</strong>`:''}
+            ${autoKg!=null?`<strong class="result">= ${autoKg.toFixed(3)} kg</strong>`:''}
           </div>`;
       } else if (calcType === 'felt' || calcType === 'nw') {
         const gsm = cp.gsm != null ? cp.gsm : (calcType==='felt'?200:25);
         autoKg = calcKgQty(calcType, {gsm});
         paramHtml = `
-          <div style="font-size:11px;background:#f0f7ff;border-radius:3px;padding:4px 6px;margin-top:2px;display:flex;gap:8px;align-items:center">
-            <label style="color:#666">克重</label>
+          <div class="calc-param-row">
+            <label>克重</label>
             <input type="number" value="${gsm}" min="0" step="10"
               style="width:54px;padding:2px 4px;font-size:11px;border:1px solid #91d5ff;border-radius:3px"
               onchange="onCalcParam(${li},${mi},'gsm',this.value)" title="克重 g/m²">
             <span style="color:#999">g/m²</span>
-            <strong style="color:#1890ff;margin-left:4px">= ${autoKg.toFixed(3)} kg</strong>
+            <strong class="result">= ${autoKg.toFixed(3)} kg</strong>
           </div>`;
       } else if (calcType === 'edge_long' || calcType === 'edge_wide') {
         const edgeH   = cp.edgeH   != null ? cp.edgeH   : 10;
         const density = cp.density != null ? cp.density : 35;
         autoKg = calcKgQty(calcType, {edgeH, density});
         paramHtml = `
-          <div style="font-size:11px;background:#f0f7ff;border-radius:3px;padding:4px 6px;margin-top:2px;display:flex;gap:8px;align-items:center">
-            <label style="color:#666">护边高</label>
+          <div class="calc-param-row">
+            <label>护边高</label>
             <input type="number" value="${edgeH}" min="0" step="1"
               style="width:44px;padding:2px 4px;font-size:11px;border:1px solid #91d5ff;border-radius:3px"
               onchange="onCalcParam(${li},${mi},'edgeH',this.value)" title="护边高度cm">
             <span style="color:#999">cm</span>
-            <label style="color:#666">密度</label>
+            <label>密度</label>
             <input type="number" value="${density}" min="0" step="1"
               style="width:44px;padding:2px 4px;font-size:11px;border:1px solid #91d5ff;border-radius:3px"
               onchange="onCalcParam(${li},${mi},'density',this.value)" title="密度kg/m³">
             <span style="color:#999">kg/m³</span>
-            <strong style="color:#1890ff;margin-left:4px">= ${autoKg.toFixed(3)} kg</strong>
+            <strong class="result">= ${autoKg.toFixed(3)} kg</strong>
           </div>`;
       }
 
@@ -2318,8 +2446,26 @@ function uploadDB(e, type) {
    ============================================================ */
 function openSpringCalculator() {
   document.getElementById('springModal').classList.add('show');
-  document.getElementById('sWidth').value  = document.getElementById('mWidth').value;
-  document.getElementById('sLength').value = document.getElementById('mLength').value;
+  syncFromMattressSize();
+}
+
+// 从床垫尺寸同步到床芯尺寸（床芯 = 床垫 - 2cm，参考Excel口径尺寸）
+function syncFromMattressSize() {
+  const mW = parseFloat(document.getElementById('mWidth').value)  || 180;
+  const mL = parseFloat(document.getElementById('mLength').value) || 200;
+  const mH = parseFloat(document.getElementById('mHeight').value) || 25;
+
+  // Excel规律：床芯宽 = 床垫宽 - 2（护边占用），床芯长 = 床垫长 - 2
+  // 床网高度 ≈ 床垫总高 - 上层填充厚度，一般取弹簧床网高度，默认18/22cm
+  document.getElementById('sWidth').value  = mW - 2;
+  document.getElementById('sLength').value = mL - 2;
+
+  // 床网高度：按床垫总高推算（总高>=30用22cm，总高>=25用18cm，其他16cm）
+  const heightSel = document.getElementById('sHeight');
+  if (mH >= 30) heightSel.value = '22';
+  else if (mH >= 25) heightSel.value = '18';
+  else heightSel.value = '16';
+
   updateSpringLayout();
   updateZoneInputs();
 }
@@ -2333,9 +2479,11 @@ function updateSpringLayout() {
   const w = parseFloat(document.getElementById('sWidth').value)||0;
   const l = parseFloat(document.getElementById('sLength').value)||0;
   const p = parseFloat(document.getElementById('sPitch').value)||6.3;
-  const wc = Math.floor(w/p), lc = Math.floor(l/p);
-  document.getElementById('widthCountInput').value = wc;
-  document.getElementById('lengthCountInput').value = lc;
+  if (p <= 0) return;
+  const wc = Math.floor(w/p);
+  const lc = Math.floor(l/p);
+  if (wc > 0) document.getElementById('widthCountInput').value = wc;
+  if (lc > 0) document.getElementById('lengthCountInput').value = lc;
   updateTotalCheck();
   updateZoneVisual();
 }
@@ -2429,15 +2577,34 @@ function updateSpringBreakdown() {
     ? '<span style="color:#52c41a">✅ 一致</span>'
     : `<span style="color:#f5222d">⚠️ 差 ${Math.abs(inputTotal-total)} 个</span>`;
 
-  // 同步软/硬袋数到输入框（仅作参考，可手动覆盖）
-  if (document.getElementById('whiteBagCount').value == '0' || document.getElementById('whiteBagCount').dataset.auto) {
-    document.getElementById('whiteBagCount').value = softCount;
-    document.getElementById('whiteBagCount').dataset.auto = '1';
+  // 自动同步软/硬袋数
+  document.getElementById('whiteBagCount').value = softCount;
+  document.getElementById('colorBagCount').value = hardCount + borderCount;
+  document.getElementById('bagAutoLabel').textContent =
+    `自动填入：白色${softCount}个，有色${hardCount+borderCount}个`;
+
+  // 有border分区时显示四周加硬线径选择
+  const borderWireRow = document.getElementById('borderWireRow');
+  if (borderWireRow) {
+    borderWireRow.style.display = hasBorder ? 'block' : 'none';
   }
-  if (document.getElementById('colorBagCount').value == '0' || document.getElementById('colorBagCount').dataset.auto) {
-    document.getElementById('colorBagCount').value = hardCount + borderCount;
-    document.getElementById('colorBagCount').dataset.auto = '1';
+
+  // 自动计算胶水条数 = 长排数（Excel规律）
+  const lcNow = getLC();
+  if (lcNow > 0) {
+    document.getElementById('glueCount').value = lcNow;
   }
+  // 胶水长度 = 床芯长（m）
+  const sLenNow = parseFloat(document.getElementById('sLength').value) || 0;
+  if (sLenNow > 0) {
+    document.getElementById('glueLen').value = (sLenNow / 100).toFixed(3);
+  }
+  // 包面无纺布用量宽 = 床芯长（m），参考Excel
+  if (sLenNow > 0) {
+    document.getElementById('nwLen').value = (sLenNow / 100 + 0.15).toFixed(3);
+  }
+
+  autoCalcAccessories();
 }
 
 function updateZoneInputs() {
@@ -2483,6 +2650,46 @@ function updateZoneVisual() {
   document.getElementById('zoneInfo').textContent=`${rows.length}区 / ${total}行`;
 }
 
+// 实时计算辅料用量和成本（胶水/无纺布袋/包面无纺布）
+function autoCalcAccessories() {
+  // 胶水
+  const gLen  = parseFloat(document.getElementById('glueLen').value)  || 0;
+  const gCnt  = parseFloat(document.getElementById('glueCount').value) || 0;
+  const gWg   = parseFloat(document.getElementById('glueWeight').value)|| 100;
+  const gLoss = parseFloat(document.getElementById('glueLoss').value)  || 0.02;
+  const gP    = parseFloat(document.getElementById('gluePrice').value) || 16;
+  const glueKg   = gLen * gCnt * gWg / 1000 * (1 + gLoss);
+  const glueCost = glueKg * gP / 1.13;
+  document.getElementById('glueKgDisplay').textContent  = glueKg.toFixed(4);
+  document.getElementById('glueCostDisplay').textContent = '¥' + glueCost.toFixed(2);
+  document.getElementById('glueAutoTip').textContent = `${glueKg.toFixed(3)}kg → ¥${glueCost.toFixed(2)}`;
+
+  // 无纺布袋
+  const wBag  = parseFloat(document.getElementById('whiteBagCount').value) || 0;
+  const cBag  = parseFloat(document.getElementById('colorBagCount').value)  || 0;
+  const bagW  = parseFloat(document.getElementById('bagUnitWeight').value)  || 4.451;
+  const bagL  = parseFloat(document.getElementById('bagLoss').value)        || 0.03;
+  const wBagP = parseFloat(document.getElementById('whiteBagPrice').value)  || 9.5;
+  const cBagP = parseFloat(document.getElementById('colorBagPrice').value)  || 10;
+  const wBagKg  = wBag * bagW / 1000 * (1 + bagL);
+  const cBagKg  = cBag * bagW / 1000 * (1 + bagL);
+  const bagCost = (wBagKg * wBagP + cBagKg * cBagP) / 1.13;
+  document.getElementById('bagKgDisplay').textContent  = (wBagKg + cBagKg).toFixed(4);
+  document.getElementById('bagCostDisplay').textContent = '¥' + bagCost.toFixed(2);
+
+  // 包面无纺布
+  const nwW   = parseFloat(document.getElementById('nwWidth').value) || 210;
+  const nwG   = parseFloat(document.getElementById('nwGsm').value)   || 70;
+  const nwL   = parseFloat(document.getElementById('nwLen').value)   || 2.0;
+  const nwLoss= parseFloat(document.getElementById('nwLoss').value)  || 0.02;
+  const nwP   = parseFloat(document.getElementById('nwPrice').value) || 9.5;
+  const nwKg   = (nwW / 100) * nwL * nwG / 1000 * (1 + nwLoss);
+  const nwCost = nwKg * nwP / 1.13;
+  document.getElementById('nwKgDisplay').textContent  = nwKg.toFixed(4);
+  document.getElementById('nwCostDisplay').textContent = '¥' + nwCost.toFixed(2);
+  document.getElementById('nwAutoTip').textContent = `${nwKg.toFixed(3)}kg → ¥${nwCost.toFixed(2)}`;
+}
+
 function calculateSpring() {
   const w      = parseFloat(document.getElementById('sWidth').value)||0;
   const l      = parseFloat(document.getElementById('sLength').value)||0;
@@ -2516,7 +2723,11 @@ function calculateSpring() {
   // 从弹簧参照表查单个克重
   const softSpec  = DB.spring.find(s=>s.height===h && s.wire===softW) || {springWeight:30, bagWeight:4.0};
   const hardSpec  = DB.spring.find(s=>s.height===h && s.wire===hardW) || softSpec;
-  const brdSpec   = hardSpec; // 四周加硬用硬线径规格
+  // 四周加硬线径：优先用单独指定的，否则用硬线径
+  const borderWireSel = document.getElementById('borderWire');
+  const borderWireVal = (borderWireSel && borderWireSel.value) ? borderWireSel.value : hardW;
+  const brdSpec = DB.spring.find(s=>s.height===h && s.wire===borderWireVal) || hardSpec;
+  const borderWireForCost = borderWireVal;
 
   // 钢丝用量（kg），含2%损耗
   const softSteelKg   = softCount   * softSpec.springWeight / 1000 * 1.02;
@@ -2532,7 +2743,8 @@ function calculateSpring() {
   const hardP  = getWirePrice(hardW);
   const softSteelCost  = softSteelKg   * softP;
   const hardSteelCost  = hardSteelKg   * hardP;
-  const brdSteelCost   = borderSteelKg * hardP;
+  const brdP           = getWirePrice(borderWireForCost);
+  const brdSteelCost   = borderSteelKg * brdP;
   const totalSteelCost = softSteelCost + hardSteelCost + brdSteelCost;
 
   // 无纺布袋
@@ -2568,9 +2780,9 @@ function calculateSpring() {
   springCost = totalCost;
 
   // 生成明细
-  let steelDetail = `软区钢丝：${softCount}个×${softSpec.springWeight}g=${softSteelKg.toFixed(3)}kg × ¥${softP.toFixed(2)} = ¥${softSteelCost.toFixed(2)}`;
-  if (hardCount > 0) steelDetail += `<br>硬区钢丝：${hardCount}个×${hardSpec.springWeight}g=${hardSteelKg.toFixed(3)}kg × ¥${hardP.toFixed(2)} = ¥${hardSteelCost.toFixed(2)}`;
-  if (borderCount > 0) steelDetail += `<br>四周加硬：${borderCount}个×${brdSpec.springWeight}g=${borderSteelKg.toFixed(3)}kg × ¥${hardP.toFixed(2)} = ¥${brdSteelCost.toFixed(2)}`;
+  let steelDetail = `软区钢丝（${softW}）：${softCount}个×${softSpec.springWeight}g=${softSteelKg.toFixed(3)}kg × ¥${softP.toFixed(2)} = ¥${softSteelCost.toFixed(2)}`;
+  if (hardCount > 0) steelDetail += `<br>硬区钢丝（${hardW}）：${hardCount}个×${hardSpec.springWeight}g=${hardSteelKg.toFixed(3)}kg × ¥${hardP.toFixed(2)} = ¥${hardSteelCost.toFixed(2)}`;
+  if (borderCount > 0) steelDetail += `<br>四周加硬（${borderWireForCost}）：${borderCount}个×${brdSpec.springWeight}g=${borderSteelKg.toFixed(3)}kg × ¥${brdP.toFixed(2)} = ¥${brdSteelCost.toFixed(2)}`;
 
   document.getElementById('springCostResult').style.display='block';
   document.getElementById('springCostResult').innerHTML = `
