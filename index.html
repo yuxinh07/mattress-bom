@@ -967,11 +967,10 @@ function calcGlueDefaults(mattressType, w, l) {
   const glue5804Qty = parseFloat((glue350ALen * cfg.glue5804 * 0.016 * (1+0.02) * cfg.glueFactor).toFixed(4));
 
   return {
-    'PUR胶':      { qty: purQty,     unit:'公斤', note:'20g/m²×面积×1.02' },
-    '热熔胶-350A': { qty: glue350AQty, unit:'公斤', note:`6条×${(L/100).toFixed(2)}m×17g×1.02` },
-    '热熔胶-5804': { qty: glue5804Qty, unit:'公斤', note:`4条×${(L/100).toFixed(2)}m×16g×1.02` }
-  };
-}
+  'PUR胶':       { qty: purQty,      unit:'公斤', price:32,  note:'20g/m²×面积×1.02' },
+  '热熔胶-350A': { qty: glue350AQty, unit:'公斤', price:23,  note:`6条×...` },
+  '热熔胶-5804': { qty: glue5804Qty, unit:'公斤', price:20,  note:`4条×...` }
+};
 
 /* ============================================================
    床垫款式结构（内置6款，对齐Excel + txt文件）
@@ -1694,7 +1693,7 @@ function renderStructure() {
           <div style="display:grid;grid-template-columns:90px 44px 1fr 44px 30px;gap:5px;align-items:center">
             <span class="label-text">${escHtml(m.label)}</span>
             <span class="category-badge badge-material">辅料</span>
-            <span style="font-size:12px;color:#888">
+            <span style="font-size:11px;color:#888">
               ${noteS?`<span style="font-size:11px">${escHtml(noteS)} → </span>`:''}
               <strong style="color:${coefS>0?'#1890ff':'#bbb'}">${finalQS} ${unitS}</strong>
               ${coefS>0?`<span style="color:#52c41a;font-size:11px"> ¥${untaxedS}</span>`:''}
@@ -2151,6 +2150,20 @@ function calcKgQty(calcType, params) {
     }
   }
   return qty * (1 + loss);
+}
+
+  function parseThickness(name) {
+  if (!name) return null;
+  const m = name.match(/^(\d+\.?\d*)cm/i);
+  return m ? parseFloat(m[1]) : null;
+}
+
+function parseFabricWidth(name) {
+  if (!name) return null;
+  const m = name.match(/[（(](\d+)(?:cm|CM)?[）)]/);
+  if (m) return parseFloat(m[1]);
+  const m2 = name.match(/(\d+)[（(]?门幅/);
+  return m2 ? parseFloat(m2[1]) : null;
 }
 /* 从物料编码/名称解析密度（kg/m³）
    编码规律：P2270W → 密度22, P25120W → 密度25, M4055B → 密度40, A3050B → 密度30
