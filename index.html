@@ -1741,7 +1741,7 @@ function renderStructure() {
             <input type="number" value="${coef}" min="0" step="0.1"
               style="width:40px;padding:2px 4px;font-size:11px;border:1px solid #b7eb8f;border-radius:3px;background:#f6ffed"
               onchange="onCalcParam(${li},${mi},'coef',this.value)" title="系数（蛋形=0.8，常规=1）">
-            ${autoKg!=null?`<strong class="result">= ${autoKg.toFixed(3)} kg</strong>`:''}
+           ${autoKg!=null?'<strong class="result">= '+autoKg.toFixed(3)+' kg</strong>':''}
           </div>`;
       } else if (calcType === 'felt' || calcType === 'nw') {
         const gsm = cp.gsm != null ? cp.gsm : (calcType==='felt'?200:25);
@@ -2398,7 +2398,7 @@ function renderBOM() {
         bomData.push({layer:layer.name, label:m.label, name:p.name, qty:finalQty, unit:finalUnit, price:p.price, untaxedAmt:untaxedFinal});
         const showQty = autoLabel ? `${finalQty.toFixed(3)}` : finalQty;
         html += `<tr>
-          <td>${escHtml(m.label)}${srcBadge}${autoLabel?`<span style="font-size:10px;color:#1890ff;margin-left:3px">${autoLabel}</span>`:''}</td>
+          <td>${escHtml(m.label)}${srcBadge}${autoLabel?'<span style="font-size:10px;color:#1890ff;margin-left:3px">'+autoLabel+'</span>':''}</td>
           <td>${escHtml(p.name)}</td><td>${showQty}</td><td>${finalUnit}</td>
           <td>¥${p.price.toFixed(2)}</td><td style="color:#389e0d"><strong>¥${untaxedFinal.toFixed(2)}</strong></td>
         </tr>`;
