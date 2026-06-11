@@ -1696,7 +1696,7 @@ function renderStructure() {
             <span style="font-size:11px;color:#888">
              ${noteS?'<span style="font-size:11px">'+escHtml(noteS)+' → </span>':''}
               <strong style="color:${coefS>0?'#1890ff':'#bbb'}">${finalQS} ${unitS}</strong>
-              ${coefS>0?`<span style="color:#52c41a;font-size:11px"> ¥${untaxedS}</span>`:''}
+             ${coefS>0?'<span style="color:#52c41a;font-size:11px"> ¥'+untaxedS+'</span>':''}
             </span>
             <input type="number" value="${coefS}" min="0" step="1"
               style="font-size:12px;border:1px solid #b7eb8f;border-radius:3px;padding:3px 5px;background:#f6ffed;text-align:center"
