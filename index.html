@@ -1931,6 +1931,7 @@ function onSearchSelect(e, type, li, mi, name, src) {
   });
 
   // 选中物料后，自动同步单位；选中面料时自动同步门幅
+  const m = type === 'material' ? currentMattress.layers[li]._materials[parseInt(mi)] : null;
   if (m && !m._calcParams) m._calcParams = {};
 if (m) {
   const ct2 = detectMaterialCalcType(item.name, m.label);
@@ -1949,6 +1950,10 @@ if (m) {
   const fw = parseFabricWidth(item.name);
   if (fw && !m._fabricWidth) m._fabricWidth = fw;
 }
+
+  renderBOM();
+}
+
 function onFabricSelect(li,val){ currentMattress.layers[li]._fabricSel=val; renderBOM(); }
 
 function toggleFabricManual(li, manual) {
