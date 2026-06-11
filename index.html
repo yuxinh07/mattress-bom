@@ -1728,6 +1728,10 @@ function renderStructure() {
         autoKg = (thick > 0) ? calcKgQty('foam', {thick, density, coef, name:m.sel}) : null;
         paramHtml = `
           <div class="calc-param-row">
+          <label style="color:#1890ff;font-weight:600">系数</label>
+<input type="number" value="${coef}" min="0" step="0.1"
+  style="width:44px;border-color:#b7eb8f;background:#f6ffed"
+  onchange="onCalcParam(${li},${mi},'coef',this.value)" title="系数">
             <label>厚度</label>
             <input type="number" value="${thick}" min="0" step="0.5" placeholder="cm"
               style="width:48px;padding:2px 4px;font-size:11px;border:1px solid #91d5ff;border-radius:3px"
@@ -1738,10 +1742,6 @@ function renderStructure() {
               style="width:44px;padding:2px 4px;font-size:11px;border:1px solid #91d5ff;border-radius:3px"
               onchange="onCalcParam(${li},${mi},'density',this.value)" title="密度kg/m³">
             <span style="color:#999">kg/m³</span>
-            <label>系数</label>
-            <input type="number" value="${coef}" min="0" step="0.1"
-              style="width:40px;padding:2px 4px;font-size:11px;border:1px solid #b7eb8f;border-radius:3px;background:#f6ffed"
-              onchange="onCalcParam(${li},${mi},'coef',this.value)" title="系数（蛋形=0.8，常规=1）">
            ${autoKg!=null?'<strong class="result">= '+autoKg.toFixed(3)+' kg</strong>':''}
           </div>`;
       } else if (calcType === 'felt' || calcType === 'nw') {
@@ -1794,8 +1794,9 @@ function renderStructure() {
             <div class="search-dropdown" style="display:none"></div>
           </div>
           <input type="number" value="${showQtyVal}" min="0" step="0.001"
-            class="${!m._manualQty && autoKg!=null ? 'qty-auto' : ''}"
-            onchange="onQtyInputWithConvert(${li},${mi},this.value)"
+          class="${!m._manualQty && autoKg!=null ? 'qty-auto' : ''}"
+          ${autoKg!=null ? 'readonly style="background:#f0f0f0;color:#999"' : ''}
+          onchange="onQtyInputWithConvert(${li},${mi},this.value)"
             title="${autoKg!=null&&!m._manualQty?'自动计算（修改后转为手动）':'手动输入'}">
           <select class="unit-select" onchange="onUnitChange(${li},${mi},this.value)">${unitOptions}</select>
         </div>
@@ -1930,30 +1931,24 @@ function onSearchSelect(e, type, li, mi, name, src) {
   });
 
   // 选中物料后，自动同步单位；选中面料时自动同步门幅
-  if (type === 'material') {
-    const m = currentMattress.layers[li]._materials[parseInt(mi)];
-    if (m && !m._unitManual) { m._unit = item.unit || '件'; }
-    // 自动填入密度（从物料编码识别）
-    if (m && !m._calcParams) m._calcParams = {};
-    if (m) {
-      const ct2 = detectMaterialCalcType(item.name, m.label);
-      if (ct2 === 'foam' && !m._calcParams.density) {
-        m._calcParams.density = parseFoamDensity(item.name) || 25;
-      }
-    }
+  if (m && !m._calcParams) m._calcParams = {};
+if (m) {
+  const ct2 = detectMaterialCalcType(item.name, m.label);
+  if (ct2 === 'foam') {
+    m._calcParams.density = parseFoamDensity(item.name) || 25;
+    m._calcParams.thick   = parseThickness(item.name) || 0;
+    if (m._calcParams.coef == null) m._calcParams.coef = 1;
+  } else if (ct2 === 'felt' || ct2 === 'nw') {
+    const gm = item.name.match(/(\d+)(?:克|g|G)/);
+    if (gm) m._calcParams.gsm = parseFloat(gm[1]);
+    if (m._calcParams.coef == null) m._calcParams.coef = 1;
+  } else if (ct2 === 'edge_long' || ct2 === 'edge_wide') {
+    m._calcParams.density = parseFoamDensity(item.name) || 35;
+    if (m._calcParams.coef == null) m._calcParams.coef = 1;
   }
-  if (type === 'fabric') {
-    // 面料选中后，自动从数据库读取门幅（如未手动设过）
-    const layer = currentMattress.layers[li];
-    if (!layer._fabricWidthManual && item.width) {
-      layer._fabricWidth = item.width;
-      syncLayerMaterialWidth(li, item.width);
-    }
-    syncFabricQty(li);
-  }
-  renderBOM();
+  const fw = parseFabricWidth(item.name);
+  if (fw && !m._fabricWidth) m._fabricWidth = fw;
 }
-
 function onFabricSelect(li,val){ currentMattress.layers[li]._fabricSel=val; renderBOM(); }
 
 function toggleFabricManual(li, manual) {
