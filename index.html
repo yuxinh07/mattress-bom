@@ -1694,7 +1694,7 @@ function renderStructure() {
             <span class="label-text">${escHtml(m.label)}</span>
             <span class="category-badge badge-material">辅料</span>
             <span style="font-size:11px;color:#888">
-              ${noteS?`<span style="font-size:11px">${escHtml(noteS)} → </span>`:''}
+             ${noteS?'<span style="font-size:11px">'+escHtml(noteS)+' → </span>':''}
               <strong style="color:${coefS>0?'#1890ff':'#bbb'}">${finalQS} ${unitS}</strong>
               ${coefS>0?`<span style="color:#52c41a;font-size:11px"> ¥${untaxedS}</span>`:''}
             </span>
