@@ -641,13 +641,14 @@ body {
               <div style="font-size:10px;color:#999;margin-top:2px">床垫长 - 2cm</div>
             </div>
             <div>
-              <label style="font-size:12px;color:#666;display:block;margin-bottom:3px">床网高度 (cm)</label>
+              <label style="font-size:12px;color:#666;display:block;margin-bottom:3px">床网高度 (cm) <span style="color:#fa8c16;font-size:10px">⚠️ 见下方提醒</span></label>
               <select id="sHeight" onchange="updateSpringLayout()"
-                style="width:100%;padding:6px 8px;font-size:13px;border:1px solid #d9d9d9;border-radius:4px">
+                style="width:100%;padding:6px 8px;font-size:13px;border:1px solid #ffd591;background:#fffbe6;border-radius:4px">
                 <option value="16">16cm</option><option value="18">18cm</option>
                 <option value="20">20cm</option><option value="22" selected>22cm</option>
                 <option value="24">24cm</option>
               </select>
+              <div style="font-size:10px;color:#fa8c16;margin-top:2px">不同高度对应的钢丝克重和价格可能不同，切换高度后请核对线径价格</div>
             </div>
             <div>
               <label style="font-size:12px;color:#666;display:block;margin-bottom:3px">节距 (cm)</label>
@@ -719,34 +720,36 @@ body {
           <h3>🌀 弹簧线径</h3>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
             <div>
-              <label style="font-size:12px;color:#666;display:block;margin-bottom:3px">软线径 <span style="color:#999;font-size:10px">≤1.8mm</span></label>
+              <label style="font-size:12px;color:#666;display:block;margin-bottom:3px">软线径 <span style="color:#999;font-size:10px">常规区域用</span></label>
               <select id="softWire" onchange="updateZoneInputs()"
                 style="width:100%;padding:5px 8px;font-size:12px;border:1px solid #d9d9d9;border-radius:4px">
-                <option value="钢线1.2">钢线1.2</option>
-                <option value="钢线1.4">钢线1.4</option>
-                <option value="钢线1.6">钢线1.6</option>
-                <option value="钢线1.8" selected>钢线1.8 (¥5.2/kg)</option>
+                <option value="钢线1.2">钢线1.2 (同步中...)</option>
+                <option value="钢线1.4">钢线1.4 (同步中...)</option>
+                <option value="钢线1.6">钢线1.6 (同步中...)</option>
+                <option value="钢线1.8" selected>钢线1.8 (同步中...)</option>
+                <option value="钢线2.0">钢线2.0 (同步中...)</option>
               </select>
             </div>
             <div>
-              <label style="font-size:12px;color:#666;display:block;margin-bottom:3px">硬线径 <span style="color:#999;font-size:10px">&gt;1.8mm（分区用）</span></label>
+              <label style="font-size:12px;color:#666;display:block;margin-bottom:3px">硬线径 <span style="color:#999;font-size:10px">分区加硬用</span></label>
               <select id="hardWire" onchange="updateZoneInputs()"
                 style="width:100%;padding:5px 8px;font-size:12px;border:1px solid #d9d9d9;border-radius:4px">
-                <option value="钢线2.0" selected>钢线2.0 (¥5.1/kg)</option>
-                <option value="钢线2.2">钢线2.2 (¥5.0/kg)</option>
-                <option value="钢线2.4">钢线2.4</option>
+                <option value="钢线2.0" selected>钢线2.0 (同步中...)</option>
+                <option value="钢线2.2">钢线2.2 (同步中...)</option>
+                <option value="钢线2.4">钢线2.4 (同步中...)</option>
               </select>
             </div>
           </div>
+          <div style="font-size:10px;color:#999;margin-top:4px">💡 价格实时取自物料库，不再使用任何写死的兜底数字；物料库里没有的线径会明确提示"未找到价格"</div>
           <!-- 四周加硬线径：只在有border时显示 -->
           <div id="borderWireRow" style="margin-top:8px;display:none">
             <label style="font-size:12px;color:#fa8c16;display:block;margin-bottom:3px">🟠 四周加硬线径 <span style="color:#999;font-size:10px">（单独指定，默认同硬线径）</span></label>
             <select id="borderWire"
               style="width:100%;padding:5px 8px;font-size:12px;border:1px solid #ffd591;border-radius:4px;background:#fffbe6">
               <option value="">同硬线径</option>
-              <option value="钢线2.0">钢线2.0 (¥5.1/kg)</option>
-              <option value="钢线2.2" selected>钢线2.2 (¥5.0/kg)</option>
-              <option value="钢线2.4">钢线2.4</option>
+              <option value="钢线2.0">钢线2.0 (同步中...)</option>
+              <option value="钢线2.2" selected>钢线2.2 (同步中...)</option>
+              <option value="钢线2.4">钢线2.4 (同步中...)</option>
             </select>
           </div>
         </div>
@@ -974,6 +977,68 @@ function calcGlueDefaults(mattressType, w, l) {
 }
 
 /* ============================================================
+   胶水及辅料 固定参考价表（逐行核对Excel ET/QT/PT三个sheet各自的"单价"列，
+   三个款式数值完全一致，确认是企业标准固定价，不随订单变化）
+   只用于"物料库DB.price/DB.fabric里查不到对应名称"时的兜底——
+   只要物料库里有同名条目，永远优先用物料库的实时价格，这张表不会覆盖它。
+   和钢线那次的WIRE_PRICE不同：钢线在物料库里有对应条目，写死兜底会和真实数据打架；
+   这里这些辅料经核实物料库里本来就没有单独条目（都是Excel自带的固定参考价），
+   所以不存在"两套数据互相矛盾"的问题。
+   ============================================================ */
+const FIXED_ACCESSORY_PRICES = {
+  'PUR胶': 32,
+  '热熔胶-350A': 23,
+  '热熔胶-5804': 20,
+  '边带': 0.5,
+  '拉手': 1,
+  '标签': 0.5,
+  '开包器': 5,
+  '黄色牛皮纸门幅230/135g': 3.1671,
+  '制袋PE压缩膜/6Cx255cm': 1.62792,
+  'WM卷包PE缠绕膜/8Cx110cm': 0.93632,
+  '包材/硅胶干燥剂/10克': 0.11,
+  '包材/透明胶带/7cm（江东外贸专用）': 0.06,
+  '缝纫线-裥绵面线': 0.002,
+  '缝纫线-裥绵底线': 0.002,
+  '缝纫线-边布面线': 0.002,
+  '缝纫线-缝纫底线': 0.002,
+  '缝纫线-拷边线': 0.001,
+  '缝纫线-包边线': 0.001,
+  '缝纫线-绣花线': 0.003,
+  '内套缝纫线': 0.001,
+  // 纸箱属于Excel里标黄的手动选规格，这里仅作为该规格万一物料库查不到时的兜底，不影响手动选择
+  '白卡纸箱（满版数码）': 13,
+  '黄卡纸箱（普通版面）': 10.5,
+  // 内套（按宽度自动分段选型，物料库查不到时的兜底）
+  '全涤汗布内套门幅90/90g': 3.24,
+  '全涤汗布内套门幅115/90g': 4.14,
+  '全涤汗布内套门幅150/90g': 5.4,
+};
+
+/* 辅料统一查询：优先物料库（DB.fabric/DB.price，按名称精确匹配），查不到再退回上面的Excel固定参考价表
+   返回 {name, price, _fixedRef} 或 null（两边都没有才是真的没找到） */
+function getAccessoryItem(sel) {
+  if (!sel) return null;
+  const item = DB.fabric.find(x=>x.name===sel) || DB.price.find(x=>x.name===sel || x.altName===sel);
+  if (item) return item;
+  if (FIXED_ACCESSORY_PRICES[sel] != null) return { name: sel, price: FIXED_ACCESSORY_PRICES[sel], _fixedRef: true };
+  return null;
+}
+
+/* 解析ROW_DEFS里的defaultMaterial字段：可以是固定字符串，也可以是(W,L,H)=>name的函数
+   （目前只有OT1的"内套"行用到函数形式——门幅按当前床垫宽度自动分段选型） */
+function resolveDefaultMaterial(def) {
+  if (!def.defaultMaterial) return '';
+  if (typeof def.defaultMaterial === 'function') {
+    const W = parseFloat(document.getElementById('mWidth').value)  || 180;
+    const L = parseFloat(document.getElementById('mLength').value) || 200;
+    const H = parseFloat(document.getElementById('mHeight').value) || 21;
+    return def.defaultMaterial(W,L,H) || '';
+  }
+  return def.defaultMaterial;
+}
+
+/* ============================================================
    床垫款式结构（内置6款，对齐Excel + txt文件）
    ============================================================ */
 const MATTRESS_STRUCTURES = {
@@ -1063,7 +1128,1122 @@ let DB = { fabric:[], price:[], cotton:[], spring:[], fabricUpdate:'', priceUpda
 let currentMattress = null;
 let currentMattressType = '';
 let bomData = [];
+
+/* ============================================================
+   ET款（真三边/假三边）专属精确计算引擎
+   每条公式均逐行核对Excel原表，数值完全一致
+   ============================================================ */
+function getETDefaultParams() {
+  return {
+    needle: '单针',
+    foamA_thick: 1, foamB_thick: 1,
+    bottomFoamA_thick: 0, bottomFoamB_thick: 0,
+    sideTotalWidth: 220, bigSideTotalWidth: 220,
+    smallFillThick1: 3,   smallFillDensity1: 40,
+    smallFillThick2: 3.5, smallFillDensity2: 25,
+    supportFillThick1: 2, supportFillDensity1: 40,
+    supportFillThick2: 3, supportFillDensity2: 25,
+    feltGsm: 200,
+    bottomFoamThick: 2, bottomFoamDensity: 25,
+    edgeType: '10cm海绵护边',
+    edgeDensity: 42,
+    springHeight: 20,
+    bottomNeedle: '多针'
+  };
+}
+
+function calcET_AllStandard(p) {
+  const W = parseFloat(document.getElementById('mWidth').value)  || 153;
+  const L = parseFloat(document.getElementById('mLength').value) || 203;
+  const H = parseFloat(document.getElementById('mHeight').value) || 38;
+  const r = {};
+
+  const thickSum = (parseFloat(p.foamA_thick)||0) + (parseFloat(p.foamB_thick)||0);
+  let panelStd;
+  if (p.needle === '单针') panelStd = (W+20)/100;
+  else if (thickSum <= 2) panelStd = (W+5)/100;
+  else panelStd = (W+10)/100;
+  r.panel_fabric = panelStd;
+  r.panel_foamA  = panelStd;
+  r.panel_foamB  = panelStd;
+  r.panel_nw     = panelStd * 220/100 * 25/1000;
+
+  const E9 = (parseFloat(p.smallFillThick1)||0) + (parseFloat(p.smallFillThick2)||0);
+  const sideStd = ((L+W)/100*2+0.3) / Math.floor(p.sideTotalWidth/(E9+4));
+  r.side_fabric = sideStd;
+  r.side_nw = ((L+W)/100*2+0.3) * (E9/100+0.04) * 25/1000;
+
+  r.interlayer = (L/100) * (W+3)/100 * 80/1000;
+
+  const E14 = (parseFloat(p.supportFillThick1)||0) + (parseFloat(p.supportFillThick2)||0)
+            + (parseFloat(p.springHeight)||0) + (parseFloat(p.bottomFoamThick)||0);
+  const bigSideStd = ((L+W)/100*2+0.3) / Math.floor(p.bigSideTotalWidth/(E14+4));
+  r.bigside_fabric = bigSideStd;
+  r.bigside_nw = ((L+W)/100*2+0.3) * (E14/100+0.04) * 25/1000;
+
+  let bottomStd;
+  const bottomThickSum = (parseFloat(p.bottomFoamA_thick)||0) + (parseFloat(p.bottomFoamB_thick)||0);
+  if (p.bottomNeedle === '单针') bottomStd = (W+20)/100;
+  else if (bottomThickSum <= 2) bottomStd = (W+5)/100;
+  else bottomStd = (W+10)/100;
+  r.bottom_fabric = bottomStd;
+  r.bottom_nw = bottomStd * 220/100 * 25/1000;
+
+  r.fill_small1   = W*L*(parseFloat(p.smallFillThick1)||0)/1000000*(parseFloat(p.smallFillDensity1)||40);
+  r.fill_small2   = W*L*(parseFloat(p.smallFillThick2)||0)/1000000*(parseFloat(p.smallFillDensity2)||25);
+  r.fill_support1 = W*L*(parseFloat(p.supportFillThick1)||0)/1000000*(parseFloat(p.supportFillDensity1)||40);
+  r.fill_support2 = W*L*(parseFloat(p.supportFillThick2)||0)/1000000*(parseFloat(p.supportFillDensity2)||25);
+  r.bottom_foam   = W*L*(parseFloat(p.bottomFoamThick)||0)/1000000*(parseFloat(p.bottomFoamDensity)||25);
+
+  r.felt = W*L/10000*(parseFloat(p.feltGsm)||200)/1000;
+
+  const edgeH = p.edgeType==='7cm海绵护边'?7:(p.edgeType==='10cm海绵护边'?10:0);
+  const springH = parseFloat(p.springHeight)||20;
+  const edgeDensity = parseFloat(p.edgeDensity)||42;
+  r.edge_long = edgeH * L * springH / 1000000 * edgeDensity;
+  const coreW = (edgeH>0) ? (W - (edgeH*2+2)) : W;
+  r.edge_wide = edgeH * coreW * springH / 1000000 * edgeDensity;
+
+  r.pur_glue = W*L/10000*20/1000;
+  const C40 = W<140?4:6;
+  const I40 = W<140?0.019:0.017;
+  r.glue350a = ((W/100-0.02)+(L/100-0.02))*2*I40 + (L/100-0.16)*C40*I40 + 0.01;
+  const C41 = W<140?2:4;
+  const I41 = W<140?0.021:0.016;
+  r.glue5804 = ((W/100-0.08)+(L/100-0.08))*2*I41 + (L/100-0.18)*C41*I41 + 0.005;
+
+  r.zipper = (L+W)/100*2+0.1;
+  r.edge_tape = (W+L)/100*2+0.3;
+  r.flat_pack = (W/100+L/100)*2+0.1;
+  r.pe_film = (W/100+H/100+0.05)*2+0.25;
+
+  const C47 = 0.8;
+  const E46 = Math.round(Math.sqrt(L*H*(1-C47)/3.14)*2) + 1;
+  const F46 = (p.edgeType==='无海绵护边') ? W+10 : W+13;
+  const G46 = E46;
+  r.box_flat = (E46/100+G46/100+0.08) * (E46/100+F46/100+0.04);
+
+  const E47 = Math.round(Math.sqrt(W*(H*2)*(1-C47)/3.14)*2) + 1;
+  const F47 = (p.edgeType==='无海绵护边') ? (L/2+10) : (L/2+13);
+  const G47 = E47;
+  r.box_fold = (E47/100+G47/100+0.08) * (E47/100+F47/100+0.04);
+
+  r.wrap_film = L/100 + E46/100*3.14*1.7 + 0.3;
+
+  // 以下为增补字段（原calcET_AllStandard没有，ET_ROW_DEFS新增了对应行才需要）
+  // 全部为Excel里的固定值（不随尺寸变化），与K44/K51/K52/K53-K59/K60/K61完全一致
+  r.handle = 1;
+  r.label = 1;
+  r.opener = 1;
+  r.thread_panel_face = 2500;
+  r.thread_panel_back = 2500;
+  r.thread_side_face = 500;
+  r.thread_bottom = 500;
+  r.thread_overlock = 500;
+  r.thread_binding = 600;
+  r.thread_embroid = 500;
+  r.desiccant = 1;
+  r.tape = 7;
+
+  return r;
+}
+
+// 行定义：每行的中文名/单位/默认损耗/默认系数(次数)
+const ET_ROW_DEFS = [
+  // === 面布裥绵区（K4-K8）===
+  { key:'panel_fabric',   stdKey:'panel_fabric', section:'面布裥绵', label:'面料',     unit:'米',   loss:0.05, coef:1 },
+  { key:'panel_foamCotton',stdKey:'panel_fabric', section:'面布裥绵', label:'无胶绵',   unit:'米',   loss:0.05, coef:1 },
+  { key:'panel_foamA',    stdKey:'panel_fabric', section:'面布裥绵', label:'海绵A',    unit:'米',   loss:0.05, coef:1, thicknessParam:'foamA_thick' },
+  { key:'panel_foamB',    stdKey:'panel_fabric', section:'面布裥绵', label:'海绵B',    unit:'米',   loss:0.05, coef:1, thicknessParam:'foamB_thick' },
+  { key:'panel_nw',       stdKey:'panel_nw',     section:'面布裥绵', label:'无纺布',   unit:'公斤', loss:0.05, coef:1 },
+
+  // === 小边裥绵区（K9-K12）===
+  { key:'side_fabric',    stdKey:'side_fabric',  section:'小边裥绵', label:'边布门幅(面料)', unit:'米', loss:0.05, coef:1 },
+  { key:'side_foamCotton',stdKey:'side_fabric',  section:'小边裥绵', label:'无胶绵',   unit:'米',   loss:0.05, coef:1 },
+  { key:'side_rollCotton',stdKey:'side_fabric',  section:'小边裥绵', label:'卷棉',     unit:'米',   loss:0.05, coef:1 },
+  { key:'side_nw',        stdKey:'side_nw',      section:'小边裥绵', label:'无纺布',   unit:'公斤', loss:0.05, coef:1 },
+
+  // === 隔层（K13）===
+  { key:'interlayer',     stdKey:'interlayer',   section:'隔层', label:'白色无纺布', unit:'公斤', loss:0.05, coef:1 },
+
+  // === 大边裥绵区（K14-K17）===
+  { key:'bigside_fabric', stdKey:'bigside_fabric', section:'大边裥绵', label:'边布门幅(面料)', unit:'米', loss:0.05, coef:1 },
+  { key:'bigside_foamCotton',stdKey:'bigside_fabric', section:'大边裥绵', label:'无胶绵', unit:'米', loss:0.05, coef:1 },
+  { key:'bigside_rollCotton',stdKey:'bigside_fabric', section:'大边裥绵', label:'卷棉',   unit:'米', loss:0.05, coef:1 },
+  { key:'bigside_nw',     stdKey:'bigside_nw',   section:'大边裥绵', label:'无纺布',   unit:'公斤', loss:0.05, coef:1 },
+
+  // === 底部裥绵区（K18-K22）===
+  { key:'bottom_fabric',  stdKey:'bottom_fabric', section:'底部裥绵', label:'面料',     unit:'米', loss:0.05, coef:0 },
+  { key:'bottom_foamCotton',stdKey:'bottom_fabric', section:'底部裥绵', label:'无胶绵', unit:'米', loss:0.05, coef:0 },
+  { key:'bottom_foamA',   stdKey:'bottom_fabric', section:'底部裥绵', label:'海绵A',   unit:'米', loss:0.05, coef:0, thicknessParam:'bottomFoamA_thick' },
+  { key:'bottom_foamB',   stdKey:'bottom_fabric', section:'底部裥绵', label:'海绵B',   unit:'米', loss:0.05, coef:0, thicknessParam:'bottomFoamB_thick' },
+  { key:'bottom_nw',      stdKey:'bottom_nw',    section:'底部裥绵', label:'无纺布',   unit:'米', loss:0.05, coef:0 },
+
+  // === 床芯填充层（K25-K38）===
+  { key:'fill_small1',    stdKey:'fill_small1',  section:'床芯填充层', label:'小边填充层1', unit:'公斤', loss:0, coef:1 },
+  { key:'fill_small2',    stdKey:'fill_small2',  section:'床芯填充层', label:'小边填充层2', unit:'公斤', loss:0, coef:1 },
+  { key:'fill_support1',  stdKey:'fill_support1',section:'床芯填充层', label:'支撑层填充1', unit:'公斤', loss:0, coef:1 },
+  { key:'fill_support2',  stdKey:'fill_support2',section:'床芯填充层', label:'支撑层填充2', unit:'公斤', loss:0, coef:1 },
+  { key:'felt_top',       stdKey:'felt',         section:'床芯填充层', label:'棉毡(上)', unit:'公斤', loss:0, coef:0 },
+  { key:'felt_bottom',    stdKey:'felt',         section:'床芯填充层', label:'棉毡(下)', unit:'公斤', loss:0, coef:0 },
+  { key:'bottom_foam',    stdKey:'bottom_foam',  section:'床芯填充层', label:'底绵',     unit:'公斤', loss:0, coef:1 },
+  { key:'edge_long',      stdKey:'edge_long',    section:'床芯填充层', label:'长护边',   unit:'公斤', loss:0, coef:2 },
+  { key:'edge_wide',      stdKey:'edge_wide',    section:'床芯填充层', label:'宽护边',   unit:'公斤', loss:0, coef:2 },
+
+  // === 胶水（K39-K41）===
+  { key:'pur_glue',       stdKey:'pur_glue',     section:'胶水', label:'PUR胶',       unit:'公斤', loss:0.02, coef:1, defaultMaterial:'PUR胶' },
+  { key:'glue350a',       stdKey:'glue350a',     section:'胶水', label:'热熔胶-350A', unit:'公斤', loss:0.02, coef:3, defaultMaterial:'热熔胶-350A' },
+  { key:'glue5804',       stdKey:'glue5804',     section:'胶水', label:'热熔胶-5804', unit:'公斤', loss:0.02, coef:3, defaultMaterial:'热熔胶-5804', extraFixedQty:0.02 },
+
+  // === 包材及辅料（K42-K61）===
+  { key:'zipper',         stdKey:'zipper',       section:'包材及辅料', label:'拉链', unit:'米', loss:0, coef:0, needSelect:true },
+  { key:'edge_tape',      stdKey:'edge_tape',    section:'包材及辅料', label:'边带', unit:'米', loss:0.03, coef:0, defaultMaterial:'边带' },
+  { key:'handle',         stdKey:'handle',       section:'包材及辅料', label:'拉手', unit:'件', loss:0, coef:4, defaultMaterial:'拉手' },
+  { key:'flat_pack',      stdKey:'flat_pack',    section:'包材及辅料', label:'平装黄牛皮纸', unit:'米', loss:0, coef:0, defaultMaterial:'黄色牛皮纸门幅230/135g' },
+  { key:'pe_film',        stdKey:'pe_film',      section:'包材及辅料', label:'PE压缩膜', unit:'米', loss:0.02, coef:0, defaultMaterial:'制袋PE压缩膜/6Cx255cm' },
+  { key:'wrap_film',      stdKey:'wrap_film',    section:'包材及辅料', label:'缠绕膜', unit:'米', loss:0.02, coef:0, defaultMaterial:'WM卷包PE缠绕膜/8Cx110cm' },
+  { key:'box_flat',       stdKey:'box_flat',     section:'包材及辅料', label:'白卡纸箱（平卷）', unit:'件', loss:0, coef:0, defaultMaterial:'白卡纸箱（满版数码）' },
+  { key:'box_fold',       stdKey:'box_fold',     section:'包材及辅料', label:'黄卡纸箱（对折）', unit:'件', loss:0, coef:0, defaultMaterial:'黄卡纸箱（普通版面）' },
+  { key:'label',          stdKey:'label',        section:'包材及辅料', label:'标签', unit:'件', loss:0, coef:0, defaultMaterial:'标签' },
+  { key:'opener',         stdKey:'opener',       section:'包材及辅料', label:'开包器', unit:'件', loss:0, coef:0, defaultMaterial:'开包器' },
+  { key:'thread_panel_face', stdKey:'thread_panel_face', section:'包材及辅料', label:'缝纫线-裥绵面线', unit:'米', loss:0.02, coef:1, defaultMaterial:'缝纫线-裥绵面线' },
+  { key:'thread_panel_back', stdKey:'thread_panel_back', section:'包材及辅料', label:'缝纫线-裥绵底线', unit:'米', loss:0.02, coef:1, defaultMaterial:'缝纫线-裥绵底线' },
+  { key:'thread_side_face',  stdKey:'thread_side_face',  section:'包材及辅料', label:'缝纫线-边布面线', unit:'米', loss:0.02, coef:1, defaultMaterial:'缝纫线-边布面线' },
+  { key:'thread_bottom',     stdKey:'thread_bottom',     section:'包材及辅料', label:'缝纫线-缝纫底线', unit:'米', loss:0.02, coef:1, defaultMaterial:'缝纫线-缝纫底线' },
+  { key:'thread_overlock',   stdKey:'thread_overlock',   section:'包材及辅料', label:'缝纫线-拷边线',   unit:'米', loss:0.02, coef:1, defaultMaterial:'缝纫线-拷边线' },
+  { key:'thread_binding',    stdKey:'thread_binding',    section:'包材及辅料', label:'缝纫线-包边线',   unit:'米', loss:0.02, coef:1, defaultMaterial:'缝纫线-包边线' },
+  { key:'thread_embroid',    stdKey:'thread_embroid',    section:'包材及辅料', label:'缝纫线-绣花线',   unit:'米', loss:0.02, coef:1, defaultMaterial:'缝纫线-绣花线' },
+  { key:'desiccant',         stdKey:'desiccant',         section:'包材及辅料', label:'干燥剂',   unit:'T02', loss:0, coef:3, defaultMaterial:'包材/硅胶干燥剂/10克' },
+  { key:'tape',              stdKey:'tape',              section:'包材及辅料', label:'透明胶带', unit:'米',  loss:0.02, coef:1, defaultMaterial:'包材/透明胶带/7cm（江东外贸专用）' },
+];
+
+// 按section分组，渲染时用于生成卡片标题
+const ET_SECTIONS = ['面布裥绵','小边裥绵','隔层','大边裥绵','底部裥绵','床芯填充层','胶水','包材及辅料'];
 let springCost = 0; // 已去税的床芯成本
+
+/* ============================================================
+   QT-两边款 / PT-虎口款 专属精确计算引擎
+   每条公式均逐行核对Excel原表（QT-两边款 / PT-虎口款 两个sheet），数值完全一致
+   通用渲染层见下方 GENERIC_PRECISE_ENGINES（与ET引擎并行，互不影响，
+   方便后续 OT-洁之宝款式1/2、套子款 直接复用同一套渲染代码）
+   ============================================================ */
+
+/* ---------- QT-两边款 ---------- */
+function getQTDefaultParams() {
+  return {
+    needle: '多针', foamA_thick: 0, foamB_thick: 0,
+    sideTotalWidth: 220,
+    bottomNeedle: '多针', bottomFoamA_thick: 0, bottomFoamB_thick: 0,
+    comfortThick1: 2, comfortDensity1: 25,
+    comfortThick2: 0, comfortDensity2: 25,
+    comfortThick3: 0, comfortDensity3: 25,
+    feltGsm: 200,
+    bottomFoamThick: 1, bottomFoamDensity: 26,
+    edgeType: '10cm海绵护边', edgeDensity: 35,
+    springHeight: 18
+  };
+}
+
+function calcQT_AllStandard(p) {
+  const W = parseFloat(document.getElementById('mWidth').value)  || 180;
+  const L = parseFloat(document.getElementById('mLength').value) || 200;
+  const H = parseFloat(document.getElementById('mHeight').value) || 21;
+  const r = {};
+
+  // 面布裥绵 K4-K8
+  const thickSum = (parseFloat(p.foamA_thick)||0) + (parseFloat(p.foamB_thick)||0);
+  let panelStd;
+  if (p.needle === '单针') panelStd = (W+20)/100;
+  else if (thickSum <= 2) panelStd = (W+5)/100;
+  else panelStd = (W+10)/100;
+  r.panel_fabric = panelStd;
+  r.panel_nw = panelStd * 220/100 * 25/1000;
+
+  // 边布裥绵 K10-K13（边布高度=床垫高H，门幅B11默认220）
+  const sideDoor = parseFloat(p.sideTotalWidth)||220;
+  const sideStd = ((L+W)/100*2+0.3) / Math.floor(sideDoor/(H+4));
+  r.side_fabric = sideStd;
+  r.side_nw = ((L+W)/100*2+0.3) * (H/100+0.04) * 25/1000;
+
+  // 底部裥绵 K14-K18
+  const bottomThickSum = (parseFloat(p.bottomFoamA_thick)||0) + (parseFloat(p.bottomFoamB_thick)||0);
+  let bottomStd;
+  if (p.bottomNeedle === '单针') bottomStd = (W+20)/100;
+  else if (bottomThickSum <= 2) bottomStd = (W+5)/100;
+  else bottomStd = (W+10)/100;
+  r.bottom_fabric = bottomStd;
+  r.bottom_nw = bottomStd * 220/100 * 25/1000;
+
+  // 床芯-舒适层 K21-K23（3个通用槎位，对应Excel三个候选海绵规格）
+  r.comfort1 = W*L*(parseFloat(p.comfortThick1)||0)/1000000*(parseFloat(p.comfortDensity1)||25);
+  r.comfort2 = W*L*(parseFloat(p.comfortThick2)||0)/1000000*(parseFloat(p.comfortDensity2)||25);
+  r.comfort3 = W*L*(parseFloat(p.comfortThick3)||0)/1000000*(parseFloat(p.comfortDensity3)||25);
+
+  // 棉毡（上/下共用克重设置，K26/K28）
+  r.felt = W*L/10000*(parseFloat(p.feltGsm)||200)/1000;
+
+  // 底绵 K29
+  r.bottom_foam = W*L*(parseFloat(p.bottomFoamThick)||0)/1000000*(parseFloat(p.bottomFoamDensity)||26);
+
+  // 护边 K30-K31
+  const edgeH = p.edgeType==='7cm海绵护边'?7:(p.edgeType==='10cm海绵护边'?10:0);
+  const springH = parseFloat(p.springHeight)||18;
+  const edgeDensity = parseFloat(p.edgeDensity)||35;
+  r.edge_long = edgeH * L * springH / 1000000 * edgeDensity;
+  const coreW = (edgeH>0) ? (W - (edgeH*2+2)) : W;
+  r.edge_wide = edgeH * coreW * springH / 1000000 * edgeDensity;
+
+  // 胶水 K32-K34（与ET公式完全一致）
+  r.pur_glue = W*L/10000*20/1000;
+  const C33 = W<140?4:6, I33 = W<140?0.019:0.017;
+  r.glue350a = ((W/100-0.02)+(L/100-0.02))*2*I33 + (L/100-0.16)*C33*I33 + 0.01;
+  const C34 = W<140?2:4, I34 = W<140?0.021:0.016;
+  r.glue5804 = ((W/100-0.08)+(L/100-0.08))*2*I34 + (L/100-0.18)*C34*I34 + 0.005;
+
+  // 包材及辅料 K35-K53（与ET公式完全一致，仅纸箱/边带圈数等系数默认值不同，体现在ROW_DEFS）
+  r.zipper = (L+W)/100*2+0.1;
+  r.edge_tape = (W+L)/100*2+0.3;
+  r.handle = 1;
+  const C39 = 0.8;
+  const E38 = Math.round(Math.sqrt(L*H*(1-C39)/3.14)*2) + 1;
+  const F38 = (p.edgeType==='无海绵护边') ? (W+10) : (W+13);
+  r.box_flat = (E38/100+E38/100+0.08) * (E38/100+F38/100+0.04);
+  const E39 = Math.round(Math.sqrt(W*(H*2)*(1-C39)/3.14)*2) + 1;
+  const F39 = (p.edgeType==='无海绵护边') ? (L/2+10) : (L/2+13);
+  r.box_fold = (E39/100+E39/100+0.08) * (E39/100+F39/100+0.04);
+  r.flat_pack = (W/100+L/100)*2+0.1;
+  r.pe_film = (W/100+H/100+0.05)*2+0.25;
+  r.wrap_film = L/100 + E38/100*3.14*1.7 + 0.3;
+  r.label = 1;
+  r.opener = 1;
+  r.thread_panel_face = 2500;
+  r.thread_panel_back = 2500;
+  r.thread_side_face = 500;
+  r.thread_bottom = 500;
+  r.thread_overlock = 500;
+  r.thread_binding = 600;
+  r.thread_embroid = 500;
+  r.desiccant = 1;
+  r.tape = 7;
+
+  return r;
+}
+
+const QT_ROW_DEFS = [
+  // === 面布裥绵区（K4-K8）===
+  { key:'panel_fabric',    stdKey:'panel_fabric', section:'面布裥绵', label:'面料',     unit:'米',   loss:0.05, coef:1 },
+  { key:'panel_foamCotton',stdKey:'panel_fabric', section:'面布裥绵', label:'无胶绵',   unit:'米',   loss:0.05, coef:0 },
+  { key:'panel_foamA',     stdKey:'panel_fabric', section:'面布裥绵', label:'海绵A',    unit:'米',   loss:0.05, coef:0, thicknessParam:'foamA_thick' },
+  { key:'panel_foamB',     stdKey:'panel_fabric', section:'面布裥绵', label:'海绵B',    unit:'米',   loss:0.05, coef:0, thicknessParam:'foamB_thick' },
+  { key:'panel_nw',        stdKey:'panel_nw',     section:'面布裥绵', label:'无纺布',   unit:'公斤', loss:0.05, coef:1 },
+
+  // === 边布裥绵区（K10-K13）===
+  { key:'side_fabric',     stdKey:'side_fabric',  section:'边布裥绵', label:'边布门幅(面料)', unit:'米', loss:0.05, coef:1 },
+  { key:'side_foamCotton', stdKey:'side_fabric',  section:'边布裥绵', label:'无胶绵',   unit:'米',   loss:0.05, coef:1 },
+  { key:'side_rollCotton', stdKey:'side_fabric',  section:'边布裥绵', label:'卷棉',     unit:'米',   loss:0.05, coef:1 },
+  { key:'side_nw',         stdKey:'side_nw',      section:'边布裥绵', label:'无纺布',   unit:'公斤', loss:0.05, coef:1 },
+
+  // === 底部裥绵区（K14-K18）===
+  { key:'bottom_fabric',   stdKey:'bottom_fabric', section:'底部裥绵', label:'面料',   unit:'米', loss:0.05, coef:0 },
+  { key:'bottom_foamCotton',stdKey:'bottom_fabric', section:'底部裥绵', label:'无胶绵', unit:'米', loss:0.05, coef:0 },
+  { key:'bottom_foamA',    stdKey:'bottom_fabric', section:'底部裥绵', label:'海绵A',  unit:'米', loss:0.05, coef:0, thicknessParam:'bottomFoamA_thick' },
+  { key:'bottom_foamB',    stdKey:'bottom_fabric', section:'底部裥绵', label:'海绵B',  unit:'米', loss:0.05, coef:0, thicknessParam:'bottomFoamB_thick' },
+  { key:'bottom_nw',       stdKey:'bottom_nw',    section:'底部裥绵', label:'无纺布',   unit:'米', loss:0.05, coef:0 },
+
+  // === 床芯填充层（K21-K34，不含弹簧本体——弹簧走弹簧计算器）===
+  { key:'comfort1',  stdKey:'comfort1',  section:'床芯填充层', label:'舒适层填充1', unit:'公斤', loss:0, coef:0, thicknessParam:'comfortThick1' },
+  { key:'comfort2',  stdKey:'comfort2',  section:'床芯填充层', label:'舒适层填充2', unit:'公斤', loss:0, coef:0, thicknessParam:'comfortThick2' },
+  { key:'comfort3',  stdKey:'comfort3',  section:'床芯填充层', label:'舒适层填充3', unit:'公斤', loss:0, coef:0, thicknessParam:'comfortThick3' },
+  { key:'felt_top',    stdKey:'felt',      section:'床芯填充层', label:'棉毡(上)', unit:'公斤', loss:0, coef:1 },
+  { key:'felt_bottom', stdKey:'felt',      section:'床芯填充层', label:'棉毡(下)', unit:'公斤', loss:0, coef:0 },
+  { key:'bottom_foam', stdKey:'bottom_foam',section:'床芯填充层', label:'底绵',     unit:'公斤', loss:0, coef:1 },
+  { key:'edge_long',   stdKey:'edge_long', section:'床芯填充层', label:'长护边',   unit:'公斤', loss:0, coef:2 },
+  { key:'edge_wide',   stdKey:'edge_wide', section:'床芯填充层', label:'宽护边',   unit:'公斤', loss:0, coef:2 },
+
+  // === 胶水（K32-K34）===
+  { key:'pur_glue', stdKey:'pur_glue', section:'胶水', label:'PUR胶',       unit:'公斤', loss:0.02, coef:1, defaultMaterial:'PUR胶' },
+  { key:'glue350a', stdKey:'glue350a', section:'胶水', label:'热熔胶-350A', unit:'公斤', loss:0.02, coef:1, defaultMaterial:'热熔胶-350A' },
+  { key:'glue5804', stdKey:'glue5804', section:'胶水', label:'热熔胶-5804', unit:'公斤', loss:0.02, coef:1, defaultMaterial:'热熔胶-5804', extraFixedQty:0.02 },
+
+  // === 包材及辅料（K35-K53）===
+  { key:'zipper',     stdKey:'zipper',     section:'包材及辅料', label:'拉链', unit:'米', loss:0,    coef:0, needSelect:true },
+  { key:'edge_tape',  stdKey:'edge_tape',  section:'包材及辅料', label:'边带', unit:'米', loss:0.03, coef:2, defaultMaterial:'边带' },
+  { key:'handle',     stdKey:'handle',     section:'包材及辅料', label:'拉手', unit:'件', loss:0,    coef:0, defaultMaterial:'拉手' },
+  { key:'box_flat',   stdKey:'box_flat',   section:'包材及辅料', label:'黄卡纸箱（平卷）', unit:'件', loss:0,    coef:1, defaultMaterial:'黄卡纸箱（普通版面）' },
+  { key:'box_fold',   stdKey:'box_fold',   section:'包材及辅料', label:'黄卡纸箱（对折）', unit:'件', loss:0,    coef:0, defaultMaterial:'黄卡纸箱（普通版面）' },
+  { key:'flat_pack',  stdKey:'flat_pack',  section:'包材及辅料', label:'平装黄牛皮纸', unit:'米', loss:0,    coef:0, defaultMaterial:'黄色牛皮纸门幅230/135g' },
+  { key:'pe_film',    stdKey:'pe_film',    section:'包材及辅料', label:'制袋PE压缩膜', unit:'米', loss:0.02, coef:1, defaultMaterial:'制袋PE压缩膜/6Cx255cm' },
+  { key:'wrap_film',  stdKey:'wrap_film',  section:'包材及辅料', label:'WM卷包缠绕膜', unit:'米', loss:0.02, coef:1, defaultMaterial:'WM卷包PE缠绕膜/8Cx110cm' },
+  { key:'label',      stdKey:'label',      section:'包材及辅料', label:'标签', unit:'件', loss:0,    coef:0, defaultMaterial:'标签' },
+  { key:'opener',     stdKey:'opener',     section:'包材及辅料', label:'开包器', unit:'件', loss:0,    coef:0, defaultMaterial:'开包器' },
+  { key:'thread_panel_face', stdKey:'thread_panel_face', section:'包材及辅料', label:'缝纫线-裥绵面线', unit:'米', loss:0.02, coef:1, defaultMaterial:'缝纫线-裥绵面线' },
+  { key:'thread_panel_back', stdKey:'thread_panel_back', section:'包材及辅料', label:'缝纫线-裥绵底线', unit:'米', loss:0.02, coef:1, defaultMaterial:'缝纫线-裥绵底线' },
+  { key:'thread_side_face',  stdKey:'thread_side_face',  section:'包材及辅料', label:'缝纫线-边布面线', unit:'米', loss:0.02, coef:1, defaultMaterial:'缝纫线-边布面线' },
+  { key:'thread_bottom',     stdKey:'thread_bottom',     section:'包材及辅料', label:'缝纫线-缝纫底线', unit:'米', loss:0.02, coef:1, defaultMaterial:'缝纫线-缝纫底线' },
+  { key:'thread_overlock',   stdKey:'thread_overlock',   section:'包材及辅料', label:'缝纫线-拷边线',   unit:'米', loss:0.02, coef:1, defaultMaterial:'缝纫线-拷边线' },
+  { key:'thread_binding',    stdKey:'thread_binding',    section:'包材及辅料', label:'缝纫线-包边线',   unit:'米', loss:0.02, coef:1, defaultMaterial:'缝纫线-包边线' },
+  { key:'thread_embroid',    stdKey:'thread_embroid',    section:'包材及辅料', label:'缝纫线-绣花线',   unit:'米', loss:0.02, coef:1, defaultMaterial:'缝纫线-绣花线' },
+  { key:'desiccant', stdKey:'desiccant', section:'包材及辅料', label:'干燥剂',   unit:'T02', loss:0,    coef:3, defaultMaterial:'包材/硅胶干燥剂/10克' },
+  { key:'tape',      stdKey:'tape',      section:'包材及辅料', label:'透明胶带', unit:'米',  loss:0.02, coef:1, defaultMaterial:'包材/透明胶带/7cm（江东外贸专用）' },
+];
+const QT_SECTIONS = ['面布裥绵','边布裥绵','底部裥绵','床芯填充层','胶水','包材及辅料'];
+
+/* ---------- PT-虎口款 ---------- */
+function getPTDefaultParams() {
+  return {
+    needle: '多针', foamA_thick: 2, foamB_thick: 2,
+    hookStyle: '普通虎口',
+    fillThick1: 2, fillDensity1: 70,
+    fillThick2: 2, fillDensity2: 60,
+    fillReduction: 10, // 虎口填充层长宽各减少cm（普通内嵌虎口单层≤2cm常规值，可按需调整）
+    sideTotalWidth: 220,      // 虎口区门幅(B10)
+    bigSideTotalWidth: 220,   // 大边裥绵门幅(B15)
+    bottomNeedle: '多针', bottomFoamA_thick: 0, bottomFoamB_thick: 0,
+    supportThick1: 5, supportDensity1: 40,
+    supportThick2: 3, supportDensity2: 25,
+    feltGsm: 200,
+    bottomFoamThick: 2, bottomFoamDensity: 26,
+    edgeType: '10cm海绵护边', edgeDensity: 35,
+    springHeight: 18
+  };
+}
+
+function calcPT_AllStandard(p) {
+  const W = parseFloat(document.getElementById('mWidth').value)  || 150;
+  const L = parseFloat(document.getElementById('mLength').value) || 200;
+  const H = parseFloat(document.getElementById('mHeight').value) || 31;
+  const r = {};
+
+  // 面布裥绵 K4-K8（与QT/ET公式结构相同）
+  const thickSum = (parseFloat(p.foamA_thick)||0) + (parseFloat(p.foamB_thick)||0);
+  let panelStd;
+  if (p.needle === '单针') panelStd = (W+20)/100;
+  else if (thickSum <= 2) panelStd = (W+5)/100;
+  else panelStd = (W+10)/100;
+  r.panel_fabric = panelStd;
+  r.panel_nw = panelStd * 220/100 * 25/1000;
+
+  // 虎口 K9-K12（高度：普通虎口固定15，否则=虎口填充层厚度合计+14）
+  const fillThickSum = (parseFloat(p.fillThick1)||0) + (parseFloat(p.fillThick2)||0);
+  const E9 = (p.hookStyle === '普通虎口') ? 15 : (fillThickSum + 14);
+  const hookDoor = parseFloat(p.sideTotalWidth)||220;
+  const hookStd = ((L+W)/100*2+0.3) / Math.floor(hookDoor/(E9+4));
+  r.hook_fabric = hookStd;
+  r.hook_nw = ((L+W)/100*2+0.3) * (E9/100+0.04) * 25/1000;
+
+  // 隔层 K13（固定为白色无纺布公式：F13=L-14, G13=W-14, 克重80）
+  r.interlayer = (L-14)/100 * ((W-14)+3)/100 * 80/1000;
+
+  // 大边裥绵 K14-K17
+  // 原表F14:F17固定写死220（与同类区域应联动长度L不一致），经与用户确认为录入遗漏，
+  // 此处已按用户指示改用长度L，与QT/ET同类公式保持一致
+  const springH = parseFloat(p.springHeight)||18;
+  const E14 = (parseFloat(p.supportThick1)||0) + (parseFloat(p.supportThick2)||0) + springH + (parseFloat(p.bottomFoamThick)||0) + 3;
+  const bigSideDoor = parseFloat(p.bigSideTotalWidth)||220;
+  const bigSideStd = ((L+W)/100*2+0.3) / Math.floor(bigSideDoor/(E14+4));
+  r.bigside_fabric = bigSideStd;
+  r.bigside_nw = ((L+W)/100*2+0.3) * (E14/100+0.04) * 25/1000;
+
+  // 底部裥绵 K18-K22（与QT/ET同样的needle+厚度合计判断逻辉）
+  const bottomThickSum = (parseFloat(p.bottomFoamA_thick)||0) + (parseFloat(p.bottomFoamB_thick)||0);
+  let bottomStd;
+  if (p.bottomNeedle === '单针') bottomStd = (W+20)/100;
+  else if (bottomThickSum <= 2) bottomStd = (W+5)/100;
+  else bottomStd = (W+10)/100;
+  r.bottom_fabric = bottomStd;
+  r.bottom_nw = bottomStd * 220/100 * 25/1000;
+
+  // 虎口填充 K25-K26（长宽各减少fillReduction，原表F25/G25留空由人工按说明判断，此处给可调参数近似）
+  const fillL = Math.max(0, L - (parseFloat(p.fillReduction)||10));
+  const fillW = Math.max(0, W - (parseFloat(p.fillReduction)||10));
+  r.fill1 = fillL*fillW*(parseFloat(p.fillThick1)||0)/1000000*(parseFloat(p.fillDensity1)||70);
+  r.fill2 = fillL*fillW*(parseFloat(p.fillThick2)||0)/1000000*(parseFloat(p.fillDensity2)||60);
+
+  // 支撑层填充 K28-K29（满尺寸，不做虎口缩减）
+  r.support1 = W*L*(parseFloat(p.supportThick1)||0)/1000000*(parseFloat(p.supportDensity1)||40);
+  r.support2 = W*L*(parseFloat(p.supportThick2)||0)/1000000*(parseFloat(p.supportDensity2)||25);
+
+  // 棉毡（上/下，K32/K34）
+  r.felt = W*L/10000*(parseFloat(p.feltGsm)||200)/1000;
+
+  // 底绵 K35
+  r.bottom_foam = W*L*(parseFloat(p.bottomFoamThick)||0)/1000000*(parseFloat(p.bottomFoamDensity)||26);
+
+  // 护边 K36-K37
+  const edgeH = p.edgeType==='7cm海绵护边'?7:(p.edgeType==='10cm海绵护边'?10:0);
+  const edgeDensity = parseFloat(p.edgeDensity)||35;
+  r.edge_long = edgeH * L * springH / 1000000 * edgeDensity;
+  const coreW = (edgeH>0) ? (W - (edgeH*2+2)) : W;
+  r.edge_wide = edgeH * coreW * springH / 1000000 * edgeDensity;
+
+  // 胶水 K38-K40（与ET/QT公式完全一致；原表无独立"虎口胶水"公式，故不单列）
+  r.pur_glue = W*L/10000*20/1000;
+  const C39 = W<140?4:6, I39 = W<140?0.019:0.017;
+  r.glue350a = ((W/100-0.02)+(L/100-0.02))*2*I39 + (L/100-0.16)*C39*I39 + 0.01;
+  const C40 = W<140?2:4, I40 = W<140?0.021:0.016;
+  r.glue5804 = ((W/100-0.08)+(L/100-0.08))*2*I40 + (L/100-0.18)*C40*I40 + 0.005;
+
+  // 包材及辅料 K41-K59（与QT公式完全一致）
+  r.zipper = (L+W)/100*2+0.1;
+  r.edge_tape = (W+L)/100*2+0.3;
+  r.handle = 1;
+  const C45 = 0.8;
+  const E44 = Math.round(Math.sqrt(L*H*(1-C45)/3.14)*2) + 1;
+  const F44 = (p.edgeType==='无海绵护边') ? (W+10) : (W+13);
+  r.box_flat = (E44/100+E44/100+0.08) * (E44/100+F44/100+0.04);
+  const E45 = Math.round(Math.sqrt(W*(H*2)*(1-C45)/3.14)*2) + 1;
+  const F45 = (p.edgeType==='无海绵护边') ? (L/2+10) : (L/2+13);
+  r.box_fold = (E45/100+E45/100+0.08) * (E45/100+F45/100+0.04);
+  r.flat_pack = (W/100+L/100)*2+0.1;
+  r.pe_film = (W/100+H/100+0.05)*2+0.25;
+  r.wrap_film = L/100 + E44/100*3.14*1.7 + 0.3;
+  r.label = 1;
+  r.opener = 1;
+  r.thread_panel_face = 2500;
+  r.thread_panel_back = 2500;
+  r.thread_side_face = 500;
+  r.thread_bottom = 500;
+  r.thread_overlock = 500;
+  r.thread_binding = 600;
+  r.thread_embroid = 500;
+  r.desiccant = 1;
+  r.tape = 7;
+
+  return r;
+}
+
+const PT_ROW_DEFS = [
+  // === 面布裥绵区（K4-K8）===
+  { key:'panel_fabric',    stdKey:'panel_fabric', section:'面布裥绵', label:'面料',     unit:'米',   loss:0.05, coef:1 },
+  { key:'panel_foamCotton',stdKey:'panel_fabric', section:'面布裥绵', label:'无胶绵',   unit:'米',   loss:0.05, coef:1 },
+  { key:'panel_foamA',     stdKey:'panel_fabric', section:'面布裥绵', label:'海绵A',    unit:'米',   loss:0.05, coef:2, thicknessParam:'foamA_thick' },
+  { key:'panel_foamB',     stdKey:'panel_fabric', section:'面布裥绵', label:'海绵B',    unit:'米',   loss:0.05, coef:2, thicknessParam:'foamB_thick' },
+  { key:'panel_nw',        stdKey:'panel_nw',     section:'面布裥绵', label:'无纺布',   unit:'公斤', loss:0.05, coef:1 },
+
+  // === 虎口区（K9-K12）===
+  { key:'hook_fabric',     stdKey:'hook_fabric',  section:'虎口', label:'边布门幅(面料)', unit:'米', loss:0.05, coef:1 },
+  { key:'hook_foamCotton', stdKey:'hook_fabric',  section:'虎口', label:'无胶绵',   unit:'米',   loss:0.05, coef:1 },
+  { key:'hook_rollCotton', stdKey:'hook_fabric',  section:'虎口', label:'卷棉',     unit:'米',   loss:0.05, coef:1 },
+  { key:'hook_nw',         stdKey:'hook_nw',      section:'虎口', label:'无纺布',   unit:'公斤', loss:0.05, coef:1 },
+
+  // === 隔层（K13）===
+  { key:'interlayer', stdKey:'interlayer', section:'隔层', label:'白色无纺布', unit:'公斤', loss:0.05, coef:1 },
+
+  // === 大边裥绵区（K14-K17）===
+  { key:'bigside_fabric',    stdKey:'bigside_fabric', section:'大边裥绵', label:'边布门幅(面料)', unit:'米', loss:0.05, coef:1 },
+  { key:'bigside_foamCotton',stdKey:'bigside_fabric', section:'大边裥绵', label:'无胶绵', unit:'米', loss:0.05, coef:1 },
+  { key:'bigside_rollCotton',stdKey:'bigside_fabric', section:'大边裥绵', label:'卷棉',   unit:'米', loss:0.05, coef:1 },
+  { key:'bigside_nw',        stdKey:'bigside_nw',     section:'大边裥绵', label:'无纺布', unit:'公斤', loss:0.05, coef:1 },
+
+  // === 底部裥绵区（K18-K22）===
+  { key:'bottom_fabric',    stdKey:'bottom_fabric', section:'底部裥绵', label:'面料',   unit:'米', loss:0.05, coef:1 },
+  { key:'bottom_foamCotton',stdKey:'bottom_fabric', section:'底部裥绵', label:'无胶绵', unit:'米', loss:0.05, coef:1 },
+  { key:'bottom_foamA',     stdKey:'bottom_fabric', section:'底部裥绵', label:'海绵A',  unit:'米', loss:0.05, coef:1, thicknessParam:'bottomFoamA_thick' },
+  { key:'bottom_foamB',     stdKey:'bottom_fabric', section:'底部裥绵', label:'海绵B',  unit:'米', loss:0.05, coef:0, thicknessParam:'bottomFoamB_thick' },
+  { key:'bottom_nw',        stdKey:'bottom_nw',     section:'底部裥绵', label:'无纺布', unit:'米', loss:0.05, coef:1 },
+
+  // === 床芯填充层（K25-K37，不含弹簧本体——弹簧走弹簧计算器）===
+  { key:'fill1',       stdKey:'fill1',       section:'床芯填充层', label:'虎口填充1', unit:'公斤', loss:0, coef:1, thicknessParam:'fillThick1' },
+  { key:'fill2',       stdKey:'fill2',       section:'床芯填充层', label:'虎口填充2', unit:'公斤', loss:0, coef:1, thicknessParam:'fillThick2' },
+  { key:'support1',    stdKey:'support1',    section:'床芯填充层', label:'支撑层填充1', unit:'公斤', loss:0, coef:1, thicknessParam:'supportThick1' },
+  { key:'support2',    stdKey:'support2',    section:'床芯填充层', label:'支撑层填充2', unit:'公斤', loss:0, coef:1, thicknessParam:'supportThick2' },
+  { key:'felt_top',    stdKey:'felt',        section:'床芯填充层', label:'棉毡(上)', unit:'公斤', loss:0, coef:1 },
+  { key:'felt_bottom', stdKey:'felt',        section:'床芯填充层', label:'棉毡(下)', unit:'公斤', loss:0, coef:0 },
+  { key:'bottom_foam', stdKey:'bottom_foam', section:'床芯填充层', label:'底绵',     unit:'公斤', loss:0, coef:1 },
+  { key:'edge_long',   stdKey:'edge_long',   section:'床芯填充层', label:'长护边',   unit:'公斤', loss:0, coef:2 },
+  { key:'edge_wide',   stdKey:'edge_wide',   section:'床芯填充层', label:'宽护边',   unit:'公斤', loss:0, coef:2 },
+
+  // === 胶水（K38-K40）===
+  { key:'pur_glue', stdKey:'pur_glue', section:'胶水', label:'PUR胶',       unit:'公斤', loss:0.02, coef:1, defaultMaterial:'PUR胶' },
+  { key:'glue350a', stdKey:'glue350a', section:'胶水', label:'热熔胶-350A', unit:'公斤', loss:0.02, coef:1, defaultMaterial:'热熔胶-350A' },
+  { key:'glue5804', stdKey:'glue5804', section:'胶水', label:'热熔胶-5804', unit:'公斤', loss:0.02, coef:1, defaultMaterial:'热熔胶-5804', extraFixedQty:0.02 },
+
+  // === 包材及辅料（K41-K59）===
+  { key:'zipper',     stdKey:'zipper',     section:'包材及辅料', label:'拉链', unit:'米', loss:0,    coef:0, needSelect:true },
+  { key:'edge_tape',  stdKey:'edge_tape',  section:'包材及辅料', label:'边带', unit:'米', loss:0.03, coef:3, defaultMaterial:'边带' },
+  { key:'handle',     stdKey:'handle',     section:'包材及辅料', label:'拉手', unit:'件', loss:0,    coef:0, defaultMaterial:'拉手' },
+  { key:'box_flat',   stdKey:'box_flat',   section:'包材及辅料', label:'黄卡纸箱（平卷）', unit:'件', loss:0,    coef:1, defaultMaterial:'黄卡纸箱（普通版面）' },
+  { key:'box_fold',   stdKey:'box_fold',   section:'包材及辅料', label:'黄卡纸箱（对折）', unit:'件', loss:0,    coef:0, defaultMaterial:'黄卡纸箱（普通版面）' },
+  { key:'flat_pack',  stdKey:'flat_pack',  section:'包材及辅料', label:'平装黄牛皮纸', unit:'米', loss:0,    coef:0, defaultMaterial:'黄色牛皮纸门幅230/135g' },
+  { key:'pe_film',    stdKey:'pe_film',    section:'包材及辅料', label:'制袋PE压缩膜', unit:'米', loss:0.02, coef:1, defaultMaterial:'制袋PE压缩膜/6Cx255cm' },
+  { key:'wrap_film',  stdKey:'wrap_film',  section:'包材及辅料', label:'WM卷包缠绕膜', unit:'米', loss:0.02, coef:1, defaultMaterial:'WM卷包PE缠绕膜/8Cx110cm' },
+  { key:'label',      stdKey:'label',      section:'包材及辅料', label:'标签', unit:'件', loss:0,    coef:1, defaultMaterial:'标签' },
+  { key:'opener',     stdKey:'opener',     section:'包材及辅料', label:'开包器', unit:'件', loss:0,    coef:0, defaultMaterial:'开包器' },
+  { key:'thread_panel_face', stdKey:'thread_panel_face', section:'包材及辅料', label:'缝纫线-裥绵面线', unit:'米', loss:0.02, coef:1, defaultMaterial:'缝纫线-裥绵面线' },
+  { key:'thread_panel_back', stdKey:'thread_panel_back', section:'包材及辅料', label:'缝纫线-裥绵底线', unit:'米', loss:0.02, coef:1, defaultMaterial:'缝纫线-裥绵底线' },
+  { key:'thread_side_face',  stdKey:'thread_side_face',  section:'包材及辅料', label:'缝纫线-边布面线', unit:'米', loss:0.02, coef:1, defaultMaterial:'缝纫线-边布面线' },
+  { key:'thread_bottom',     stdKey:'thread_bottom',     section:'包材及辅料', label:'缝纫线-缝纫底线', unit:'米', loss:0.02, coef:1, defaultMaterial:'缝纫线-缝纫底线' },
+  { key:'thread_overlock',   stdKey:'thread_overlock',   section:'包材及辅料', label:'缝纫线-拷边线',   unit:'米', loss:0.02, coef:1, defaultMaterial:'缝纫线-拷边线' },
+  { key:'thread_binding',    stdKey:'thread_binding',    section:'包材及辅料', label:'缝纫线-包边线',   unit:'米', loss:0.02, coef:1, defaultMaterial:'缝纫线-包边线' },
+  { key:'thread_embroid',    stdKey:'thread_embroid',    section:'包材及辅料', label:'缝纫线-绣花线',   unit:'米', loss:0.02, coef:1, defaultMaterial:'缝纫线-绣花线' },
+  { key:'desiccant', stdKey:'desiccant', section:'包材及辅料', label:'干燥剂',   unit:'T02', loss:0,    coef:3, defaultMaterial:'包材/硅胶干燥剂/10克' },
+  { key:'tape',      stdKey:'tape',      section:'包材及辅料', label:'透明胶带', unit:'米',  loss:0.02, coef:1, defaultMaterial:'包材/透明胶带/7cm（江东外贸专用）' },
+];
+const PT_SECTIONS = ['面布裥绵','虎口','隔层','大边裥绵','底部裥绵','床芯填充层','胶水','包材及辅料'];
+
+/* ---------- OT-洁之宝款式1（自制布套） ---------- */
+function getOT1DefaultParams() {
+  return {
+    needle: '多针', foamA_thick: 0, foamB_thick: 0,           // 正面裥绵
+    backNeedle: '多针', backFoamA_thick: 0, backFoamB_thick: 0, // 反面裥绵
+    comfortThick1: 0, comfortDensity1: 25,
+    comfortThick2: 0, comfortDensity2: 25,
+    comfortThick3: 0, comfortDensity3: 25,
+    feltGsm: 200,
+    bottomFoamThick: 0, bottomFoamDensity: 26,
+    edgeType: '10cm海绵护边', edgeDensity: 35,
+    springHeight: 18
+  };
+}
+
+function calcOT1_AllStandard(p) {
+  const W = parseFloat(document.getElementById('mWidth').value)  || 180;
+  const L = parseFloat(document.getElementById('mLength').value) || 200;
+  const H = parseFloat(document.getElementById('mHeight').value) || 21;
+  const r = {};
+
+  // 正面裥绵 K4-K8：门幅按 W+H（裥绵区会包到侧面，所以要+高度），长度方向按 L+H
+  const frontThickSum = (parseFloat(p.foamA_thick)||0) + (parseFloat(p.foamB_thick)||0);
+  let frontStd;
+  if (p.needle === '单针') frontStd = (W+H+20)/100;
+  else if (frontThickSum <= 2) frontStd = (W+H+5)/100;
+  else frontStd = (W+H+10)/100;
+  r.front_fabric = frontStd;
+  r.front_nw = frontStd * (L+H)/100 * 25/1000;
+  // 面部无裥棉（备选，二选一，默认不启用）：K9=G9/100+0.02，G9=W+H
+  r.front_flat = (W+H)/100 + 0.02;
+
+  // 反面裥绵 K10-K14：与正面结构相同，独立针法/厚度参数
+  const backThickSum = (parseFloat(p.backFoamA_thick)||0) + (parseFloat(p.backFoamB_thick)||0);
+  let backStd;
+  if (p.backNeedle === '单针') backStd = (W+H+20)/100;
+  else if (backThickSum <= 2) backStd = (W+H+5)/100;
+  else backStd = (W+H+10)/100;
+  r.back_fabric = backStd;
+  r.back_nw = backStd * (L+H)/100 * 25/1000;
+  r.back_flat = (W+H)/100 + 0.02;
+
+  // 内套 K16：门幅按宽度分段选型(在ROW_DEFS的defaultMaterial函数里处理选型)，用量按长度分段
+  r.inner_cover = L <= 190 ? 2.6 : 2.7;
+
+  // 床芯-舒适层海绵 K17-K21（3个槎位，厚度/密度走顶部参数，同QT/PT的comfort机制）
+  r.comfort1 = W*L*(parseFloat(p.comfortThick1)||0)/1000000*(parseFloat(p.comfortDensity1)||25);
+  r.comfort2 = W*L*(parseFloat(p.comfortThick2)||0)/1000000*(parseFloat(p.comfortDensity2)||25);
+  r.comfort3 = W*L*(parseFloat(p.comfortThick3)||0)/1000000*(parseFloat(p.comfortDensity3)||25);
+
+  // 棉毡（上/下）K22/K24
+  r.felt = W*L/10000*(parseFloat(p.feltGsm)||200)/1000;
+
+  // 底绵 K25
+  r.bottom_foam = W*L*(parseFloat(p.bottomFoamThick)||0)/1000000*(parseFloat(p.bottomFoamDensity)||26);
+
+  // 护边 K26-K27（与ET/QT/PT完全一致）
+  const edgeH = p.edgeType==='7cm海绵护边'?7:(p.edgeType==='10cm海绵护边'?10:0);
+  const springH = parseFloat(p.springHeight)||18;
+  const edgeDensity = parseFloat(p.edgeDensity)||35;
+  r.edge_long = edgeH * L * springH / 1000000 * edgeDensity;
+  const coreW = (edgeH>0) ? (W - (edgeH*2+2)) : W;
+  r.edge_wide = edgeH * coreW * springH / 1000000 * edgeDensity;
+
+  // 胶水 K28-K30（与ET/QT/PT完全一致；5804的+0.02在ROW_DEFS的extraFixedQty里统一处理）
+  r.pur_glue = W*L/10000*20/1000;
+  const C29 = W<140?4:6, I29 = W<140?0.019:0.017;
+  r.glue350a = ((W/100-0.02)+(L/100-0.02))*2*I29 + (L/100-0.16)*C29*I29 + 0.01;
+  const C30 = W<140?2:4, I30 = W<140?0.021:0.016;
+  r.glue5804 = ((W/100-0.08)+(L/100-0.08))*2*I30 + (L/100-0.18)*C30*I30 + 0.005;
+
+  // 包材及辅料 K31-K49（与QT/PT完全一致）
+  r.zipper = (L+W)/100*2+0.1;
+  r.edge_tape = (W+L)/100*2+0.3;
+  r.handle = 1;
+  const C35 = 0.8;
+  const E34 = Math.round(Math.sqrt(L*H*(1-C35)/3.14)*2) + 1;
+  const F34 = (p.edgeType==='无海绵护边') ? (W+10) : (W+13);
+  r.box_flat = (E34/100+E34/100+0.08) * (E34/100+F34/100+0.04);
+  const E35 = Math.round(Math.sqrt(W*(H*2)*(1-C35)/3.14)*2) + 1;
+  const F35 = (p.edgeType==='无海绵护边') ? (L/2+10) : (L/2+13);
+  r.box_fold = (E35/100+E35/100+0.08) * (E35/100+F35/100+0.04);
+  r.flat_pack = (W/100+L/100)*2+0.1;
+  r.pe_film = (W/100+H/100+0.05)*2+0.25;
+  r.wrap_film = L/100 + E34/100*3.14*1.7 + 0.3;
+  r.label = 1;
+  r.opener = 1;
+  r.thread_panel_face = 2500;
+  r.thread_panel_back = 2500;
+  r.thread_side_face = 500;
+  r.thread_bottom = 500;
+  r.thread_overlock = 500;
+  r.thread_binding = 600;
+  r.thread_embroid = 500;
+  r.desiccant = 1;
+  r.tape = 7;
+
+  return r;
+}
+
+const OT1_ROW_DEFS = [
+  // === 正面裥绵区（K4-K9）二选一：默认走裥绵5行，无裥棉1行系数0备用 ===
+  { key:'front_fabric',     stdKey:'front_fabric', section:'正面裥绵', label:'面料',   unit:'米', loss:0.05, coef:1 },
+  { key:'front_foamCotton', stdKey:'front_fabric', section:'正面裥绵', label:'无胶绵', unit:'米', loss:0.05, coef:0 },
+  { key:'front_foamA',      stdKey:'front_fabric', section:'正面裥绵', label:'海绵A',  unit:'米', loss:0.05, coef:0, thicknessParam:'foamA_thick' },
+  { key:'front_foamB',      stdKey:'front_fabric', section:'正面裥绵', label:'海绵B',  unit:'米', loss:0.05, coef:0, thicknessParam:'foamB_thick' },
+  { key:'front_nw',         stdKey:'front_nw',     section:'正面裥绵', label:'无纺布', unit:'公斤', loss:0.05, coef:0 },
+  { key:'front_flat',       stdKey:'front_flat',   section:'正面裥绵', label:'面部无裥棉（替代以上5行，二选一）', unit:'米', loss:0.05, coef:0 },
+
+  // === 反面裥绵区（K10-K15）二选一：默认走裥绵5行，无裥棉1行系数0备用 ===
+  { key:'back_fabric',     stdKey:'back_fabric', section:'反面裥绵', label:'面料',   unit:'米', loss:0.05, coef:1 },
+  { key:'back_foamCotton', stdKey:'back_fabric', section:'反面裥绵', label:'无胶绵', unit:'米', loss:0.05, coef:0 },
+  { key:'back_foamA',      stdKey:'back_fabric', section:'反面裥绵', label:'海绵A',  unit:'米', loss:0.05, coef:0, thicknessParam:'backFoamA_thick' },
+  { key:'back_foamB',      stdKey:'back_fabric', section:'反面裥绵', label:'海绵B',  unit:'米', loss:0.05, coef:0, thicknessParam:'backFoamB_thick' },
+  { key:'back_nw',         stdKey:'back_nw',     section:'反面裥绵', label:'无纺布', unit:'公斤', loss:0.05, coef:0 },
+  { key:'back_flat',       stdKey:'back_flat',   section:'反面裥绵', label:'面部无裥棉（替代以上5行，二选一）', unit:'米', loss:0.05, coef:0 },
+
+  // === 内套（K16）：门幅按宽度自动分段选型 ===
+  { key:'inner_cover', stdKey:'inner_cover', section:'内套', label:'全涤汗布内套', unit:'米', loss:0.05, coef:1,
+    defaultMaterial: (W,L,H) => W<130 ? '全涤汗布内套门幅90/90g' : (W<160 ? '全涤汗布内套门幅115/90g' : '全涤汗布内套门幅150/90g') },
+
+  // === 床芯填充层（K17-K30，不含弹簧本体——弹簧走弹簧计算器）===
+  { key:'comfort1',    stdKey:'comfort1',    section:'床芯填充层', label:'舒适层填充1', unit:'公斤', loss:0, coef:1, thicknessParam:'comfortThick1' },
+  { key:'comfort2',    stdKey:'comfort2',    section:'床芯填充层', label:'舒适层填充2', unit:'公斤', loss:0, coef:1, thicknessParam:'comfortThick2' },
+  { key:'comfort3',    stdKey:'comfort3',    section:'床芯填充层', label:'舒适层填充3', unit:'公斤', loss:0, coef:1, thicknessParam:'comfortThick3' },
+  { key:'felt_top',    stdKey:'felt',        section:'床芯填充层', label:'棉毡(上)', unit:'公斤', loss:0, coef:0 },
+  { key:'felt_bottom', stdKey:'felt',        section:'床芯填充层', label:'棉毡(下)', unit:'公斤', loss:0, coef:0 },
+  { key:'bottom_foam', stdKey:'bottom_foam', section:'床芯填充层', label:'底绵',     unit:'公斤', loss:0, coef:1 },
+  { key:'edge_long',   stdKey:'edge_long',   section:'床芯填充层', label:'长护边',   unit:'公斤', loss:0, coef:2 },
+  { key:'edge_wide',   stdKey:'edge_wide',   section:'床芯填充层', label:'宽护边',   unit:'公斤', loss:0, coef:2 },
+
+  // === 胶水（K28-K30）===
+  { key:'pur_glue', stdKey:'pur_glue', section:'胶水', label:'PUR胶',       unit:'公斤', loss:0.02, coef:1, defaultMaterial:'PUR胶' },
+  { key:'glue350a', stdKey:'glue350a', section:'胶水', label:'热熔胶-350A', unit:'公斤', loss:0.02, coef:1, defaultMaterial:'热熔胶-350A' },
+  { key:'glue5804', stdKey:'glue5804', section:'胶水', label:'热熔胶-5804', unit:'公斤', loss:0.02, coef:1, defaultMaterial:'热熔胶-5804', extraFixedQty:0.02 },
+
+  // === 包材及辅料（K31-K49）===
+  { key:'zipper',     stdKey:'zipper',     section:'包材及辅料', label:'拉链', unit:'米', loss:0,    coef:1, needSelect:true },
+  { key:'edge_tape',  stdKey:'edge_tape',  section:'包材及辅料', label:'边带', unit:'米', loss:0.03, coef:0, defaultMaterial:'边带' },
+  { key:'handle',     stdKey:'handle',     section:'包材及辅料', label:'拉手', unit:'件', loss:0,    coef:0, defaultMaterial:'拉手' },
+  { key:'box_flat',   stdKey:'box_flat',   section:'包材及辅料', label:'黄卡纸箱（平卷）', unit:'件', loss:0,    coef:1, defaultMaterial:'黄卡纸箱（普通版面）' },
+  { key:'box_fold',   stdKey:'box_fold',   section:'包材及辅料', label:'黄卡纸箱（对折）', unit:'件', loss:0,    coef:0, defaultMaterial:'黄卡纸箱（普通版面）' },
+  { key:'flat_pack',  stdKey:'flat_pack',  section:'包材及辅料', label:'平装黄牛皮纸', unit:'米', loss:0,    coef:0, defaultMaterial:'黄色牛皮纸门幅230/135g' },
+  { key:'pe_film',    stdKey:'pe_film',    section:'包材及辅料', label:'制袋PE压缩膜', unit:'米', loss:0.02, coef:1, defaultMaterial:'制袋PE压缩膜/6Cx255cm' },
+  { key:'wrap_film',  stdKey:'wrap_film',  section:'包材及辅料', label:'WM卷包缠绕膜', unit:'米', loss:0.02, coef:1, defaultMaterial:'WM卷包PE缠绕膜/8Cx110cm' },
+  { key:'label',      stdKey:'label',      section:'包材及辅料', label:'标签', unit:'件', loss:0,    coef:0, defaultMaterial:'标签' },
+  { key:'opener',     stdKey:'opener',     section:'包材及辅料', label:'开包器', unit:'件', loss:0,    coef:0, defaultMaterial:'开包器' },
+  { key:'thread_panel_face', stdKey:'thread_panel_face', section:'包材及辅料', label:'缝纫线-裥绵面线', unit:'米', loss:0.02, coef:1, defaultMaterial:'缝纫线-裥绵面线' },
+  { key:'thread_panel_back', stdKey:'thread_panel_back', section:'包材及辅料', label:'缝纫线-裥绵底线', unit:'米', loss:0.02, coef:1, defaultMaterial:'缝纫线-裥绵底线' },
+  { key:'thread_side_face',  stdKey:'thread_side_face',  section:'包材及辅料', label:'缝纫线-边布面线', unit:'米', loss:0.02, coef:1, defaultMaterial:'缝纫线-边布面线' },
+  { key:'thread_bottom',     stdKey:'thread_bottom',     section:'包材及辅料', label:'缝纫线-缝纫底线', unit:'米', loss:0.02, coef:1, defaultMaterial:'缝纫线-缝纫底线' },
+  { key:'thread_overlock',   stdKey:'thread_overlock',   section:'包材及辅料', label:'缝纫线-拷边线',   unit:'米', loss:0.02, coef:1, defaultMaterial:'缝纫线-拷边线' },
+  { key:'thread_binding',    stdKey:'thread_binding',    section:'包材及辅料', label:'缝纫线-包边线',   unit:'米', loss:0.02, coef:1, defaultMaterial:'缝纫线-包边线' },
+  { key:'thread_embroid',    stdKey:'thread_embroid',    section:'包材及辅料', label:'缝纫线-绣花线',   unit:'米', loss:0.02, coef:1, defaultMaterial:'缝纫线-绣花线' },
+  { key:'desiccant', stdKey:'desiccant', section:'包材及辅料', label:'干燥剂',   unit:'T02', loss:0,    coef:3, defaultMaterial:'包材/硅胶干燥剂/10克' },
+  { key:'tape',      stdKey:'tape',      section:'包材及辅料', label:'透明胶带', unit:'米',  loss:0.02, coef:1, defaultMaterial:'包材/透明胶带/7cm（江东外贸专用）' },
+];
+const OT1_SECTIONS = ['正面裥绵','反面裥绵','内套','床芯填充层','胶水','包材及辅料'];
+
+const OT1_PARAM_GROUPS = [
+  { title:'正面裥绵参数', fields:[
+      { key:'needle', label:'正面针法', type:'select', options:['单针','多针'] },
+  ]},
+  { title:'反面裥绵参数', fields:[
+      { key:'backNeedle', label:'反面针法', type:'select', options:['单针','多针'] },
+  ]},
+  { title:'床芯填充层参数', fields:[
+      { key:'comfortDensity1', label:'舒适层1密度', type:'number', unit:'kg/m³' },
+      { key:'comfortDensity2', label:'舒适层2密度', type:'number', unit:'kg/m³' },
+      { key:'comfortDensity3', label:'舒适层3密度', type:'number', unit:'kg/m³' },
+      { key:'feltGsm', label:'棉毡克重', type:'number', unit:'g/m²' },
+      { key:'bottomFoamThick', label:'底绵厚度', type:'number', unit:'cm' },
+      { key:'bottomFoamDensity', label:'底绵密度', type:'number', unit:'kg/m³' },
+  ]},
+  { title:'护边/弹簧参数', fields:[
+      { key:'edgeType', label:'护边类型', type:'select', options:['10cm海绵护边','7cm海绵护边','无海绵护边'] },
+      { key:'edgeDensity', label:'护边密度', type:'number', unit:'kg/m³' },
+      { key:'springHeight', label:'弹簧高度', type:'number', unit:'cm' },
+  ]}
+];
+
+/* ---------- OT-洁之宝款式2（自制布套，带边布裥绵） ---------- */
+function getOT2DefaultParams() {
+  return {
+    needle: '多针', foamA_thick: 0, foamB_thick: 0,           // 正面裥绵
+    backNeedle: '多针', backFoamA_thick: 0, backFoamB_thick: 0, // 反面裥绵
+    sideHeight: 11, sideTotalWidth: 220,                       // 边布裥绵
+    comfortThick1: 0, comfortDensity1: 25,
+    comfortThick2: 0, comfortDensity2: 25,
+    comfortThick3: 0, comfortDensity3: 25,
+    feltGsm: 200,
+    bottomFoamThick: 0, bottomFoamDensity: 26,
+    edgeType: '10cm海绵护边', edgeDensity: 35,
+    springHeight: 18
+  };
+}
+
+function calcOT2_AllStandard(p) {
+  const W = parseFloat(document.getElementById('mWidth').value)  || 180;
+  const L = parseFloat(document.getElementById('mLength').value) || 200;
+  const H = parseFloat(document.getElementById('mHeight').value) || 21;
+  const r = {};
+
+  const sideH = parseFloat(p.sideHeight)||11;
+  // 正面裥绵 K4-K9：门幅比OT1少了"边布高度的一半"（部分包边高度被边布裥绵分走）
+  const panelW = W + H - sideH/2;
+  const panelL = L + H - sideH/2; // 长度方向同理：F4=F2+E2-(E10/2)
+  const frontThickSum = (parseFloat(p.foamA_thick)||0) + (parseFloat(p.foamB_thick)||0);
+  let frontStd;
+  if (p.needle === '单针') frontStd = (panelW+20)/100;
+  else if (frontThickSum <= 2) frontStd = (panelW+5)/100;
+  else frontStd = (panelW+10)/100;
+  r.front_fabric = frontStd;
+  r.front_nw = frontStd * panelL/100 * 25/1000;
+  r.front_flat = panelW/100 + 0.02;
+
+  // 反面裥绵 K14-K19：与正面结构相同，独立针法/厚度参数
+  const backThickSum = (parseFloat(p.backFoamA_thick)||0) + (parseFloat(p.backFoamB_thick)||0);
+  let backStd;
+  if (p.backNeedle === '单针') backStd = (panelW+20)/100;
+  else if (backThickSum <= 2) backStd = (panelW+5)/100;
+  else backStd = (panelW+10)/100;
+  r.back_fabric = backStd;
+  r.back_nw = backStd * panelL/100 * 25/1000;
+  r.back_flat = panelW/100 + 0.02;
+
+  // 边布裥绵 K10-K13（与QT/ET的边布裥绵同一套公式：门幅220，按边布高度sideH决定排列数）
+  const sideDoor = parseFloat(p.sideTotalWidth)||220;
+  const sideStd = ((L+W)/100*2+0.3) / Math.floor(sideDoor/(sideH+4));
+  r.side_fabric = sideStd;
+  r.side_nw = ((L+W)/100*2+0.3) * (sideH/100+0.04) * 25/1000;
+
+  // 内套 K20：门幅按宽度分段选型，用量按长度分段（与OT1一致）
+  r.inner_cover = L <= 190 ? 2.6 : 2.7;
+
+  // 床芯-舒适层海绵 K21-K25（3个槎位，与OT1一致）
+  r.comfort1 = W*L*(parseFloat(p.comfortThick1)||0)/1000000*(parseFloat(p.comfortDensity1)||25);
+  r.comfort2 = W*L*(parseFloat(p.comfortThick2)||0)/1000000*(parseFloat(p.comfortDensity2)||25);
+  r.comfort3 = W*L*(parseFloat(p.comfortThick3)||0)/1000000*(parseFloat(p.comfortDensity3)||25);
+
+  // 棉毡（上/下）K26/K28
+  r.felt = W*L/10000*(parseFloat(p.feltGsm)||200)/1000;
+
+  // 底绵 K29
+  r.bottom_foam = W*L*(parseFloat(p.bottomFoamThick)||0)/1000000*(parseFloat(p.bottomFoamDensity)||26);
+
+  // 护边 K30-K31（与OT1/ET/QT/PT完全一致）
+  const edgeH = p.edgeType==='7cm海绵护边'?7:(p.edgeType==='10cm海绵护边'?10:0);
+  const springH = parseFloat(p.springHeight)||18;
+  const edgeDensity = parseFloat(p.edgeDensity)||35;
+  r.edge_long = edgeH * L * springH / 1000000 * edgeDensity;
+  const coreW = (edgeH>0) ? (W - (edgeH*2+2)) : W;
+  r.edge_wide = edgeH * coreW * springH / 1000000 * edgeDensity;
+
+  // 胶水 K32-K34（与OT1完全一致；5804的+0.02在ROW_DEFS的extraFixedQty里统一处理）
+  r.pur_glue = W*L/10000*20/1000;
+  const C33 = W<140?4:6, I33 = W<140?0.019:0.017;
+  r.glue350a = ((W/100-0.02)+(L/100-0.02))*2*I33 + (L/100-0.16)*C33*I33 + 0.01;
+  const C34 = W<140?2:4, I34 = W<140?0.021:0.016;
+  r.glue5804 = ((W/100-0.08)+(L/100-0.08))*2*I34 + (L/100-0.18)*C34*I34 + 0.005;
+
+  // 包材及辅料 K35-K53（与OT1完全一致）
+  r.zipper = (L+W)/100*2+0.1;
+  r.edge_tape = (W+L)/100*2+0.3;
+  r.handle = 1;
+  const C39 = 0.8;
+  const E38 = Math.round(Math.sqrt(L*H*(1-C39)/3.14)*2) + 1;
+  const F38 = (p.edgeType==='无海绵护边') ? (W+10) : (W+13);
+  r.box_flat = (E38/100+E38/100+0.08) * (E38/100+F38/100+0.04);
+  const E39 = Math.round(Math.sqrt(W*(H*2)*(1-C39)/3.14)*2) + 1;
+  const F39 = (p.edgeType==='无海绵护边') ? (L/2+10) : (L/2+13);
+  r.box_fold = (E39/100+E39/100+0.08) * (E39/100+F39/100+0.04);
+  r.flat_pack = (W/100+L/100)*2+0.1;
+  r.pe_film = (W/100+H/100+0.05)*2+0.25;
+  r.wrap_film = L/100 + E38/100*3.14*1.7 + 0.3;
+  r.label = 1;
+  r.opener = 1;
+  r.thread_panel_face = 2500;
+  r.thread_panel_back = 2500;
+  r.thread_side_face = 500;
+  r.thread_bottom = 500;
+  r.thread_overlock = 500;
+  r.thread_binding = 600;
+  r.thread_embroid = 500;
+  r.desiccant = 1;
+  r.tape = 7;
+
+  return r;
+}
+
+const OT2_ROW_DEFS = [
+  // === 正面裥绵区（K4-K9）二选一：默认走裥绵5行，无裥棉1行系数0备用 ===
+  { key:'front_fabric',     stdKey:'front_fabric', section:'正面裥绵', label:'面料',   unit:'米', loss:0.05, coef:1 },
+  { key:'front_foamCotton', stdKey:'front_fabric', section:'正面裥绵', label:'无胶绵', unit:'米', loss:0.05, coef:0 },
+  { key:'front_foamA',      stdKey:'front_fabric', section:'正面裥绵', label:'海绵A',  unit:'米', loss:0.05, coef:0, thicknessParam:'foamA_thick' },
+  { key:'front_foamB',      stdKey:'front_fabric', section:'正面裥绵', label:'海绵B',  unit:'米', loss:0.05, coef:0, thicknessParam:'foamB_thick' },
+  { key:'front_nw',         stdKey:'front_nw',     section:'正面裥绵', label:'无纺布', unit:'公斤', loss:0.05, coef:0 },
+  { key:'front_flat',       stdKey:'front_flat',   section:'正面裥绵', label:'面部无裥棉（替代以上5行，二选一）', unit:'米', loss:0.05, coef:0 },
+
+  // === 边布裥绵区（K10-K13，OT1没有，OT2特有）===
+  { key:'side_fabric',     stdKey:'side_fabric', section:'边布裥绵', label:'边布门幅(面料)', unit:'米', loss:0.05, coef:1 },
+  { key:'side_foamCotton', stdKey:'side_fabric', section:'边布裥绵', label:'无胶绵',   unit:'米', loss:0.05, coef:1 },
+  { key:'side_rollCotton', stdKey:'side_fabric', section:'边布裥绵', label:'卷棉',     unit:'米', loss:0.05, coef:1 },
+  { key:'side_nw',         stdKey:'side_nw',     section:'边布裥绵', label:'无纺布',   unit:'公斤', loss:0.05, coef:1 },
+
+  // === 反面裥绵区（K14-K19）二选一：默认走裥绵5行，无裥棉1行系数0备用 ===
+  { key:'back_fabric',     stdKey:'back_fabric', section:'反面裥绵', label:'面料',   unit:'米', loss:0.05, coef:1 },
+  { key:'back_foamCotton', stdKey:'back_fabric', section:'反面裥绵', label:'无胶绵', unit:'米', loss:0.05, coef:0 },
+  { key:'back_foamA',      stdKey:'back_fabric', section:'反面裥绵', label:'海绵A',  unit:'米', loss:0.05, coef:0, thicknessParam:'backFoamA_thick' },
+  { key:'back_foamB',      stdKey:'back_fabric', section:'反面裥绵', label:'海绵B',  unit:'米', loss:0.05, coef:0, thicknessParam:'backFoamB_thick' },
+  { key:'back_nw',         stdKey:'back_nw',     section:'反面裥绵', label:'无纺布', unit:'公斤', loss:0.05, coef:0 },
+  { key:'back_flat',       stdKey:'back_flat',   section:'反面裥绵', label:'面部无裥棉（替代以上5行，二选一）', unit:'米', loss:0.05, coef:0 },
+
+  // === 内套（K20）：门幅按宽度自动分段选型 ===
+  { key:'inner_cover', stdKey:'inner_cover', section:'内套', label:'全涤汗布内套', unit:'米', loss:0.05, coef:1,
+    defaultMaterial: (W,L,H) => W<130 ? '全涤汗布内套门幅90/90g' : (W<160 ? '全涤汗布内套门幅115/90g' : '全涤汗布内套门幅150/90g') },
+
+  // === 床芯填充层（K21-K34，不含弹簧本体——弹簧走弹簧计算器）===
+  { key:'comfort1',    stdKey:'comfort1',    section:'床芯填充层', label:'舒适层填充1', unit:'公斤', loss:0, coef:1, thicknessParam:'comfortThick1' },
+  { key:'comfort2',    stdKey:'comfort2',    section:'床芯填充层', label:'舒适层填充2', unit:'公斤', loss:0, coef:1, thicknessParam:'comfortThick2' },
+  { key:'comfort3',    stdKey:'comfort3',    section:'床芯填充层', label:'舒适层填充3', unit:'公斤', loss:0, coef:1, thicknessParam:'comfortThick3' },
+  { key:'felt_top',    stdKey:'felt',        section:'床芯填充层', label:'棉毡(上)', unit:'公斤', loss:0, coef:0 },
+  { key:'felt_bottom', stdKey:'felt',        section:'床芯填充层', label:'棉毡(下)', unit:'公斤', loss:0, coef:0 },
+  { key:'bottom_foam', stdKey:'bottom_foam', section:'床芯填充层', label:'底绵',     unit:'公斤', loss:0, coef:1 },
+  { key:'edge_long',   stdKey:'edge_long',   section:'床芯填充层', label:'长护边',   unit:'公斤', loss:0, coef:2 },
+  { key:'edge_wide',   stdKey:'edge_wide',   section:'床芯填充层', label:'宽护边',   unit:'公斤', loss:0, coef:2 },
+
+  // === 胶水（K32-K34）===
+  { key:'pur_glue', stdKey:'pur_glue', section:'胶水', label:'PUR胶',       unit:'公斤', loss:0.02, coef:1, defaultMaterial:'PUR胶' },
+  { key:'glue350a', stdKey:'glue350a', section:'胶水', label:'热熔胶-350A', unit:'公斤', loss:0.02, coef:1, defaultMaterial:'热熔胶-350A' },
+  { key:'glue5804', stdKey:'glue5804', section:'胶水', label:'热熔胶-5804', unit:'公斤', loss:0.02, coef:1, defaultMaterial:'热熔胶-5804', extraFixedQty:0.02 },
+
+  // === 包材及辅料（K35-K53）===
+  { key:'zipper',     stdKey:'zipper',     section:'包材及辅料', label:'拉链', unit:'米', loss:0,    coef:1, needSelect:true },
+  { key:'edge_tape',  stdKey:'edge_tape',  section:'包材及辅料', label:'边带', unit:'米', loss:0.03, coef:0, defaultMaterial:'边带' },
+  { key:'handle',     stdKey:'handle',     section:'包材及辅料', label:'拉手', unit:'件', loss:0,    coef:0, defaultMaterial:'拉手' },
+  { key:'box_flat',   stdKey:'box_flat',   section:'包材及辅料', label:'黄卡纸箱（平卷）', unit:'件', loss:0,    coef:1, defaultMaterial:'黄卡纸箱（普通版面）' },
+  { key:'box_fold',   stdKey:'box_fold',   section:'包材及辅料', label:'黄卡纸箱（对折）', unit:'件', loss:0,    coef:0, defaultMaterial:'黄卡纸箱（普通版面）' },
+  { key:'flat_pack',  stdKey:'flat_pack',  section:'包材及辅料', label:'平装黄牛皮纸', unit:'米', loss:0,    coef:0, defaultMaterial:'黄色牛皮纸门幅230/135g' },
+  { key:'pe_film',    stdKey:'pe_film',    section:'包材及辅料', label:'制袋PE压缩膜', unit:'米', loss:0.02, coef:1, defaultMaterial:'制袋PE压缩膜/6Cx255cm' },
+  { key:'wrap_film',  stdKey:'wrap_film',  section:'包材及辅料', label:'WM卷包缠绕膜', unit:'米', loss:0.02, coef:1, defaultMaterial:'WM卷包PE缠绕膜/8Cx110cm' },
+  { key:'label',      stdKey:'label',      section:'包材及辅料', label:'标签', unit:'件', loss:0,    coef:0, defaultMaterial:'标签' },
+  { key:'opener',     stdKey:'opener',     section:'包材及辅料', label:'开包器', unit:'件', loss:0,    coef:0, defaultMaterial:'开包器' },
+  { key:'thread_panel_face', stdKey:'thread_panel_face', section:'包材及辅料', label:'缝纫线-裥绵面线', unit:'米', loss:0.02, coef:1, defaultMaterial:'缝纫线-裥绵面线' },
+  { key:'thread_panel_back', stdKey:'thread_panel_back', section:'包材及辅料', label:'缝纫线-裥绵底线', unit:'米', loss:0.02, coef:1, defaultMaterial:'缝纫线-裥绵底线' },
+  { key:'thread_side_face',  stdKey:'thread_side_face',  section:'包材及辅料', label:'缝纫线-边布面线', unit:'米', loss:0.02, coef:1, defaultMaterial:'缝纫线-边布面线' },
+  { key:'thread_bottom',     stdKey:'thread_bottom',     section:'包材及辅料', label:'缝纫线-缝纫底线', unit:'米', loss:0.02, coef:1, defaultMaterial:'缝纫线-缝纫底线' },
+  { key:'thread_overlock',   stdKey:'thread_overlock',   section:'包材及辅料', label:'缝纫线-拷边线',   unit:'米', loss:0.02, coef:1, defaultMaterial:'缝纫线-拷边线' },
+  { key:'thread_binding',    stdKey:'thread_binding',    section:'包材及辅料', label:'缝纫线-包边线',   unit:'米', loss:0.02, coef:1, defaultMaterial:'缝纫线-包边线' },
+  { key:'thread_embroid',    stdKey:'thread_embroid',    section:'包材及辅料', label:'缝纫线-绣花线',   unit:'米', loss:0.02, coef:1, defaultMaterial:'缝纫线-绣花线' },
+  { key:'desiccant', stdKey:'desiccant', section:'包材及辅料', label:'干燥剂',   unit:'T02', loss:0,    coef:3, defaultMaterial:'包材/硅胶干燥剂/10克' },
+  { key:'tape',      stdKey:'tape',      section:'包材及辅料', label:'透明胶带', unit:'米',  loss:0.02, coef:1, defaultMaterial:'包材/透明胶带/7cm（江东外贸专用）' },
+];
+const OT2_SECTIONS = ['正面裥绵','边布裥绵','反面裥绵','内套','床芯填充层','胶水','包材及辅料'];
+
+const OT2_PARAM_GROUPS = [
+  { title:'正面裥绵参数', fields:[
+      { key:'needle', label:'正面针法', type:'select', options:['单针','多针'] },
+  ]},
+  { title:'边布裥绵参数', fields:[
+      { key:'sideHeight', label:'边布高度', type:'number', unit:'cm' },
+      { key:'sideTotalWidth', label:'边布门幅', type:'number', unit:'cm' },
+  ]},
+  { title:'反面裥绵参数', fields:[
+      { key:'backNeedle', label:'反面针法', type:'select', options:['单针','多针'] },
+  ]},
+  { title:'床芯填充层参数', fields:[
+      { key:'comfortDensity1', label:'舒适层1密度', type:'number', unit:'kg/m³' },
+      { key:'comfortDensity2', label:'舒适层2密度', type:'number', unit:'kg/m³' },
+      { key:'comfortDensity3', label:'舒适层3密度', type:'number', unit:'kg/m³' },
+      { key:'feltGsm', label:'棉毡克重', type:'number', unit:'g/m²' },
+      { key:'bottomFoamThick', label:'底绵厚度', type:'number', unit:'cm' },
+      { key:'bottomFoamDensity', label:'底绵密度', type:'number', unit:'kg/m³' },
+  ]},
+  { title:'护边/弹簧参数', fields:[
+      { key:'edgeType', label:'护边类型', type:'select', options:['10cm海绵护边','7cm海绵护边','无海绵护边'] },
+      { key:'edgeDensity', label:'护边密度', type:'number', unit:'kg/m³' },
+      { key:'springHeight', label:'弹簧高度', type:'number', unit:'cm' },
+  ]}
+];
+
+/* ---------- 套子款（外购）：套子本身是外购成品，不再现场裥绵/缝纫，所以没有拉链/边带/拉手/标签/7种线 ---------- */
+function getCoverDefaultParams() {
+  return {
+    comfortThick1: 3, comfortDensity1: 30,
+    comfortThick2: 3, comfortDensity2: 30,
+    comfortThick3: 0, comfortDensity3: 20,
+    feltGsm: 200,
+    bottomFoamThick: 0, bottomFoamDensity: 22.5,
+    edgeType: '10cm海绵护边', edgeDensity: 35,
+    springHeight: 18
+  };
+}
+
+function calcCover_AllStandard(p) {
+  const W = parseFloat(document.getElementById('mWidth').value)  || 150;
+  const L = parseFloat(document.getElementById('mLength').value) || 200;
+  const H = parseFloat(document.getElementById('mHeight').value) || 20;
+  const r = {};
+
+  // 套子（外购成品）K4：固定标准用量1，不随尺寸变化——按"件/套"外购，不是按面积裥绵自制
+  r.cover = 1;
+
+  // 内套 K5：门幅按宽度分段选型（在ROW_DEFS的defaultMaterial函数里处理），用量按长度分段
+  r.inner_cover = L <= 190 ? 2.6 : 2.7;
+
+  // 床芯-舒适层海绵 K6-K10（3个槎位，厚度/密度走顶部参数）
+  r.comfort1 = W*L*(parseFloat(p.comfortThick1)||0)/1000000*(parseFloat(p.comfortDensity1)||30);
+  r.comfort2 = W*L*(parseFloat(p.comfortThick2)||0)/1000000*(parseFloat(p.comfortDensity2)||30);
+  r.comfort3 = W*L*(parseFloat(p.comfortThick3)||0)/1000000*(parseFloat(p.comfortDensity3)||20);
+
+  // 棉毡（上/下）K11/K13——套子款上下棉毡默认都启用（与OT1/OT2/QT/PT/ET不同，这两行ROW_DEFS的coef都是1）
+  r.felt = W*L/10000*(parseFloat(p.feltGsm)||200)/1000;
+
+  // 底绵 K14
+  r.bottom_foam = W*L*(parseFloat(p.bottomFoamThick)||0)/1000000*(parseFloat(p.bottomFoamDensity)||22.5);
+
+  // 护边 K15-K16（与其他款式完全一致）
+  const edgeH = p.edgeType==='7cm海绵护边'?7:(p.edgeType==='10cm海绵护边'?10:0);
+  const springH = parseFloat(p.springHeight)||18;
+  const edgeDensity = parseFloat(p.edgeDensity)||35;
+  r.edge_long = edgeH * L * springH / 1000000 * edgeDensity;
+  const coreW = (edgeH>0) ? (W - (edgeH*2+2)) : W;
+  r.edge_wide = edgeH * coreW * springH / 1000000 * edgeDensity;
+
+  // 胶水 K17-K19（与其他款式完全一致；5804的+0.02在ROW_DEFS的extraFixedQty里统一处理）
+  r.pur_glue = W*L/10000*20/1000;
+  const C18 = W<140?4:6, I18 = W<140?0.019:0.017;
+  r.glue350a = ((W/100-0.02)+(L/100-0.02))*2*I18 + (L/100-0.16)*C18*I18 + 0.01;
+  const C19 = W<140?2:4, I19 = W<140?0.021:0.016;
+  r.glue5804 = ((W/100-0.08)+(L/100-0.08))*2*I19 + (L/100-0.18)*C19*I19 + 0.005;
+
+  // 包材及辅料 K20-K28（注意：没有拉链/边带/拉手/标签——这些都包含在外购"套子"成品本身的价格里了）
+  const C21 = 0.8;
+  const E20 = Math.round(Math.sqrt(L*H*(1-C21)/3.14)*2) + 1;
+  const F20 = (p.edgeType==='无海绵护边') ? (W+10) : (W+13);
+  r.box_flat = (E20/100+E20/100+0.08) * (E20/100+F20/100+0.04);
+  const E21 = Math.round(Math.sqrt(W*(H*2)*(1-C21)/3.14)*2) + 1;
+  const F21 = (p.edgeType==='无海绵护边') ? (L/2+10) : (L/2+13);
+  r.box_fold = (E21/100+E21/100+0.08) * (E21/100+F21/100+0.04);
+  r.flat_pack = (W/100+L/100)*2+0.1;
+  r.inner_thread = 150; // 内套缝纫线，固定值
+  r.pe_film = (W/100+H/100+0.05)*2+0.25;
+  r.wrap_film = L/100 + E20/100*3.14*1.7 + 0.3;
+  r.opener = 1;
+  r.desiccant = 1;
+  r.tape = 7;
+
+  return r;
+}
+
+const COVER_ROW_DEFS = [
+  // === 套子（K4）：外购成品，标准用量固定为1，单价/规格需手动选 ===
+  { key:'cover', stdKey:'cover', section:'套子', label:'套子（外购成品）', unit:'件', loss:0, coef:1 },
+
+  // === 内套（K5）：门幅按宽度自动分段选型 ===
+  { key:'inner_cover', stdKey:'inner_cover', section:'内套', label:'全涤汗布内套', unit:'米', loss:0.05, coef:1,
+    defaultMaterial: (W,L,H) => W<130 ? '全涤汗布内套门幅90/90g' : (W<160 ? '全涤汗布内套门幅115/90g' : '全涤汗布内套门幅150/90g') },
+
+  // === 床芯填充层（K6-K19，不含弹簧本体——弹簧走弹簧计算器）===
+  { key:'comfort1',    stdKey:'comfort1',    section:'床芯填充层', label:'舒适层填充1', unit:'公斤', loss:0, coef:1, thicknessParam:'comfortThick1' },
+  { key:'comfort2',    stdKey:'comfort2',    section:'床芯填充层', label:'舒适层填充2', unit:'公斤', loss:0, coef:1, thicknessParam:'comfortThick2' },
+  { key:'comfort3',    stdKey:'comfort3',    section:'床芯填充层', label:'舒适层填充3', unit:'公斤', loss:0, coef:1, thicknessParam:'comfortThick3' },
+  { key:'felt_top',    stdKey:'felt',        section:'床芯填充层', label:'棉毡(上)', unit:'公斤', loss:0, coef:1 },
+  { key:'felt_bottom', stdKey:'felt',        section:'床芯填充层', label:'棉毡(下)', unit:'公斤', loss:0, coef:1 },
+  { key:'bottom_foam', stdKey:'bottom_foam', section:'床芯填充层', label:'底绵',     unit:'公斤', loss:0, coef:0 },
+  { key:'edge_long',   stdKey:'edge_long',   section:'床芯填充层', label:'长护边',   unit:'公斤', loss:0, coef:2 },
+  { key:'edge_wide',   stdKey:'edge_wide',   section:'床芯填充层', label:'宽护边',   unit:'公斤', loss:0, coef:2 },
+
+  // === 胶水（K17-K19）===
+  { key:'pur_glue', stdKey:'pur_glue', section:'胶水', label:'PUR胶',       unit:'公斤', loss:0.02, coef:1, defaultMaterial:'PUR胶' },
+  { key:'glue350a', stdKey:'glue350a', section:'胶水', label:'热熔胶-350A', unit:'公斤', loss:0.02, coef:1, defaultMaterial:'热熔胶-350A' },
+  { key:'glue5804', stdKey:'glue5804', section:'胶水', label:'热熔胶-5804', unit:'公斤', loss:0.02, coef:1, defaultMaterial:'热熔胶-5804', extraFixedQty:0.02 },
+
+  // === 包材及辅料（K20-K28）：没有拉链/边带/拉手/标签 ===
+  { key:'box_flat',     stdKey:'box_flat',     section:'包材及辅料', label:'黄卡纸箱（平卷）', unit:'件', loss:0,    coef:1, defaultMaterial:'黄卡纸箱（普通版面）' },
+  { key:'box_fold',     stdKey:'box_fold',     section:'包材及辅料', label:'黄卡纸箱（对折）', unit:'件', loss:0,    coef:0, defaultMaterial:'黄卡纸箱（普通版面）' },
+  { key:'flat_pack',    stdKey:'flat_pack',    section:'包材及辅料', label:'平装黄牛皮纸', unit:'米', loss:0,    coef:0, defaultMaterial:'黄色牛皮纸门幅230/135g' },
+  { key:'inner_thread', stdKey:'inner_thread', section:'包材及辅料', label:'内套缝纫线', unit:'米', loss:0.02, coef:1, defaultMaterial:'内套缝纫线' },
+  { key:'pe_film',      stdKey:'pe_film',      section:'包材及辅料', label:'制袋PE压缩膜', unit:'米', loss:0.02, coef:1, defaultMaterial:'制袋PE压缩膜/6Cx255cm' },
+  { key:'wrap_film',    stdKey:'wrap_film',    section:'包材及辅料', label:'WM卷包缠绕膜', unit:'米', loss:0.02, coef:1, defaultMaterial:'WM卷包PE缠绕膜/8Cx110cm' },
+  { key:'opener',       stdKey:'opener',       section:'包材及辅料', label:'开包器', unit:'件', loss:0,    coef:0, defaultMaterial:'开包器' },
+  { key:'desiccant',    stdKey:'desiccant',    section:'包材及辅料', label:'干燥剂',   unit:'T02', loss:0,    coef:3, defaultMaterial:'包材/硅胶干燥剂/10克' },
+  { key:'tape',         stdKey:'tape',         section:'包材及辅料', label:'透明胶带', unit:'米',  loss:0.02, coef:1, defaultMaterial:'包材/透明胶带/7cm（江东外贸专用）' },
+];
+const COVER_SECTIONS = ['套子','内套','床芯填充层','胶水','包材及辅料'];
+
+const COVER_PARAM_GROUPS = [
+  { title:'床芯填充层参数', fields:[
+      { key:'comfortDensity1', label:'舒适层1密度', type:'number', unit:'kg/m³' },
+      { key:'comfortDensity2', label:'舒适层2密度', type:'number', unit:'kg/m³' },
+      { key:'comfortDensity3', label:'舒适层3密度', type:'number', unit:'kg/m³' },
+      { key:'feltGsm', label:'棉毡克重', type:'number', unit:'g/m²' },
+      { key:'bottomFoamThick', label:'底绵厚度', type:'number', unit:'cm' },
+      { key:'bottomFoamDensity', label:'底绵密度', type:'number', unit:'kg/m³' },
+  ]},
+  { title:'护边/弹簧参数', fields:[
+      { key:'edgeType', label:'护边类型', type:'select', options:['10cm海绵护边','7cm海绵护边','无海绵护边'] },
+      { key:'edgeDensity', label:'护边密度', type:'number', unit:'kg/m³' },
+      { key:'springHeight', label:'弹簧高度', type:'number', unit:'cm' },
+  ]}
+];
+
+/* ---------- 通用精确引擎注册表（与ET引擎并行，互不影响） ---------- */
+const QT_PARAM_GROUPS = [
+  { title:'面布裥绵参数', fields:[
+      { key:'needle', label:'针法', type:'select', options:['单针','多针'] },
+      { key:'sideTotalWidth', label:'边布门幅', type:'number', unit:'cm' },
+  ]},
+  { title:'底部裥绵参数', fields:[
+      { key:'bottomNeedle', label:'底部针法', type:'select', options:['单针','多针'] },
+  ]},
+  { title:'床芯填充层参数', fields:[
+      { key:'comfortDensity1', label:'舒适层1密度', type:'number', unit:'kg/m³' },
+      { key:'comfortDensity2', label:'舒适层2密度', type:'number', unit:'kg/m³' },
+      { key:'comfortDensity3', label:'舒适层3密度', type:'number', unit:'kg/m³' },
+      { key:'feltGsm', label:'棉毡克重', type:'number', unit:'g/m²' },
+      { key:'bottomFoamThick', label:'底绵厚度', type:'number', unit:'cm' },
+      { key:'bottomFoamDensity', label:'底绵密度', type:'number', unit:'kg/m³' },
+  ]},
+  { title:'护边/弹簧参数', fields:[
+      { key:'edgeType', label:'护边类型', type:'select', options:['10cm海绵护边','7cm海绵护边','无海绵护边'] },
+      { key:'edgeDensity', label:'护边密度', type:'number', unit:'kg/m³' },
+      { key:'springHeight', label:'弹簧高度', type:'number', unit:'cm' },
+  ]}
+];
+
+const PT_PARAM_GROUPS = [
+  { title:'面布裥绵参数', fields:[
+      { key:'needle', label:'针法', type:'select', options:['单针','多针'] },
+  ]},
+  { title:'虎口参数', fields:[
+      { key:'hookStyle', label:'虎口款式', type:'select', options:['普通虎口','欧式虎口'] },
+      { key:'sideTotalWidth', label:'虎口区门幅', type:'number', unit:'cm' },
+      { key:'fillReduction', label:'虎口填充长宽缩减量', type:'number', unit:'cm' },
+      { key:'fillDensity1', label:'虎口填充1密度', type:'number', unit:'kg/m³' },
+      { key:'fillDensity2', label:'虎口填充2密度', type:'number', unit:'kg/m³' },
+  ]},
+  { title:'大边裥绵参数', fields:[
+      { key:'bigSideTotalWidth', label:'大边门幅', type:'number', unit:'cm' },
+      { key:'supportDensity1', label:'支撑层1密度', type:'number', unit:'kg/m³' },
+      { key:'supportDensity2', label:'支撑层2密度', type:'number', unit:'kg/m³' },
+  ]},
+  { title:'底部裥绵参数', fields:[
+      { key:'bottomNeedle', label:'底部针法', type:'select', options:['单针','多针'] },
+  ]},
+  { title:'床芯/护边参数', fields:[
+      { key:'feltGsm', label:'棉毡克重', type:'number', unit:'g/m²' },
+      { key:'bottomFoamThick', label:'底绵厚度', type:'number', unit:'cm' },
+      { key:'bottomFoamDensity', label:'底绵密度', type:'number', unit:'kg/m³' },
+      { key:'edgeType', label:'护边类型', type:'select', options:['10cm海绵护边','7cm海绵护边','无海绵护边'] },
+      { key:'edgeDensity', label:'护边密度', type:'number', unit:'kg/m³' },
+      { key:'springHeight', label:'弹簧高度', type:'number', unit:'cm' },
+  ]}
+];
+
+const GENERIC_PRECISE_ENGINES = {
+  'QT-两边款': { getDefaultParams:getQTDefaultParams, calcAllStandard:calcQT_AllStandard, ROW_DEFS:QT_ROW_DEFS, SECTIONS:QT_SECTIONS, PARAM_GROUPS:QT_PARAM_GROUPS },
+  'PT-虎口款': { getDefaultParams:getPTDefaultParams, calcAllStandard:calcPT_AllStandard, ROW_DEFS:PT_ROW_DEFS, SECTIONS:PT_SECTIONS, PARAM_GROUPS:PT_PARAM_GROUPS },
+  'OT-洁之宝款式1': { getDefaultParams:getOT1DefaultParams, calcAllStandard:calcOT1_AllStandard, ROW_DEFS:OT1_ROW_DEFS, SECTIONS:OT1_SECTIONS, PARAM_GROUPS:OT1_PARAM_GROUPS },
+  'OT-洁之宝款式2': { getDefaultParams:getOT2DefaultParams, calcAllStandard:calcOT2_AllStandard, ROW_DEFS:OT2_ROW_DEFS, SECTIONS:OT2_SECTIONS, PARAM_GROUPS:OT2_PARAM_GROUPS },
+  '套子款（外购）': { getDefaultParams:getCoverDefaultParams, calcAllStandard:calcCover_AllStandard, ROW_DEFS:COVER_ROW_DEFS, SECTIONS:COVER_SECTIONS, PARAM_GROUPS:COVER_PARAM_GROUPS },
+};
 
 /* ============================================================
    飞书 API
@@ -1376,6 +2556,7 @@ function init() {
   loadDB();
   refreshMattressTypes();
   refreshAllUI();
+  refreshWireOptions();
   updateSpringLayout();
 
   // 页面加载时自动同步飞书
@@ -1429,6 +2610,28 @@ function onMattressTypeChange() {
     layer._fabricSrc = 'fabric';
     layer._materials = layer.materials.map(m => ({ label:m, sel:'', qty:1 }));
   });
+
+  // ET款（真三边/假三边）使用专属精确计算引擎
+  if (t.startsWith('ET-')) {
+    currentMattress._etParams = getETDefaultParams();
+    currentMattress._etRows = {}; // {rowKey: {sel, finalQtyOverride, src}}
+    ET_ROW_DEFS.forEach(def => {
+      // 海绵A/B行的初始系数=对应专属参数面板的厚度值，保持两边一致
+      const initCoef = def.thicknessParam ? currentMattress._etParams[def.thicknessParam] : def.coef;
+      currentMattress._etRows[def.key] = { sel:resolveDefaultMaterial(def), finalOverride:null, coef:initCoef };
+    });
+  } else if (GENERIC_PRECISE_ENGINES[t]) {
+    // QT-两边款 / PT-虎口款 / OT-洁之宝款式 等使用通用精确计算引擎
+    const eng = GENERIC_PRECISE_ENGINES[t];
+    currentMattress._gpParams = eng.getDefaultParams();
+    currentMattress._gpRows = {};
+    currentMattress._gpExtraRows = {};
+    eng.ROW_DEFS.forEach(def => {
+      const initCoef = def.thicknessParam ? currentMattress._gpParams[def.thicknessParam] : def.coef;
+      currentMattress._gpRows[def.key] = { sel:resolveDefaultMaterial(def), finalOverride:null, coef:initCoef };
+    });
+  }
+
   autoMatchFee();
   autoSelectInnerSleeve();
   autoFillGlueAndPackaging();
@@ -1439,7 +2642,7 @@ function onMattressTypeChange() {
 function onSizeChange() {
   autoMatchFee();
   autoSelectInnerSleeve();
-  if (currentMattress) { autoFillGlueAndPackaging(); renderBOM(); }
+  if (currentMattress) { autoFillGlueAndPackaging(); renderStructure(); renderBOM(); }
   // 床垫尺寸改变时，如果弹簧计算器已打开则自动同步
   if (document.getElementById('springModal').classList.contains('show')) {
     syncFromMattressSize();
@@ -1547,10 +2750,645 @@ function syncDOMToData() {
   });
 }
 
+/* ============================================================
+   ET款专属渲染：参数面板 + 每行标准用量(锁定)/最终用量(可编辑)
+   ============================================================ */
+function renderET_Structure() {
+  const c = document.getElementById('structureContainer');
+  const p = currentMattress._etParams;
+  const std = calcET_AllStandard(p);
+  if (!currentMattress._etExtraRows) currentMattress._etExtraRows = {}; // {section: [{id,name,sel,coef,finalOverride,calcResult}]}
+
+  let html = `<div class="structure-group" style="background:#fff7e6;border-color:#ffd591">
+    <div class="structure-group-title" style="color:#d46b08">⚙️ ET款专属参数</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px">
+      <div>面布针法
+        <select onchange="onETParam('needle',this.value)" style="width:100%;padding:3px">
+          <option value="单针" ${p.needle==='单针'?'selected':''}>单针</option>
+          <option value="多针" ${p.needle==='多针'?'selected':''}>多针</option>
+        </select>
+      </div>
+      <div>底部针法
+        <select onchange="onETParam('bottomNeedle',this.value)" style="width:100%;padding:3px">
+          <option value="单针" ${p.bottomNeedle==='单针'?'selected':''}>单针</option>
+          <option value="多针" ${p.bottomNeedle==='多针'?'selected':''}>多针</option>
+        </select>
+      </div>
+      <div>面布海绵A厚度<input type="number" value="${p.foamA_thick}" step="0.5" style="width:50px" onchange="onETParam('foamA_thick',this.value)"> cm</div>
+      <div>面布海绵B厚度<input type="number" value="${p.foamB_thick}" step="0.5" style="width:50px" onchange="onETParam('foamB_thick',this.value)"> cm</div>
+      <div>底部海绵A厚度<input type="number" value="${p.bottomFoamA_thick}" step="0.5" style="width:50px" onchange="onETParam('bottomFoamA_thick',this.value)"> cm</div>
+      <div>底部海绵B厚度<input type="number" value="${p.bottomFoamB_thick}" step="0.5" style="width:50px" onchange="onETParam('bottomFoamB_thick',this.value)"> cm</div>
+      <div>小边边布总门幅<input type="number" value="${p.sideTotalWidth}" style="width:50px" onchange="onETParam('sideTotalWidth',this.value)"> cm</div>
+      <div>大边边布总门幅<input type="number" value="${p.bigSideTotalWidth}" style="width:50px" onchange="onETParam('bigSideTotalWidth',this.value)"> cm</div>
+      <div>小边填充1厚/密度
+        <input type="number" value="${p.smallFillThick1}" step="0.5" style="width:40px" onchange="onETParam('smallFillThick1',this.value)">cm /
+        <input type="number" value="${p.smallFillDensity1}" style="width:40px" onchange="onETParam('smallFillDensity1',this.value)">kg
+      </div>
+      <div>小边填充2厚/密度
+        <input type="number" value="${p.smallFillThick2}" step="0.5" style="width:40px" onchange="onETParam('smallFillThick2',this.value)">cm /
+        <input type="number" value="${p.smallFillDensity2}" style="width:40px" onchange="onETParam('smallFillDensity2',this.value)">kg
+      </div>
+      <div>支撑填充1厚/密度
+        <input type="number" value="${p.supportFillThick1}" step="0.5" style="width:40px" onchange="onETParam('supportFillThick1',this.value)">cm /
+        <input type="number" value="${p.supportFillDensity1}" style="width:40px" onchange="onETParam('supportFillDensity1',this.value)">kg
+      </div>
+      <div>支撑填充2厚/密度
+        <input type="number" value="${p.supportFillThick2}" step="0.5" style="width:40px" onchange="onETParam('supportFillThick2',this.value)">cm /
+        <input type="number" value="${p.supportFillDensity2}" style="width:40px" onchange="onETParam('supportFillDensity2',this.value)">kg
+      </div>
+      <div>棉毡克重<input type="number" value="${p.feltGsm}" style="width:50px" onchange="onETParam('feltGsm',this.value)"> g/m²</div>
+      <div>底绵厚/密度
+        <input type="number" value="${p.bottomFoamThick}" step="0.5" style="width:40px" onchange="onETParam('bottomFoamThick',this.value)">cm /
+        <input type="number" value="${p.bottomFoamDensity}" style="width:40px" onchange="onETParam('bottomFoamDensity',this.value)">kg
+      </div>
+      <div>护边类型
+        <select onchange="onETParam('edgeType',this.value)" style="width:100%;padding:3px">
+          <option value="10cm海绵护边" ${p.edgeType==='10cm海绵护边'?'selected':''}>10cm海绵护边</option>
+          <option value="7cm海绵护边" ${p.edgeType==='7cm海绵护边'?'selected':''}>7cm海绵护边</option>
+          <option value="无海绵护边" ${p.edgeType==='无海绵护边'?'selected':''}>无海绵护边</option>
+        </select>
+      </div>
+      <div>护边密度/弹簧高
+        <input type="number" value="${p.edgeDensity}" style="width:40px" onchange="onETParam('edgeDensity',this.value)">kg /
+        <input type="number" value="${p.springHeight}" style="width:40px" onchange="onETParam('springHeight',this.value)">cm
+      </div>
+    </div>
+  </div>`;
+
+  // 按区域分组，每个区域一张独立卡片
+  ET_SECTIONS.forEach(sectionName => {
+    const rowsInSection = ET_ROW_DEFS.filter(d => d.section === sectionName);
+    html += renderET_SectionCard(sectionName, rowsInSection, std, p);
+  });
+
+  c.innerHTML = html;
+}
+
+/* 渲染单个区域卡片：固定行 + 动态新增材料行 + "添加材料"按钮 */
+function renderET_SectionCard(sectionName, rowsInSection, std, p) {
+  let html = `<div class="structure-group">
+    <div class="structure-group-title">📦 ${escHtml(sectionName)}</div>
+    <table style="width:100%;font-size:11px;border-collapse:collapse">
+      <thead><tr style="background:#fafafa;color:#888">
+        <th style="text-align:left;padding:4px">物料</th>
+        <th style="padding:4px">物料选择</th>
+        <th style="padding:4px;width:70px">标准用量</th>
+        <th style="padding:4px;width:50px">系数</th>
+        <th style="padding:4px;width:70px">最终用量</th>
+        <th style="padding:4px;width:40px">单位</th>
+        <th style="padding:4px;width:24px"></th>
+      </tr></thead><tbody>`;
+
+  // 固定行（原有布局，不变）
+  rowsInSection.forEach(def => {
+    const rowState = currentMattress._etRows[def.key];
+    const stdVal = std[def.stdKey] || 0;
+    const loss = def.loss;
+    const coef = rowState.coef != null ? rowState.coef : def.coef;
+    const autoFinal = parseFloat(((stdVal + (def.extraFixedQty||0)) * (1+loss) * coef).toFixed(4));
+    const finalVal = rowState.finalOverride != null ? rowState.finalOverride : autoFinal;
+    const isOverridden = rowState.finalOverride != null;
+
+    if (def.needSelect) {
+      const ZIPPER_PRICES = {'3#尼龙正装拉链':0.5,'5#尼龙正装拉链':1,'5#尼龙反装拉链':1.1,'7#尼龙正装拉链':1.3};
+      const selZip = rowState.sel || '3#尼龙正装拉链';
+      const zipOpts = Object.keys(ZIPPER_PRICES).map(k=>`<option value="${k}" ${selZip===k?'selected':''}>${k}</option>`).join('');
+      html += `<tr>
+        <td style="padding:4px">${escHtml(def.label)}</td>
+        <td style="padding:4px"><select onchange="onETZipperChange('${def.key}',this.value)" style="width:100%;font-size:11px">${zipOpts}</select></td>
+        <td style="padding:4px;text-align:right;color:#999;background:#f5f5f5">${stdVal.toFixed(3)}</td>
+        <td style="padding:4px"><input type="number" value="${coef}" step="0.5" style="width:40px;background:#f6ffed;border:1px solid #b7eb8f" onchange="onETCoefChange('${def.key}',this.value)"></td>
+        <td style="padding:4px"><input type="number" value="${finalVal}" step="0.01" style="width:60px;${isOverridden?'background:#fffbe6;border:1px solid #ffd591':''}" onchange="onETFinalOverride('${def.key}',this.value)" title="可手动覆盖"></td>
+        <td style="padding:4px;color:#999">${def.unit}</td>
+        <td></td>
+      </tr>`;
+      return;
+    }
+
+    const dispVal = rowState.sel ? escHtml(rowState.sel) : '';
+    const coefTitle = def.thicknessParam
+      ? '注意：海绵系数=该层厚度(cm)，会联动重算本区域标准用量'
+      : '系数（次数）';
+    const coefBg = def.thicknessParam ? '#fff7e6' : '#f6ffed';
+    const coefBorder = def.thicknessParam ? '#ffd591' : '#b7eb8f';
+    html += `<tr>
+      <td style="padding:4px">${escHtml(def.label)}${def.thicknessParam?'<span style="font-size:9px;color:#fa8c16;display:block">系数=厚度cm</span>':''}</td>
+      <td style="padding:4px">
+        <div class="search-wrap" style="position:relative">
+          <input type="text" class="search-input" style="font-size:11px;padding:3px 6px"
+            placeholder="搜索物料/面料..." value="${dispVal}"
+            data-type="et" data-key="${def.key}"
+            oninput="onSearchInput(this)" onfocus="onSearchFocus(this)" onblur="onSearchBlur(this)" autocomplete="off">
+          <div class="search-dropdown" style="display:none"></div>
+        </div>
+      </td>
+      <td style="padding:4px;text-align:right;color:#999;background:#f5f5f5" title="自动计算，不可编辑">${stdVal.toFixed(4)}</td>
+      <td style="padding:4px"><input type="number" value="${coef}" step="0.5" min="0" title="${coefTitle}" style="width:40px;background:${coefBg};border:1px solid ${coefBorder}" onchange="onETCoefChange('${def.key}',this.value)"></td>
+      <td style="padding:4px"><input type="number" value="${finalVal}" step="0.0001" style="width:65px;${isOverridden?'background:#fffbe6;border:1px solid #ffd591':''}" onchange="onETFinalOverride('${def.key}',this.value)" title="可手动覆盖，覆盖后变橙色"></td>
+      <td style="padding:4px;color:#999">${def.unit}</td>
+      <td></td>
+    </tr>`;
+  });
+
+  // 动态新增材料行（标准用量按材料名称关键词识别，与区域无关）
+  const extras = currentMattress._etExtraRows[sectionName] || [];
+  extras.forEach((row, idx) => {
+    const calcResult = row.sel ? calcDynamicStdQty(row.sel, row.calcParams||{}) : null;
+    const stdVal = calcResult ? calcResult.std : 0;
+    const unit = calcResult ? calcResult.unit : '米';
+    const note = calcResult ? calcResult.note : '';
+    const loss = row.loss != null ? row.loss : 0.05;
+    const coef = row.coef != null ? row.coef : 1;
+    const autoFinal = parseFloat((stdVal * (1+loss) * coef).toFixed(4));
+    const finalVal = row.finalOverride != null ? row.finalOverride : autoFinal;
+    const isOverridden = row.finalOverride != null;
+    const dispVal = row.sel ? escHtml(row.sel) : '';
+
+    html += `<tr style="background:#fffbe6">
+      <td style="padding:4px">
+        <input type="text" placeholder="材料名称" value="${escHtml(row.customLabel||'新增材料')}"
+          style="font-size:11px;width:90%;border:1px solid #ffd591;padding:2px 4px;background:#fff"
+          onchange="onETExtraLabelChange('${sectionName}',${idx},this.value)">
+      </td>
+      <td style="padding:4px">
+        <div class="search-wrap" style="position:relative">
+          <input type="text" class="search-input" style="font-size:11px;padding:3px 6px"
+            placeholder="搜索物料/面料..." value="${dispVal}"
+            data-type="et-extra" data-section="${escHtml(sectionName)}" data-idx="${idx}"
+            oninput="onSearchInput(this)" onfocus="onSearchFocus(this)" onblur="onSearchBlur(this)" autocomplete="off">
+          <div class="search-dropdown" style="display:none"></div>
+        </div>
+        ${note?`<div style="font-size:10px;color:#fa8c16;margin-top:2px">${escHtml(note)}</div>`:''}
+      </td>
+      <td style="padding:4px;text-align:right;color:#999;background:#f5f5f5" title="根据材料名称自动识别公式计算">${stdVal.toFixed(4)}</td>
+      <td style="padding:4px"><input type="number" value="${coef}" step="0.5" min="0" style="width:40px;background:#f6ffed;border:1px solid #b7eb8f" onchange="onETExtraCoefChange('${sectionName}',${idx},this.value)"></td>
+      <td style="padding:4px"><input type="number" value="${finalVal}" step="0.0001" style="width:65px;${isOverridden?'background:#fffbe6;border:1px solid #ffd591':''}" onchange="onETExtraFinalOverride('${sectionName}',${idx},this.value)" title="可手动覆盖"></td>
+      <td style="padding:4px;color:#999">${unit}</td>
+      <td style="padding:4px"><button onclick="onETExtraRemove('${sectionName}',${idx})" style="border:none;background:none;color:#f5222d;cursor:pointer;font-size:13px" title="删除此行">✕</button></td>
+    </tr>`;
+  });
+
+  html += `</tbody></table>
+    <button class="add-btn" style="margin-top:6px;font-size:11px;padding:4px 10px;border:1px dashed #d9d9d9;background:#fafafa;border-radius:4px;cursor:pointer" onclick="onETExtraAdd('${escHtml(sectionName)}')">+ 添加材料</button>
+  </div>`;
+
+  return html;
+}
+
+
+
+function onETParam(key, val) {
+  const p = currentMattress._etParams;
+  const numKeys = ['foamA_thick','foamB_thick','bottomFoamA_thick','bottomFoamB_thick',
+    'sideTotalWidth','bigSideTotalWidth',
+    'smallFillThick1','smallFillDensity1','smallFillThick2','smallFillDensity2',
+    'supportFillThick1','supportFillDensity1','supportFillThick2','supportFillDensity2',
+    'feltGsm','bottomFoamThick','bottomFoamDensity','edgeDensity','springHeight'];
+  p[key] = numKeys.includes(key) ? (parseFloat(val)||0) : val;
+
+  // 厚度参数面板修改后，同步对应行的系数显示（保持双向一致，对齐Excel）
+  const linkedDef = ET_ROW_DEFS.find(d => d.thicknessParam === key);
+  if (linkedDef) {
+    currentMattress._etRows[linkedDef.key].coef = p[key];
+    currentMattress._etRows[linkedDef.key].finalOverride = null;
+  }
+
+  renderStructure();
+  renderBOM();
+}
+
+function onETCoefChange(key, val) {
+  const coefNum = parseFloat(val)||0;
+  currentMattress._etRows[key].coef = coefNum;
+  currentMattress._etRows[key].finalOverride = null; // 改系数后恢复自动算最终用量
+
+  // 海绵A/B的系数同时代表厚度(cm)，需联动更新专属参数并重算标准用量（对齐Excel逻辑）
+  const def = ET_ROW_DEFS.find(d => d.key === key);
+  if (def && def.thicknessParam) {
+    currentMattress._etParams[def.thicknessParam] = coefNum;
+  }
+
+  renderStructure();
+  renderBOM();
+}
+
+function onETFinalOverride(key, val) {
+  currentMattress._etRows[key].finalOverride = parseFloat(val);
+  renderBOM();
+}
+
+function onETZipperChange(key, val) {
+  currentMattress._etRows[key].sel = val;
+  renderStructure();
+  renderBOM();
+}
+
+function onETMaterialSelect(key, name) {
+  currentMattress._etRows[key].sel = name;
+  renderStructure();
+  renderBOM();
+}
+
+/* ============================================================
+   动态新增材料行的操作函数（每个区域卡片底部"+ 添加材料"）
+   ============================================================ */
+function onETExtraAdd(sectionName) {
+  if (!currentMattress._etExtraRows) currentMattress._etExtraRows = {};
+  if (!currentMattress._etExtraRows[sectionName]) currentMattress._etExtraRows[sectionName] = [];
+  currentMattress._etExtraRows[sectionName].push({
+    customLabel: '新增材料', sel: '', coef: 1, loss: 0.05, finalOverride: null, calcParams: {}
+  });
+  renderStructure();
+  renderBOM();
+}
+
+function onETExtraRemove(sectionName, idx) {
+  currentMattress._etExtraRows[sectionName].splice(idx, 1);
+  renderStructure();
+  renderBOM();
+}
+
+function onETExtraLabelChange(sectionName, idx, val) {
+  currentMattress._etExtraRows[sectionName][idx].customLabel = val;
+  renderBOM();
+}
+
+function onETExtraCoefChange(sectionName, idx, val) {
+  currentMattress._etExtraRows[sectionName][idx].coef = parseFloat(val)||0;
+  currentMattress._etExtraRows[sectionName][idx].finalOverride = null;
+  renderStructure();
+  renderBOM();
+}
+
+function onETExtraFinalOverride(sectionName, idx, val) {
+  currentMattress._etExtraRows[sectionName][idx].finalOverride = parseFloat(val);
+  renderBOM();
+}
+
+function onETExtraMaterialSelect(sectionName, idx, name) {
+  currentMattress._etExtraRows[sectionName][idx].sel = name;
+  // 自动从名称解析厚度/密度/克重等，存入calcParams供calcDynamicStdQty使用
+  const result = calcDynamicStdQty(name, {});
+  currentMattress._etExtraRows[sectionName][idx].calcParams = result.params || {};
+  renderStructure();
+  renderBOM();
+}
+
+/* ============================================================
+   通用精确引擎渲染 + 事件处理（QT-两边款 / PT-虎口款 共用）
+   结构完全镜像ET专属引擎（卡片UI + 标准/最终用量两栏 + 添加材料），
+   仅通过 GENERIC_PRECISE_ENGINES[currentMattressType] 取对应的
+   ROW_DEFS / SECTIONS / calcAllStandard / PARAM_GROUPS，做到不同款式共用同一套代码
+   ============================================================ */
+function renderGenericPrecise_Structure() {
+  const eng = GENERIC_PRECISE_ENGINES[currentMattressType];
+  if (!eng) return;
+  const c = document.getElementById('structureContainer');
+  const p = currentMattress._gpParams;
+  const std = eng.calcAllStandard(p);
+
+  let html = `<div class="structure-group" style="background:#f0f7ff;border-color:#91d5ff">
+    <div class="structure-group-title">⚙️ ${escHtml(currentMattressType)} 专属参数</div>`;
+
+  eng.PARAM_GROUPS.forEach(group => {
+    html += `<div style="margin-bottom:8px">
+      <div style="font-size:11px;color:#1890ff;font-weight:600;margin-bottom:4px">${escHtml(group.title)}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:10px;font-size:11px;color:#666;align-items:center">`;
+    group.fields.forEach(f => {
+      const val = p[f.key];
+      if (f.type === 'select') {
+        const opts = f.options.map(o => `<option value="${o}" ${val===o?'selected':''}>${o}</option>`).join('');
+        html += `<span>${escHtml(f.label)}
+          <select style="font-size:11px;padding:2px 4px" onchange="onGenericPreciseParam('${f.key}',this.value)">${opts}</select>
+        </span>`;
+      } else {
+        html += `<span>${escHtml(f.label)}
+          <input type="number" value="${val!=null?val:''}" style="width:55px;font-size:11px;padding:2px 4px" onchange="onGenericPreciseParam('${f.key}',this.value)">${f.unit?escHtml(f.unit):''}
+        </span>`;
+      }
+    });
+    html += `</div></div>`;
+  });
+  html += `</div>`;
+
+  eng.SECTIONS.forEach(sectionName => {
+    const rowsInSection = eng.ROW_DEFS.filter(d => d.section === sectionName);
+    html += renderGenericPreciseSectionCard(sectionName, rowsInSection, std, p);
+  });
+
+  c.innerHTML = html;
+}
+
+function renderGenericPreciseSectionCard(sectionName, rowsInSection, std, p) {
+  let html = `<div class="structure-group">
+    <div class="structure-group-title">📦 ${escHtml(sectionName)}</div>
+    <table style="width:100%;font-size:11px;border-collapse:collapse">
+      <thead><tr style="background:#fafafa;color:#888">
+        <th style="text-align:left;padding:4px">物料</th>
+        <th style="padding:4px">物料选择</th>
+        <th style="padding:4px;width:70px">标准用量</th>
+        <th style="padding:4px;width:50px">系数</th>
+        <th style="padding:4px;width:70px">最终用量</th>
+        <th style="padding:4px;width:40px">单位</th>
+        <th style="padding:4px;width:24px"></th>
+      </tr></thead><tbody>`;
+
+  rowsInSection.forEach(def => {
+    const rowState = currentMattress._gpRows[def.key];
+    const stdVal = std[def.stdKey] || 0;
+    const loss = def.loss;
+    const coef = rowState.coef != null ? rowState.coef : def.coef;
+    const autoFinal = parseFloat(((stdVal + (def.extraFixedQty||0)) * (1+loss) * coef).toFixed(4));
+    const finalVal = rowState.finalOverride != null ? rowState.finalOverride : autoFinal;
+    const isOverridden = rowState.finalOverride != null;
+
+    if (def.needSelect) {
+      const ZIPPER_PRICES = {'3#尼龙正装拉链':0.5,'5#尼龙正装拉链':1,'5#尼龙反装拉链':1.1,'7#尼龙正装拉链':1.3};
+      const selZip = rowState.sel || '5#尼龙正装拉链';
+      const zipOpts = Object.keys(ZIPPER_PRICES).map(k=>`<option value="${k}" ${selZip===k?'selected':''}>${k}</option>`).join('');
+      html += `<tr>
+        <td style="padding:4px">${escHtml(def.label)}</td>
+        <td style="padding:4px"><select onchange="onGenericPreciseZipperChange('${def.key}',this.value)" style="width:100%;font-size:11px">${zipOpts}</select></td>
+        <td style="padding:4px;text-align:right;color:#999;background:#f5f5f5">${stdVal.toFixed(3)}</td>
+        <td style="padding:4px"><input type="number" value="${coef}" step="0.5" style="width:40px;background:#f6ffed;border:1px solid #b7eb8f" onchange="onGenericPreciseCoefChange('${def.key}',this.value)"></td>
+        <td style="padding:4px"><input type="number" value="${finalVal}" step="0.01" style="width:60px;${isOverridden?'background:#fffbe6;border:1px solid #ffd591':''}" onchange="onGenericPreciseFinalOverride('${def.key}',this.value)" title="可手动覆盖"></td>
+        <td style="padding:4px;color:#999">${def.unit}</td>
+        <td></td>
+      </tr>`;
+      return;
+    }
+
+    const dispVal = rowState.sel ? escHtml(rowState.sel) : '';
+    const coefTitle = def.thicknessParam
+      ? '注意：该系数=该层厚度(cm)，会联动重算本区域标准用量'
+      : '系数（次数）';
+    const coefBg = def.thicknessParam ? '#fff7e6' : '#f6ffed';
+    const coefBorder = def.thicknessParam ? '#ffd591' : '#b7eb8f';
+    html += `<tr>
+      <td style="padding:4px">${escHtml(def.label)}${def.thicknessParam?'<span style="font-size:9px;color:#fa8c16;display:block">系数=厚度cm</span>':''}</td>
+      <td style="padding:4px">
+        <div class="search-wrap" style="position:relative">
+          <input type="text" class="search-input" style="font-size:11px;padding:3px 6px"
+            placeholder="搜索物料/面料..." value="${dispVal}"
+            data-type="gp" data-key="${def.key}"
+            oninput="onSearchInput(this)" onfocus="onSearchFocus(this)" onblur="onSearchBlur(this)" autocomplete="off">
+          <div class="search-dropdown" style="display:none"></div>
+        </div>
+      </td>
+      <td style="padding:4px;text-align:right;color:#999;background:#f5f5f5" title="自动计算，不可编辑">${stdVal.toFixed(4)}</td>
+      <td style="padding:4px"><input type="number" value="${coef}" step="0.5" min="0" title="${coefTitle}" style="width:40px;background:${coefBg};border:1px solid ${coefBorder}" onchange="onGenericPreciseCoefChange('${def.key}',this.value)"></td>
+      <td style="padding:4px"><input type="number" value="${finalVal}" step="0.0001" style="width:65px;${isOverridden?'background:#fffbe6;border:1px solid #ffd591':''}" onchange="onGenericPreciseFinalOverride('${def.key}',this.value)" title="可手动覆盖，覆盖后变橙色"></td>
+      <td style="padding:4px;color:#999">${def.unit}</td>
+      <td></td>
+    </tr>`;
+  });
+
+  // 动态新增材料行
+  const extras = currentMattress._gpExtraRows[sectionName] || [];
+  extras.forEach((row, idx) => {
+    const calcResult = row.sel ? calcDynamicStdQty(row.sel, row.calcParams||{}) : null;
+    const stdVal = calcResult ? calcResult.std : 0;
+    const unit = calcResult ? calcResult.unit : '米';
+    const note = calcResult ? calcResult.note : '';
+    const loss = row.loss != null ? row.loss : 0.05;
+    const coef = row.coef != null ? row.coef : 1;
+    const autoFinal = parseFloat((stdVal * (1+loss) * coef).toFixed(4));
+    const finalVal = row.finalOverride != null ? row.finalOverride : autoFinal;
+    const isOverridden = row.finalOverride != null;
+    const dispVal = row.sel ? escHtml(row.sel) : '';
+
+    html += `<tr style="background:#fffbe6">
+      <td style="padding:4px">
+        <input type="text" placeholder="材料名称" value="${escHtml(row.customLabel||'新增材料')}"
+          style="font-size:11px;width:90%;border:1px solid #ffd591;padding:2px 4px;background:#fff"
+          onchange="onGenericPreciseExtraLabelChange('${sectionName}',${idx},this.value)">
+      </td>
+      <td style="padding:4px">
+        <div class="search-wrap" style="position:relative">
+          <input type="text" class="search-input" style="font-size:11px;padding:3px 6px"
+            placeholder="搜索物料/面料..." value="${dispVal}"
+            data-type="gp-extra" data-section="${escHtml(sectionName)}" data-idx="${idx}"
+            oninput="onSearchInput(this)" onfocus="onSearchFocus(this)" onblur="onSearchBlur(this)" autocomplete="off">
+          <div class="search-dropdown" style="display:none"></div>
+        </div>
+        ${note?`<div style="font-size:10px;color:#fa8c16;margin-top:2px">${escHtml(note)}</div>`:''}
+      </td>
+      <td style="padding:4px;text-align:right;color:#999;background:#f5f5f5" title="根据材料名称自动识别公式计算">${stdVal.toFixed(4)}</td>
+      <td style="padding:4px"><input type="number" value="${coef}" step="0.5" min="0" style="width:40px;background:#f6ffed;border:1px solid #b7eb8f" onchange="onGenericPreciseExtraCoefChange('${sectionName}',${idx},this.value)"></td>
+      <td style="padding:4px"><input type="number" value="${finalVal}" step="0.0001" style="width:65px;${isOverridden?'background:#fffbe6;border:1px solid #ffd591':''}" onchange="onGenericPreciseExtraFinalOverride('${sectionName}',${idx},this.value)" title="可手动覆盖"></td>
+      <td style="padding:4px;color:#999">${unit}</td>
+      <td style="padding:4px"><button onclick="onGenericPreciseExtraRemove('${sectionName}',${idx})" style="border:none;background:none;color:#f5222d;cursor:pointer;font-size:13px" title="删除此行">✕</button></td>
+    </tr>`;
+  });
+
+  html += `</tbody></table>
+    <button class="add-btn" style="margin-top:6px;font-size:11px;padding:4px 10px;border:1px dashed #d9d9d9;background:#fafafa;border-radius:4px;cursor:pointer" onclick="onGenericPreciseExtraAdd('${escHtml(sectionName)}')">+ 添加材料</button>
+  </div>`;
+
+  return html;
+}
+
+function onGenericPreciseParam(key, val) {
+  const eng = GENERIC_PRECISE_ENGINES[currentMattressType];
+  if (!eng) return;
+  const p = currentMattress._gpParams;
+  const selectKeys = ['needle','bottomNeedle','hookStyle','edgeType'];
+  p[key] = selectKeys.includes(key) ? val : (parseFloat(val)||0);
+
+  // 厚度参数面板修改后，同步对应行的系数显示（保持双向一致）
+  const linkedDef = eng.ROW_DEFS.find(d => d.thicknessParam === key);
+  if (linkedDef) {
+    currentMattress._gpRows[linkedDef.key].coef = p[key];
+    currentMattress._gpRows[linkedDef.key].finalOverride = null;
+  }
+
+  renderStructure();
+  renderBOM();
+}
+
+function onGenericPreciseCoefChange(key, val) {
+  const eng = GENERIC_PRECISE_ENGINES[currentMattressType];
+  if (!eng) return;
+  const coefNum = parseFloat(val)||0;
+  currentMattress._gpRows[key].coef = coefNum;
+  currentMattress._gpRows[key].finalOverride = null;
+
+  // 厚度联动系数行（如海绵A/B/虎口填充/支撑层）需同步更新专属参数并重算标准用量
+  const def = eng.ROW_DEFS.find(d => d.key === key);
+  if (def && def.thicknessParam) {
+    currentMattress._gpParams[def.thicknessParam] = coefNum;
+  }
+
+  renderStructure();
+  renderBOM();
+}
+
+function onGenericPreciseFinalOverride(key, val) {
+  currentMattress._gpRows[key].finalOverride = parseFloat(val);
+  renderBOM();
+}
+
+function onGenericPreciseZipperChange(key, val) {
+  currentMattress._gpRows[key].sel = val;
+  renderStructure();
+  renderBOM();
+}
+
+function onGenericPreciseMaterialSelect(key, name) {
+  currentMattress._gpRows[key].sel = name;
+  renderStructure();
+  renderBOM();
+}
+
+function onGenericPreciseExtraAdd(sectionName) {
+  if (!currentMattress._gpExtraRows) currentMattress._gpExtraRows = {};
+  if (!currentMattress._gpExtraRows[sectionName]) currentMattress._gpExtraRows[sectionName] = [];
+  currentMattress._gpExtraRows[sectionName].push({
+    customLabel: '新增材料', sel: '', coef: 1, loss: 0.05, finalOverride: null, calcParams: {}
+  });
+  renderStructure();
+  renderBOM();
+}
+
+function onGenericPreciseExtraRemove(sectionName, idx) {
+  currentMattress._gpExtraRows[sectionName].splice(idx, 1);
+  renderStructure();
+  renderBOM();
+}
+
+function onGenericPreciseExtraLabelChange(sectionName, idx, val) {
+  currentMattress._gpExtraRows[sectionName][idx].customLabel = val;
+  renderBOM();
+}
+
+function onGenericPreciseExtraCoefChange(sectionName, idx, val) {
+  currentMattress._gpExtraRows[sectionName][idx].coef = parseFloat(val)||0;
+  currentMattress._gpExtraRows[sectionName][idx].finalOverride = null;
+  renderStructure();
+  renderBOM();
+}
+
+function onGenericPreciseExtraFinalOverride(sectionName, idx, val) {
+  currentMattress._gpExtraRows[sectionName][idx].finalOverride = parseFloat(val);
+  renderBOM();
+}
+
+function onGenericPreciseExtraMaterialSelect(sectionName, idx, name) {
+  currentMattress._gpExtraRows[sectionName][idx].sel = name;
+  const result = calcDynamicStdQty(name, {});
+  currentMattress._gpExtraRows[sectionName][idx].calcParams = result.params || {};
+  renderStructure();
+  renderBOM();
+}
+
+function renderGenericPrecise_BOM() {
+  const eng = GENERIC_PRECISE_ENGINES[currentMattressType];
+  if (!eng) return;
+  const tb = document.getElementById('bomBody');
+  let html = '';
+  bomData = [];
+  const p = currentMattress._gpParams;
+  const std = eng.calcAllStandard(p);
+
+  html += `<tr class="group-row"><td colspan="6">▣ ${escHtml(currentMattressType)} 精确BOM</td></tr>`;
+
+  eng.ROW_DEFS.forEach(def => {
+    const rowState = currentMattress._gpRows[def.key];
+    const stdVal = std[def.stdKey] || 0;
+    const coef = rowState.coef != null ? rowState.coef : def.coef;
+    const autoFinal = parseFloat(((stdVal + (def.extraFixedQty||0)) * (1+def.loss) * coef).toFixed(4));
+    const finalVal = rowState.finalOverride != null ? rowState.finalOverride : autoFinal;
+
+    if (def.needSelect) {
+      const ZIPPER_PRICES = {'3#尼龙正装拉链':0.5,'5#尼龙正装拉链':1,'5#尼龙反装拉链':1.1,'7#尼龙正装拉链':1.3};
+      const selZip = rowState.sel || '5#尼龙正装拉链';
+      const price = ZIPPER_PRICES[selZip] || 1;
+      const untaxed = price * finalVal / 1.13;
+      if (finalVal > 0) {
+        bomData.push({layer:'包材及辅料', label:def.label, name:selZip, qty:finalVal, unit:def.unit, price, untaxedAmt:untaxed});
+        html += `<tr>
+          <td>${escHtml(def.label)}</td><td>${selZip}</td>
+          <td>${finalVal.toFixed(2)}</td><td>${def.unit}</td>
+          <td>¥${price}</td><td style="color:#389e0d"><strong>¥${untaxed.toFixed(2)}</strong></td>
+        </tr>`;
+      }
+      return;
+    }
+
+    if (!rowState.sel) {
+      html += `<tr class="unmatched">
+        <td>${escHtml(def.label)}</td>
+        <td colspan="5" style="color:#fa8c16">（未选择物料，标准用量${stdVal.toFixed(4)}已算好，选物料后自动计费）</td>
+      </tr>`;
+      return;
+    }
+
+    const item = getAccessoryItem(rowState.sel);
+    if (!item) {
+      html += `<tr class="unmatched"><td>${escHtml(def.label)}</td><td colspan="5" style="color:#fa8c16">未找到物料：${escHtml(rowState.sel)}</td></tr>`;
+      return;
+    }
+
+    if (finalVal > 0) {
+      const untaxed = item.price * finalVal / 1.13;
+      bomData.push({layer:currentMattressType, label:def.label, name:item.name, qty:finalVal, unit:def.unit, price:item.price, untaxedAmt:untaxed});
+      html += `<tr>
+        <td>${escHtml(def.label)}</td><td>${escHtml(item.name)}${item._fixedRef?' <span style="font-size:10px;color:#999">(Excel固定参考价)</span>':''}</td>
+        <td>${finalVal.toFixed(4)}</td><td>${def.unit}</td>
+        <td>¥${item.price.toFixed(2)}</td><td style="color:#389e0d"><strong>¥${untaxed.toFixed(2)}</strong></td>
+      </tr>`;
+    } else {
+      html += `<tr class="unmatched"><td>${escHtml(def.label)}</td><td colspan="5" style="color:#999">系数为0，不计费</td></tr>`;
+    }
+  });
+
+  if (currentMattress._gpExtraRows) {
+    Object.keys(currentMattress._gpExtraRows).forEach(sectionName => {
+      const extras = currentMattress._gpExtraRows[sectionName] || [];
+      extras.forEach(row => {
+        if (!row.sel) return;
+        const item = DB.fabric.find(x=>x.name===row.sel) || DB.price.find(x=>x.name===row.sel);
+        if (!item) return;
+        const calcResult = calcDynamicStdQty(row.sel, row.calcParams||{});
+        const stdVal = calcResult.std;
+        const loss = row.loss != null ? row.loss : 0.05;
+        const coef = row.coef != null ? row.coef : 1;
+        const autoFinal = parseFloat((stdVal * (1+loss) * coef).toFixed(4));
+        const finalVal = row.finalOverride != null ? row.finalOverride : autoFinal;
+        if (finalVal <= 0) return;
+        const untaxed = item.price * finalVal / 1.13;
+        const label = `${sectionName}-${row.customLabel||'新增材料'}`;
+        bomData.push({layer:sectionName, label, name:item.name, qty:finalVal, unit:calcResult.unit, price:item.price, untaxedAmt:untaxed});
+        html += `<tr style="background:#fffbe6">
+          <td>${escHtml(label)}<span style="font-size:10px;color:#fa8c16;margin-left:3px">新增</span></td>
+          <td>${escHtml(item.name)}</td>
+          <td>${finalVal.toFixed(4)}</td><td>${calcResult.unit}</td>
+          <td>¥${item.price.toFixed(2)}</td><td style="color:#389e0d"><strong>¥${untaxed.toFixed(2)}</strong></td>
+        </tr>`;
+      });
+    });
+  }
+
+  tb.innerHTML = html;
+  updateTotals();
+}
+
 function renderStructure() {
   syncDOMToData(); // 先把DOM里的值存回数据，再重渲染
   if (!currentMattress) return;
   const c = document.getElementById('structureContainer');
+
+  // ET款使用专属精确渲染（标准用量/最终用量两栏）
+  if (currentMattressType.startsWith('ET-')) {
+    renderET_Structure();
+    return;
+  }
+  // QT/PT等款使用通用精确渲染引擎
+  if (GENERIC_PRECISE_ENGINES[currentMattressType]) {
+    renderGenericPrecise_Structure();
+    return;
+  }
+
   let html = '';
   currentMattress.layers.forEach((layer, li) => {
     html += `<div class="structure-group">
@@ -1692,7 +3530,7 @@ function renderStructure() {
         const untaxedS = coefS>0 ? parseFloat((priceS*finalQS/1.13).toFixed(2)) : 0;
         html += `<div style="margin-bottom:3px">
           <div style="display:grid;grid-template-columns:90px 44px 1fr 44px 30px;gap:5px;align-items:center">
-            <span class="label-text" style="font-size:11px">${escHtml(m.label)}</span>
+            <span class="label-text">${escHtml(m.label)}</span>
             <span class="category-badge badge-material">辅料</span>
             <span style="font-size:11px;color:#888">
              ${noteS?'<span style="font-size:11px">'+escHtml(noteS)+' → </span>':''}
@@ -1745,16 +3583,11 @@ function renderStructure() {
            ${autoKg!=null?'<strong class="result">= '+autoKg.toFixed(3)+' kg</strong>':''}
           </div>`;
       } else if (calcType === 'felt' || calcType === 'nw') {
-        const gsm  = cp.gsm  != null ? cp.gsm  : (calcType==='felt'?200:25);
-        const coefF = cp.coef != null ? cp.coef : 1;
-        autoKg = calcKgQty(calcType, {gsm, coef:coefF});
+        const gsm = cp.gsm != null ? cp.gsm : (calcType==='felt'?200:25);
+        autoKg = calcKgQty(calcType, {gsm});
         paramHtml = `
           <div class="calc-param-row">
-            <label style="color:#1890ff;font-weight:600">系数</label>
-            <input type="number" value="${coefF}" min="0" step="0.1"
-              style="width:44px;border-color:#b7eb8f;background:#f6ffed"
-              onchange="onCalcParam(${li},${mi},'coef',this.value)" title="系数">
-            <label style="margin-left:4px">克重</label>
+            <label>克重</label>
             <input type="number" value="${gsm}" min="0" step="10"
               style="width:54px;padding:2px 4px;font-size:11px;border:1px solid #91d5ff;border-radius:3px"
               onchange="onCalcParam(${li},${mi},'gsm',this.value)" title="克重 g/m²">
@@ -1765,30 +3598,28 @@ function renderStructure() {
         const edgeH   = cp.edgeH   != null ? cp.edgeH   : 10;
         const density = cp.density != null ? cp.density : 35;
         const springH = cp.springH != null ? cp.springH : Math.round((parseFloat(document.getElementById('mHeight').value)||25)*0.8);
-        const coefE   = cp.coef    != null ? cp.coef    : 1;
-        autoKg = calcKgQty(calcType, {edgeH, density, springH, coef:coefE});
+        autoKg = calcKgQty(calcType, {edgeH, density, springH});
         paramHtml = `
           <div class="calc-param-row">
-            <label style="color:#1890ff;font-weight:600">系数</label>
-            <input type="number" value="${coefE}" min="0" step="0.1"
-              style="width:44px;border-color:#b7eb8f;background:#f6ffed"
-              onchange="onCalcParam(${li},${mi},'coef',this.value)" title="系数">
-            <label style="margin-left:4px">护边高</label>
+            <label>护边高</label>
+            <input type="number" value="${edgeH}" min="0" step="1"
+              style="width:44px" onchange="onCalcParam(${li},${mi},'edgeH',this.value)" title="护边高度cm">
+            <span style="color:#999">cm</span>
+            <label style="margin-left:4px">弹簧高</label>
+            <input type="number" value="${springH}" min="0" step="1"
+              style="width:44px" onchange="onCalcParam(${li},${mi},'springH',this.value)" title="弹簧高度cm">
+            <span style="color:#999">cm</span>
+            <label style="margin-left:4px">密度</label>
             <input type="number" value="${edgeH}" min="0" step="1"
               style="width:44px;padding:2px 4px;font-size:11px;border:1px solid #91d5ff;border-radius:3px"
               onchange="onCalcParam(${li},${mi},'edgeH',this.value)" title="护边高度cm">
             <span style="color:#999">cm</span>
-            <label style="margin-left:4px">弹簧高</label>
-            <input type="number" value="${springH}" min="0" step="1"
-              style="width:44px;padding:2px 4px;font-size:11px;border:1px solid #91d5ff;border-radius:3px"
-              onchange="onCalcParam(${li},${mi},'springH',this.value)" title="弹簧高度cm">
-            <span style="color:#999">cm</span>
-            <label style="margin-left:4px">密度</label>
+            <label>密度</label>
             <input type="number" value="${density}" min="0" step="1"
               style="width:44px;padding:2px 4px;font-size:11px;border:1px solid #91d5ff;border-radius:3px"
               onchange="onCalcParam(${li},${mi},'density',this.value)" title="密度kg/m³">
             <span style="color:#999">kg/m³</span>
-            <strong class="result">= ${autoKg!=null?autoKg.toFixed(3):0} kg</strong>
+            <strong class="result">= ${autoKg.toFixed(3)} kg</strong>
           </div>`;
       }
 
@@ -1840,6 +3671,36 @@ function onSearchFocus(inp) {
 function onSearchInput(inp) {
   clearTimeout(_blurTimer);
   filterAndShow(inp, inp.value);
+  // ET款：用data-key索引，不是li/mi
+  if (inp.dataset.type === 'et') {
+    const key = inp.dataset.key;
+    currentMattress._etRows[key].sel = '';
+    renderBOM();
+    return;
+  }
+  // ET款动态新增行：用data-section + data-idx索引
+  if (inp.dataset.type === 'et-extra') {
+    const sec = inp.dataset.section;
+    const idx = parseInt(inp.dataset.idx);
+    currentMattress._etExtraRows[sec][idx].sel = '';
+    renderBOM();
+    return;
+  }
+  // QT/PT通用引擎：用data-key索引
+  if (inp.dataset.type === 'gp') {
+    const key = inp.dataset.key;
+    currentMattress._gpRows[key].sel = '';
+    renderBOM();
+    return;
+  }
+  // QT/PT通用引擎动态新增行：用data-section + data-idx索引
+  if (inp.dataset.type === 'gp-extra') {
+    const sec = inp.dataset.section;
+    const idx = parseInt(inp.dataset.idx);
+    currentMattress._gpExtraRows[sec][idx].sel = '';
+    renderBOM();
+    return;
+  }
   // 清空已选值（用户正在重新输入）
   const li = parseInt(inp.dataset.li);
   const mi = inp.dataset.mi;
@@ -1855,6 +3716,28 @@ function onSearchBlur(inp) {
   _blurTimer = setTimeout(() => {
     const drop = inp.nextElementSibling;
     if (drop) drop.style.display = 'none';
+    if (inp.dataset.type === 'et') {
+      const key = inp.dataset.key;
+      if (!currentMattress._etRows[key].sel) inp.value = '';
+      return;
+    }
+    if (inp.dataset.type === 'et-extra') {
+      const sec = inp.dataset.section;
+      const idx = parseInt(inp.dataset.idx);
+      if (!currentMattress._etExtraRows[sec][idx].sel) inp.value = '';
+      return;
+    }
+    if (inp.dataset.type === 'gp') {
+      const key = inp.dataset.key;
+      if (!currentMattress._gpRows[key].sel) inp.value = '';
+      return;
+    }
+    if (inp.dataset.type === 'gp-extra') {
+      const sec = inp.dataset.section;
+      const idx = parseInt(inp.dataset.idx);
+      if (!currentMattress._gpExtraRows[sec][idx].sel) inp.value = '';
+      return;
+    }
     // 如果没有选中值，清空输入框
     const li = parseInt(inp.dataset.li);
     const mi = inp.dataset.mi;
@@ -1902,16 +3785,71 @@ function filterAndShow(inp, keyword) {
       const priceStr = item.price ? `¥${item.price}${item.unit?'/'+item.unit:''}` : '';
       const label = `<span class="sdrop-name">${escHtml(item.name)}${srcBadge}</span>${sub?`<span class="sdrop-sub">${escHtml(sub)}</span>`:''}<span class="sdrop-price">${priceStr}</span>`;
       // 传入来源，让 onSearchSelect 知道去哪张表找
-      return `<div class="sdrop-item" onmousedown="onSearchSelect(event,'${escHtml(type)}',${inp.dataset.li},'${inp.dataset.mi}','${escHtml(item.name)}','${item._src}')">${label}</div>`;
+      const keyAttr = inp.dataset.key || '';
+      const secAttr = inp.dataset.section || '';
+      const idxAttr = inp.dataset.idx || '';
+      return `<div class="sdrop-item" onmousedown="onSearchSelect(event,'${escHtml(type)}',${inp.dataset.li||0},'${inp.dataset.mi||''}','${escHtml(item.name)}','${item._src}','${escHtml(keyAttr)}','${escHtml(secAttr)}','${idxAttr}')">${label}</div>`;
     }).join('');
   }
 
   drop.style.display = 'block';
 }
 
-function onSearchSelect(e, type, li, mi, name, src) {
+function onSearchSelect(e, type, li, mi, name, src, etKey, etSection, etIdx) {
   e.preventDefault();
   clearTimeout(_blurTimer);
+
+  // ET款专属物料选择（固定行）
+  if (type === 'et') {
+    src = src || 'price';
+    const srcList = src === 'fabric' ? DB.fabric : DB.price;
+    const fallback = src === 'fabric' ? DB.price : DB.fabric;
+    const item = srcList.find(x => x.name === name) || fallback.find(x => x.name === name);
+    if (!item) return;
+    item._src = item._src || src;
+    currentMattress._etRows[etKey].sel = name;
+    currentMattress._etRows[etKey].src = src;
+    renderStructure();
+    renderBOM();
+    return;
+  }
+
+  // ET款动态新增材料行：按名称关键词自动识别标准用量公式
+  if (type === 'et-extra') {
+    src = src || 'price';
+    const srcList = src === 'fabric' ? DB.fabric : DB.price;
+    const fallback = src === 'fabric' ? DB.price : DB.fabric;
+    const item = srcList.find(x => x.name === name) || fallback.find(x => x.name === name);
+    if (!item) return;
+    item._src = item._src || src;
+    onETExtraMaterialSelect(etSection, parseInt(etIdx), name);
+    return;
+  }
+
+  // QT/PT等通用精确引擎专属物料选择（固定行）
+  if (type === 'gp') {
+    src = src || 'price';
+    const srcList = src === 'fabric' ? DB.fabric : DB.price;
+    const fallback = src === 'fabric' ? DB.price : DB.fabric;
+    const item = srcList.find(x => x.name === name) || fallback.find(x => x.name === name);
+    if (!item) return;
+    item._src = item._src || src;
+    onGenericPreciseMaterialSelect(etKey, name);
+    return;
+  }
+
+  // QT/PT等通用精确引擎动态新增材料行
+  if (type === 'gp-extra') {
+    src = src || 'price';
+    const srcList = src === 'fabric' ? DB.fabric : DB.price;
+    const fallback = src === 'fabric' ? DB.price : DB.fabric;
+    const item = srcList.find(x => x.name === name) || fallback.find(x => x.name === name);
+    if (!item) return;
+    item._src = item._src || src;
+    onGenericPreciseExtraMaterialSelect(etSection, parseInt(etIdx), name);
+    return;
+  }
+
   li = parseInt(li);
 
   // 优先从来源表找，找不到则两张表都找
@@ -1939,7 +3877,10 @@ function onSearchSelect(e, type, li, mi, name, src) {
 
   const rows = document.querySelectorAll('.search-input');
   rows.forEach(inp => {
-    if (parseInt(inp.dataset.li) === li && inp.dataset.type === type &&
+    if (inp.dataset.type === 'et' && inp.dataset.key === etKey) {
+      inp.value = displayVal;
+      inp.nextElementSibling.style.display = 'none';
+    } else if (parseInt(inp.dataset.li) === li && inp.dataset.type === type &&
         (type === 'fabric' || inp.dataset.mi === String(mi))) {
       inp.value = displayVal;
       inp.nextElementSibling.style.display = 'none';
@@ -2073,19 +4014,21 @@ function onUnitChange(li, mi, val) {
    返回：最终用量（米）和标准用量（米）
 */
 function calcFabricQtyM(widthCm, coef, dropCm, loss, isSide) {
-  const mW = parseFloat(document.getElementById('mWidth').value)  || 180;
-  const mH = parseFloat(document.getElementById('mHeight').value) || 25;
-  const c  = parseFloat(coef) || 0;
-  const l  = parseFloat(loss) != null ? parseFloat(loss) : 0.05;
-  if (c === 0) return { std: 0, final: 0 };
+  const W = parseFloat(document.getElementById('mWidth').value)||180;
+  const H = parseFloat(document.getElementById('mHeight').value)||25;
+  const c = parseFloat(coef)||0;
+  const l = parseFloat(loss)||0.05;
+  if (c === 0) return { std:0, final:0 };
   let std;
   if (isSide) {
-    std = (mW/100) * (mH*2+12)/100;
+    // 边布：(W/100)×(边布高×2+12)/100
+    std = (W/100) * (H*2+12)/100;
   } else {
-    std = (mW + 5) / 100;
+    // 面料/无胶棉：(W+5)/100
+    std = (W+5)/100;
   }
-  const final = parseFloat((std * (1 + l) * c).toFixed(4));
-  return { std: parseFloat(std.toFixed(4)), final };
+  const final = std * (1+l) * c;
+  return { std:parseFloat(std.toFixed(4)), final:parseFloat(final.toFixed(4)) };
 }
 
 /* ============================================================
@@ -2099,8 +4042,9 @@ function detectMaterialCalcType(name, label) {
   const lb = (label||'').toLowerCase();
   const all = n + ' ' + lb;
 
-  // 海绵/片绵（按体积）
-  if (/^[pmaqldzw]\d/.test(name) || all.includes('海绵') || all.includes('记忆棉') ||
+  // 海绵/片绵（按体积）：编码段可出现在字符串任意位置（如"1cm P2270W（220门幅）"）
+  // 编码规律：[PMAQLDZW] + 2-3位数字 + 其他字符，前面通常是开头或空格/cm厚度前缀
+  if (/(?:^|[\s\d])[pmaqldzw]\d{2,3}/i.test(name) || all.includes('海绵') || all.includes('记忆棉') ||
       all.includes('乳胶') || all.includes('片绵') || all.includes('底绵') ||
       all.includes('舒适层') || all.includes('填充')) return 'foam';
 
@@ -2129,9 +4073,10 @@ function calcKgQty(calcType, params) {
   let qty = 0;
   switch (calcType) {
     case 'foam': {
-      const thick   = parseFloat(params.thick)   || 0;
-      const density = parseFloat(params.density) || parseFoamDensity(params.name) || 25;
-      const coef    = params.coef != null ? parseFloat(params.coef) : 1;
+      // kg = 长×宽×厚度cm / 1,000,000 × 密度kg/m³ × 系数
+      const thick    = parseFloat(params.thick)   || 0;
+      const density  = parseFloat(params.density) || parseFoamDensity(params.name) || 25;
+      const coef     = parseFloat(params.coef)    || 1;
       qty = (L/100) * (W/100) * (thick/100) * density * coef;
       break;
     }
@@ -2148,27 +4093,78 @@ function calcKgQty(calcType, params) {
       break;
     }
   case 'edge_long': {
-      const edgeH   = parseFloat(params.edgeH)   || 10;
-      const density = parseFloat(params.density) || 35;
-      const springH = parseFloat(params.springH) || Math.round((parseFloat(document.getElementById('mHeight').value)||25)*0.8);
-      const coefEL  = params.coef != null ? parseFloat(params.coef) : 1;
-      qty = (L/100) * (edgeH/100) * (springH/100) * density * coefEL;
+      // kg = L/100 × 护边高/100 × 弹簧高/100 × 密度
+      const edgeH    = parseFloat(params.edgeH)    || 10;
+      const density  = parseFloat(params.density)  || 35;
+      const springH  = parseFloat(params.springH)  || parseFloat(document.getElementById('mHeight').value)*0.8 || 18;
+      qty = (L/100) * (edgeH/100) * (springH/100) * density;
       break;
     }
-    case 'edge_wide': {
-      const edgeH2   = parseFloat(params.edgeH)   || 10;
-      const density2 = parseFloat(params.density) || 35;
-      const springH2 = parseFloat(params.springH) || Math.round((parseFloat(document.getElementById('mHeight').value)||25)*0.8);
-      const coefEW   = params.coef != null ? parseFloat(params.coef) : 1;
-      const coreW    = W - 2;
-      qty = (coreW/100) * (edgeH2/100) * (springH2/100) * density2 * coefEW;
+  case 'edge_wide': {
+      // kg = 床芯宽/100 × 护边高/100 × 弹簧高/100 × 密度
+      const edgeH   = parseFloat(params.edgeH)   || 10;
+      const density = parseFloat(params.density) || 35;
+      const springH = parseFloat(params.springH) || parseFloat(document.getElementById('mHeight').value)*0.8 || 18;
+      const coreW   = W - 2; // 床芯宽=床垫宽-2cm
+      qty = (coreW/100) * (edgeH/100) * (springH/100) * density;
       break;
     }
   }
   return qty * (1 + loss);
 }
 
-  function parseThickness(name) {
+/* ============================================================
+   动态新增材料行：根据材料名称关键词判断标准用量公式
+   与所在区域无关，纯粹按名称识别（复用 detectMaterialCalcType 的判断逻辑）
+   返回 {std, unit, note, params}  params 是识别出的厚度/密度/克重等，可在UI上展示/调整
+   ============================================================ */
+function calcDynamicStdQty(materialName, manualParams) {
+  const W = parseFloat(document.getElementById('mWidth').value)  || 180;
+  const L = parseFloat(document.getElementById('mLength').value) || 200;
+  const H = parseFloat(document.getElementById('mHeight').value) || 25;
+  const mp = manualParams || {};
+
+  const ctype = detectMaterialCalcType(materialName, '');
+
+  if (ctype === 'foam') {
+    const thick   = mp.thick   != null ? mp.thick   : (parseThickness(materialName) || 1);
+    const density = mp.density != null ? mp.density : (parseFoamDensity(materialName) || 25);
+    const std = (L/100) * (W/100) * (thick/100) * density;
+    return { std, unit:'公斤', note:`体积×密度（厚${thick}cm,密度${density}）`, params:{thick, density} };
+  }
+  if (ctype === 'felt') {
+    const gsm = mp.gsm != null ? mp.gsm : 200;
+    const std = (L*W/1000000) * gsm/1000;
+    return { std, unit:'公斤', note:`面积×克重（${gsm}gsm）`, params:{gsm} };
+  }
+  if (ctype === 'nw') {
+    const gsm = mp.gsm != null ? mp.gsm : 25;
+    const std = (L*W/1000000) * gsm/1000;
+    return { std, unit:'公斤', note:`面积×克重（${gsm}gsm）`, params:{gsm} };
+  }
+  if (ctype === 'edge_long') {
+    const edgeH   = mp.edgeH   != null ? mp.edgeH   : 10;
+    const density = mp.density != null ? mp.density : 35;
+    const springH = mp.springH != null ? mp.springH : Math.round(H*0.8);
+    const std = (L/100)*(edgeH/100)*(springH/100)*density;
+    return { std, unit:'公斤', note:`长护边公式（高${edgeH}cm,弹簧高${springH}cm,密度${density}）`, params:{edgeH, density, springH} };
+  }
+  if (ctype === 'edge_wide') {
+    const edgeH   = mp.edgeH   != null ? mp.edgeH   : 10;
+    const density = mp.density != null ? mp.density : 35;
+    const springH = mp.springH != null ? mp.springH : Math.round(H*0.8);
+    const coreW   = W - 2;
+    const std = (coreW/100)*(edgeH/100)*(springH/100)*density;
+    return { std, unit:'公斤', note:`宽护边公式（高${edgeH}cm,弹簧高${springH}cm,密度${density}）`, params:{edgeH, density, springH} };
+  }
+
+  // 默认：识别为面料/无胶棉类（按门幅米数公式），门幅从名称解析
+  const fw = mp.fabricWidth != null ? mp.fabricWidth : (parseFabricWidth(materialName) || 220);
+  const std = (W+5)/100; // 默认用最常见的面布标准公式
+  return { std, unit:'米', note:`面料/卷材类（按门幅${fw}cm标准公式）`, params:{fabricWidth:fw} };
+}
+
+function parseThickness(name) {
   if (!name) return null;
   const m = name.match(/^(\d+\.?\d*)cm/i);
   return m ? parseFloat(m[1]) : null;
@@ -2183,11 +4179,12 @@ function parseFabricWidth(name) {
 }
 /* 从物料编码/名称解析密度（kg/m³）
    编码规律：P2270W → 密度22, P25120W → 密度25, M4055B → 密度40, A3050B → 密度30
-   取编码开头字母后的数字前2-3位 */
+   规则：字母前缀后紧跟的前2位数字就是密度，编码段可出现在字符串任意位置
+   （如"1cm P2270W（220门幅）"，前面有厚度前缀） */
 function parseFoamDensity(name) {
   if (!name) return null;
-  // 匹配 P22, P25, M40, A30, L45 等前缀数字
-  const m = name.match(/^[PMAQLDZW](\d{2,3})\d/);
+  // 匹配 [PMAQLDZW] + 2位数字（密度），前面是字符串开头或空格/数字（厚度后缀如"1cm "）
+  const m = name.match(/(?:^|[\s\d])[PMAQLDZW](\d{2})\d/i);
   if (m) return parseInt(m[1]);
   // 匹配 "25#", "40D", "30kg" 等
   const m2 = name.match(/(\d{2,3})[#Dkg]/);
@@ -2250,11 +4247,116 @@ function onCalcParam(li, mi, key, val) {
 /* ============================================================
    渲染BOM（去税金额 = 含税单价 ÷ 1.13）
    ============================================================ */
+/* ============================================================
+   ET款专属BOM渲染：按行读取最终用量×单价，去税合计
+   ============================================================ */
+function renderET_BOM() {
+  const tb = document.getElementById('bomBody');
+  let html = '';
+  bomData = [];
+  const p = currentMattress._etParams;
+  const std = calcET_AllStandard(p);
+
+  html += `<tr class="group-row"><td colspan="6">▣ ET款（${currentMattressType}）精确BOM</td></tr>`;
+
+  ET_ROW_DEFS.forEach(def => {
+    const rowState = currentMattress._etRows[def.key];
+    const stdVal = std[def.stdKey] || 0;
+    const coef = rowState.coef != null ? rowState.coef : def.coef;
+    const autoFinal = parseFloat(((stdVal + (def.extraFixedQty||0)) * (1+def.loss) * coef).toFixed(4));
+    const finalVal = rowState.finalOverride != null ? rowState.finalOverride : autoFinal;
+
+    if (def.needSelect) {
+      const ZIPPER_PRICES = {'3#尼龙正装拉链':0.5,'5#尼龙正装拉链':1,'5#尼龙反装拉链':1.1,'7#尼龙正装拉链':1.3};
+      const selZip = rowState.sel || '3#尼龙正装拉链';
+      const price = ZIPPER_PRICES[selZip] || 0.5;
+      const untaxed = price * finalVal / 1.13;
+      if (finalVal > 0) {
+        bomData.push({layer:'包材及辅料', label:def.label, name:selZip, qty:finalVal, unit:def.unit, price, untaxedAmt:untaxed});
+        html += `<tr>
+          <td>${escHtml(def.label)}</td><td>${selZip}</td>
+          <td>${finalVal.toFixed(2)}</td><td>${def.unit}</td>
+          <td>¥${price}</td><td style="color:#389e0d"><strong>¥${untaxed.toFixed(2)}</strong></td>
+        </tr>`;
+      }
+      return;
+    }
+
+    if (!rowState.sel) {
+      html += `<tr class="unmatched">
+        <td>${escHtml(def.label)}</td>
+        <td colspan="5" style="color:#fa8c16">（未选择物料，标准用量${stdVal.toFixed(4)}已算好，选物料后自动计费）</td>
+      </tr>`;
+      return;
+    }
+
+    const item = getAccessoryItem(rowState.sel);
+    if (!item) {
+      html += `<tr class="unmatched"><td>${escHtml(def.label)}</td><td colspan="5" style="color:#fa8c16">未找到物料：${escHtml(rowState.sel)}</td></tr>`;
+      return;
+    }
+
+    if (finalVal > 0) {
+      const untaxed = item.price * finalVal / 1.13;
+      bomData.push({layer:'ET结构', label:def.label, name:item.name, qty:finalVal, unit:def.unit, price:item.price, untaxedAmt:untaxed});
+      html += `<tr>
+        <td>${escHtml(def.label)}</td><td>${escHtml(item.name)}${item._fixedRef?' <span style="font-size:10px;color:#999">(Excel固定参考价)</span>':''}</td>
+        <td>${finalVal.toFixed(4)}</td><td>${def.unit}</td>
+        <td>¥${item.price.toFixed(2)}</td><td style="color:#389e0d"><strong>¥${untaxed.toFixed(2)}</strong></td>
+      </tr>`;
+    } else {
+      html += `<tr class="unmatched"><td>${escHtml(def.label)}</td><td colspan="5" style="color:#999">系数为0，不计费</td></tr>`;
+    }
+  });
+
+  // === 动态新增材料行（每个区域卡片里"+添加材料"的行）===
+  if (currentMattress._etExtraRows) {
+    Object.keys(currentMattress._etExtraRows).forEach(sectionName => {
+      const extras = currentMattress._etExtraRows[sectionName] || [];
+      extras.forEach(row => {
+        if (!row.sel) return; // 未选物料，不计入BOM
+        const item = DB.fabric.find(x=>x.name===row.sel) || DB.price.find(x=>x.name===row.sel);
+        if (!item) return;
+        const calcResult = calcDynamicStdQty(row.sel, row.calcParams||{});
+        const stdVal = calcResult.std;
+        const loss = row.loss != null ? row.loss : 0.05;
+        const coef = row.coef != null ? row.coef : 1;
+        const autoFinal = parseFloat((stdVal * (1+loss) * coef).toFixed(4));
+        const finalVal = row.finalOverride != null ? row.finalOverride : autoFinal;
+        if (finalVal <= 0) return;
+        const untaxed = item.price * finalVal / 1.13;
+        const label = `${sectionName}-${row.customLabel||'新增材料'}`;
+        bomData.push({layer:sectionName, label, name:item.name, qty:finalVal, unit:calcResult.unit, price:item.price, untaxedAmt:untaxed});
+        html += `<tr style="background:#fffbe6">
+          <td>${escHtml(label)}<span style="font-size:10px;color:#fa8c16;margin-left:3px">新增</span></td>
+          <td>${escHtml(item.name)}</td>
+          <td>${finalVal.toFixed(4)}</td><td>${calcResult.unit}</td>
+          <td>¥${item.price.toFixed(2)}</td><td style="color:#389e0d"><strong>¥${untaxed.toFixed(2)}</strong></td>
+        </tr>`;
+      });
+    });
+  }
+
+  tb.innerHTML = html;
+  updateTotals();
+}
+
 function renderBOM() {
   if (!currentMattress) { updateTotals(); return; }
   const tb = document.getElementById('bomBody');
   let html = '';
   bomData = [];
+
+  // ET款使用专属精确BOM计算
+  if (currentMattressType.startsWith('ET-')) {
+    renderET_BOM();
+    return;
+  }
+  // QT/PT等款使用通用精确BOM计算
+  if (GENERIC_PRECISE_ENGINES[currentMattressType]) {
+    renderGenericPrecise_BOM();
+    return;
+  }
 
   currentMattress.layers.forEach(layer => {
     html += `<tr class="group-row"><td colspan="6">▣ ${escHtml(layer.name)}</td></tr>`;
@@ -2485,6 +4587,7 @@ function refreshAllUI() {
   refreshSpringUI();
   refreshFeeUI();
   refreshStructureView();
+  refreshWireOptions();
 }
 
 function refreshFabricUI() {
@@ -2643,8 +4746,50 @@ function syncFromMattressSize() {
 }
 function closeSpringCalculator() { document.getElementById('springModal').classList.remove('show'); }
 
-/* 线径 → 钢线单价（¥/kg，不含税） */
-const WIRE_PRICE = { '钢线1.2':5.4,'钢线1.4':5.3,'钢线1.6':5.25,'钢线1.8':5.2,'钢线2.0':5.1,'钢线2.2':5.0,'钢线2.4':4.9 };
+/* 软/硬/四周加硬 三个下拉框各自展示的线径范围（2.0两边都保留，可任选） */
+const SOFT_WIRE_LIST  = ['钢线1.2','钢线1.4','钢线1.6','钢线1.8','钢线2.0'];
+const HARD_WIRE_LIST  = ['钢线2.0','钢线2.2','钢线2.4'];
+
+/* 钢线单价统一查询入口：只用物料库DB.price（按名称/关键词匹配），不再有写死的兜底价格表。
+   找不到就返回null，由调用方明确处理（提示用户去物料库补价格），不能瞎填一个数字——
+   否则会出现"线径越大价格反而越便宜"这种不符合实际的逻辑错觉。
+   计算和下拉框显示必须用同一个函数，确保"显示的价格"和"实际算的价格"永远一致 */
+function getWirePrice(wire) {
+  const item = DB.price.find(p => p.name === wire || p.altName === wire || (p.keywords||'').includes(wire));
+  return item ? item.price / 1.13 : null;
+}
+
+/* 动态刷新软线径/硬线径/四周加硬线径三个下拉框的价格展示文字
+   在 init() 和 refreshAllUI()（物料库每次同步/导入后）都会调用，确保价格展示始终和DB.price同步
+   重新生成时会保留用户当前已选中的线径，不会重置选择 */
+function refreshWireOptions() {
+  const buildOptions = (list, currentVal, includeSameAsHard) => {
+    let html = includeSameAsHard ? `<option value="">同硬线径</option>` : '';
+    list.forEach(wire => {
+      const p = getWirePrice(wire);
+      const sel = wire === currentVal ? 'selected' : '';
+      const priceText = p != null ? `(¥${p.toFixed(2)}/kg)` : `(未在物料库)`;
+      html += `<option value="${wire}" ${sel}>${wire} ${priceText}</option>`;
+    });
+    return html;
+  };
+
+  const softSel = document.getElementById('softWire');
+  const hardSel = document.getElementById('hardWire');
+  const borderSel = document.getElementById('borderWire');
+  if (softSel) {
+    const cur = softSel.value || '钢线1.8';
+    softSel.innerHTML = buildOptions(SOFT_WIRE_LIST, cur, false);
+  }
+  if (hardSel) {
+    const cur = hardSel.value || '钢线2.2';
+    hardSel.innerHTML = buildOptions(HARD_WIRE_LIST, cur, false);
+  }
+  if (borderSel) {
+    const cur = borderSel.value || '';
+    borderSel.innerHTML = buildOptions(HARD_WIRE_LIST, cur, true);
+  }
+}
 
 /* 自动计算排列数 */
 function updateSpringLayout() {
@@ -2658,6 +4803,7 @@ function updateSpringLayout() {
   if (lc > 0) document.getElementById('lengthCountInput').value = lc;
   updateTotalCheck();
   updateZoneVisual();
+  refreshWireOptions(); // 床网高度变化时，重新核对线径价格展示（不同高度对应钢丝规格不同）
 }
 
 /* 手动修改排列数 */
@@ -2901,21 +5047,37 @@ function calculateSpring() {
   const brdSpec = DB.spring.find(s=>s.height===h && s.wire===borderWireVal) || hardSpec;
   const borderWireForCost = borderWireVal;
 
+  // 钢丝单价（统一用全局getWirePrice：只查物料库DB.price，查不到就是null）
+  // 找不到价格直接报错阻断计算，不再用¥0凑数——避免算出一个看起来正常但实际偏低的错误总价
+  const missingWirePrices = [];
+  const softPRaw  = getWirePrice(softW);
+  const hardPRaw  = getWirePrice(hardW);
+  const brdPRaw   = getWirePrice(borderWireForCost);
+  if (softPRaw == null) missingWirePrices.push(softW);
+  if (hardCount > 0 && hardPRaw == null && !missingWirePrices.includes(hardW)) missingWirePrices.push(hardW);
+  if (borderCount > 0 && brdPRaw == null && !missingWirePrices.includes(borderWireForCost)) missingWirePrices.push(borderWireForCost);
+
+  if (missingWirePrices.length > 0) {
+    springCost = 0;
+    document.getElementById('springCostResult').style.display = 'block';
+    document.getElementById('springCostResult').innerHTML = `
+      <div style="padding:10px 12px;background:#fff1f0;border:1px solid #ffa39e;border-radius:4px;color:#cf1322">
+        <strong>❌ 无法计算：以下线径在物料库中没有单价</strong><br>
+        <span style="font-weight:600">${missingWirePrices.join('、')}</span><br>
+        <span style="font-size:12px;color:#999;display:block;margin-top:4px">请先在【数据库管理】→物料库里补上这几个线径的单价，再点击"开始计算"。</span>
+      </div>`;
+    return;
+  }
+
+  const softP = softPRaw, hardP = hardPRaw, brdP = brdPRaw;
+
   // 钢丝用量（kg），含2%损耗
   const softSteelKg   = softCount   * softSpec.springWeight / 1000 * 1.02;
   const hardSteelKg   = hardCount   * hardSpec.springWeight / 1000 * 1.02;
   const borderSteelKg = borderCount * brdSpec.springWeight  / 1000 * 1.02;
 
-  // 钢丝单价（从物料库读，fallback内置）
-  const getWirePrice = (wire) => {
-    const item = DB.price.find(p => p.name === wire || (p.keywords||'').includes(wire));
-    return item ? item.price / 1.13 : (WIRE_PRICE[wire] || 5.1);
-  };
-  const softP  = getWirePrice(softW);
-  const hardP  = getWirePrice(hardW);
   const softSteelCost  = softSteelKg   * softP;
   const hardSteelCost  = hardSteelKg   * hardP;
-  const brdP           = getWirePrice(borderWireForCost);
   const brdSteelCost   = borderSteelKg * brdP;
   const totalSteelCost = softSteelCost + hardSteelCost + brdSteelCost;
 
@@ -2951,7 +5113,7 @@ function calculateSpring() {
   const totalCost = totalSteelCost + bagCost + nwCost + glueCost;
   springCost = totalCost;
 
-  // 生成明细
+  // 生成明细（走到这里说明所有需要的线径都已在物料库里找到单价）
   let steelDetail = `软区钢丝（${softW}）：${softCount}个×${softSpec.springWeight}g=${softSteelKg.toFixed(3)}kg × ¥${softP.toFixed(2)} = ¥${softSteelCost.toFixed(2)}`;
   if (hardCount > 0) steelDetail += `<br>硬区钢丝（${hardW}）：${hardCount}个×${hardSpec.springWeight}g=${hardSteelKg.toFixed(3)}kg × ¥${hardP.toFixed(2)} = ¥${hardSteelCost.toFixed(2)}`;
   if (borderCount > 0) steelDetail += `<br>四周加硬（${borderWireForCost}）：${borderCount}个×${brdSpec.springWeight}g=${borderSteelKg.toFixed(3)}kg × ¥${brdP.toFixed(2)} = ¥${brdSteelCost.toFixed(2)}`;
