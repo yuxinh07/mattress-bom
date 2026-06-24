@@ -1168,7 +1168,12 @@ function calcET_AllStandard(p) {
   r.panel_foamB  = panelStd;
   r.panel_nw     = panelStd * 220/100 * 25/1000;
 
-  const E9 = (parseFloat(p.smallFillThick1)||0) + (parseFloat(p.smallFillThick2)||0);
+  // E9（小边裥绵区高度）：Excel原公式 =IF(A2="真三边",SUM(E25:E28),E2/4)
+  // 真三边：取小边填充层(最多4个槎位)的高度合计；假三边：直接用床垫高度/4
+  // 之前这里没有区分真三边/假三边，统一用了填充层厚度合计，假三边款会算错
+  const E9 = (currentMattressType === 'ET-真三边款')
+    ? (parseFloat(p.smallFillThick1)||0) + (parseFloat(p.smallFillThick2)||0)
+    : H/4;
   const sideStd = ((L+W)/100*2+0.3) / Math.floor(p.sideTotalWidth/(E9+4));
   r.side_fabric = sideStd;
   r.side_nw = ((L+W)/100*2+0.3) * (E9/100+0.04) * 25/1000;
@@ -1204,13 +1209,14 @@ function calcET_AllStandard(p) {
   const coreW = (edgeH>0) ? (W - (edgeH*2+2)) : W;
   r.edge_wide = edgeH * coreW * springH / 1000000 * edgeDensity;
 
+  // 胶水：新版公式（2026-05版Excel），全部改为"面积×密度"，密度随宽度分段浮动
+  // 350A拆成两行（海绵粘合 + 裥绵面），5804密度也改为随宽度浮动，不再是旧的周长公式
   r.pur_glue = W*L/10000*20/1000;
-  const C40 = W<140?4:6;
-  const I40 = W<140?0.019:0.017;
-  r.glue350a = ((W/100-0.02)+(L/100-0.02))*2*I40 + (L/100-0.16)*C40*I40 + 0.01;
-  const C41 = W<140?2:4;
-  const I41 = W<140?0.021:0.016;
-  r.glue5804 = ((W/100-0.08)+(L/100-0.08))*2*I41 + (L/100-0.18)*C41*I41 + 0.005;
+  const glue350aDensity1 = W<125 ? 115 : 80;
+  r.glue350a_1 = W*L/10000*glue350aDensity1/1000;
+  r.glue350a_2 = W*L/10000*25/1000;
+  const glue5804Density = W<145 ? 100 : 70;
+  r.glue5804 = W*L/10000*glue5804Density/1000;
 
   r.zipper = (L+W)/100*2+0.1;
   r.edge_tape = (W+L)/100*2+0.3;
@@ -1291,9 +1297,10 @@ const ET_ROW_DEFS = [
   { key:'edge_wide',      stdKey:'edge_wide',    section:'床芯填充层', label:'宽护边',   unit:'公斤', loss:0, coef:2 },
 
   // === 胶水（K39-K41）===
-  { key:'pur_glue',       stdKey:'pur_glue',     section:'胶水', label:'PUR胶',       unit:'公斤', loss:0.02, coef:1, defaultMaterial:'PUR胶' },
-  { key:'glue350a',       stdKey:'glue350a',     section:'胶水', label:'热熔胶-350A', unit:'公斤', loss:0.02, coef:3, defaultMaterial:'热熔胶-350A' },
-  { key:'glue5804',       stdKey:'glue5804',     section:'胶水', label:'热熔胶-5804', unit:'公斤', loss:0.02, coef:3, defaultMaterial:'热熔胶-5804', extraFixedQty:0.02 },
+  { key:'pur_glue',       stdKey:'pur_glue',     section:'胶水', label:'PUR胶',           unit:'公斤', loss:0.02, coef:1, defaultMaterial:'PUR胶' },
+  { key:'glue350a_1',     stdKey:'glue350a_1',   section:'胶水', label:'热熔胶-350A(海绵粘合)', unit:'公斤', loss:0.02, coef:1, defaultMaterial:'热熔胶-350A' },
+  { key:'glue350a_2',     stdKey:'glue350a_2',   section:'胶水', label:'热熔胶-350A(裥绵面)',   unit:'公斤', loss:0.02, coef:1, defaultMaterial:'热熔胶-350A' },
+  { key:'glue5804',       stdKey:'glue5804',     section:'胶水', label:'热熔胶-5804',     unit:'公斤', loss:0.02, coef:1, defaultMaterial:'热熔胶-5804' },
 
   // === 包材及辅料（K42-K61）===
   { key:'zipper',         stdKey:'zipper',       section:'包材及辅料', label:'拉链', unit:'米', loss:0, coef:0, needSelect:true },
@@ -1393,12 +1400,13 @@ function calcQT_AllStandard(p) {
   const coreW = (edgeH>0) ? (W - (edgeH*2+2)) : W;
   r.edge_wide = edgeH * coreW * springH / 1000000 * edgeDensity;
 
-  // 胶水 K32-K34（与ET公式完全一致）
+  // 胶水 K32-K35（新版：与ET一致，面积×密度，350A拆两行，5804密度随宽度浮动）
   r.pur_glue = W*L/10000*20/1000;
-  const C33 = W<140?4:6, I33 = W<140?0.019:0.017;
-  r.glue350a = ((W/100-0.02)+(L/100-0.02))*2*I33 + (L/100-0.16)*C33*I33 + 0.01;
-  const C34 = W<140?2:4, I34 = W<140?0.021:0.016;
-  r.glue5804 = ((W/100-0.08)+(L/100-0.08))*2*I34 + (L/100-0.18)*C34*I34 + 0.005;
+  const glue350aDensity1 = W<125 ? 115 : 80;
+  r.glue350a_1 = W*L/10000*glue350aDensity1/1000;
+  r.glue350a_2 = W*L/10000*25/1000;
+  const glue5804Density = W<145 ? 100 : 70;
+  r.glue5804 = W*L/10000*glue5804Density/1000;
 
   // 包材及辅料 K35-K53（与ET公式完全一致，仅纸箱/边带圈数等系数默认值不同，体现在ROW_DEFS）
   r.zipper = (L+W)/100*2+0.1;
@@ -1461,9 +1469,10 @@ const QT_ROW_DEFS = [
   { key:'edge_wide',   stdKey:'edge_wide', section:'床芯填充层', label:'宽护边',   unit:'公斤', loss:0, coef:2 },
 
   // === 胶水（K32-K34）===
-  { key:'pur_glue', stdKey:'pur_glue', section:'胶水', label:'PUR胶',       unit:'公斤', loss:0.02, coef:1, defaultMaterial:'PUR胶' },
-  { key:'glue350a', stdKey:'glue350a', section:'胶水', label:'热熔胶-350A', unit:'公斤', loss:0.02, coef:1, defaultMaterial:'热熔胶-350A' },
-  { key:'glue5804', stdKey:'glue5804', section:'胶水', label:'热熔胶-5804', unit:'公斤', loss:0.02, coef:1, defaultMaterial:'热熔胶-5804', extraFixedQty:0.02 },
+  { key:'pur_glue', stdKey:'pur_glue', section:'胶水', label:'PUR胶',           unit:'公斤', loss:0.02, coef:1, defaultMaterial:'PUR胶' },
+  { key:'glue350a_1', stdKey:'glue350a_1', section:'胶水', label:'热熔胶-350A(海绵粘合)', unit:'公斤', loss:0.02, coef:1, defaultMaterial:'热熔胶-350A' },
+  { key:'glue350a_2', stdKey:'glue350a_2', section:'胶水', label:'热熔胶-350A(裥绵面)',   unit:'公斤', loss:0.02, coef:1, defaultMaterial:'热熔胶-350A' },
+  { key:'glue5804', stdKey:'glue5804', section:'胶水', label:'热熔胶-5804',     unit:'公斤', loss:0.02, coef:1, defaultMaterial:'热熔胶-5804' },
 
   // === 包材及辅料（K35-K53）===
   { key:'zipper',     stdKey:'zipper',     section:'包材及辅料', label:'拉链', unit:'米', loss:0,    coef:0, needSelect:true },
@@ -1578,10 +1587,11 @@ function calcPT_AllStandard(p) {
 
   // 胶水 K38-K40（与ET/QT公式完全一致；原表无独立"虎口胶水"公式，故不单列）
   r.pur_glue = W*L/10000*20/1000;
-  const C39 = W<140?4:6, I39 = W<140?0.019:0.017;
-  r.glue350a = ((W/100-0.02)+(L/100-0.02))*2*I39 + (L/100-0.16)*C39*I39 + 0.01;
-  const C40 = W<140?2:4, I40 = W<140?0.021:0.016;
-  r.glue5804 = ((W/100-0.08)+(L/100-0.08))*2*I40 + (L/100-0.18)*C40*I40 + 0.005;
+  const glue350aDensity1 = W<125 ? 115 : 80;
+  r.glue350a_1 = W*L/10000*glue350aDensity1/1000;
+  r.glue350a_2 = W*L/10000*25/1000;
+  const glue5804Density = W<145 ? 100 : 70;
+  r.glue5804 = W*L/10000*glue5804Density/1000;
 
   // 包材及辅料 K41-K59（与QT公式完全一致）
   r.zipper = (L+W)/100*2+0.1;
@@ -1654,9 +1664,10 @@ const PT_ROW_DEFS = [
   { key:'edge_wide',   stdKey:'edge_wide',   section:'床芯填充层', label:'宽护边',   unit:'公斤', loss:0, coef:2 },
 
   // === 胶水（K38-K40）===
-  { key:'pur_glue', stdKey:'pur_glue', section:'胶水', label:'PUR胶',       unit:'公斤', loss:0.02, coef:1, defaultMaterial:'PUR胶' },
-  { key:'glue350a', stdKey:'glue350a', section:'胶水', label:'热熔胶-350A', unit:'公斤', loss:0.02, coef:1, defaultMaterial:'热熔胶-350A' },
-  { key:'glue5804', stdKey:'glue5804', section:'胶水', label:'热熔胶-5804', unit:'公斤', loss:0.02, coef:1, defaultMaterial:'热熔胶-5804', extraFixedQty:0.02 },
+  { key:'pur_glue', stdKey:'pur_glue', section:'胶水', label:'PUR胶',           unit:'公斤', loss:0.02, coef:1, defaultMaterial:'PUR胶' },
+  { key:'glue350a_1', stdKey:'glue350a_1', section:'胶水', label:'热熔胶-350A(海绵粘合)', unit:'公斤', loss:0.02, coef:1, defaultMaterial:'热熔胶-350A' },
+  { key:'glue350a_2', stdKey:'glue350a_2', section:'胶水', label:'热熔胶-350A(裥绵面)',   unit:'公斤', loss:0.02, coef:1, defaultMaterial:'热熔胶-350A' },
+  { key:'glue5804', stdKey:'glue5804', section:'胶水', label:'热熔胶-5804',     unit:'公斤', loss:0.02, coef:1, defaultMaterial:'热熔胶-5804' },
 
   // === 包材及辅料（K41-K59）===
   { key:'zipper',     stdKey:'zipper',     section:'包材及辅料', label:'拉链', unit:'米', loss:0,    coef:0, needSelect:true },
@@ -1745,12 +1756,13 @@ function calcOT1_AllStandard(p) {
   const coreW = (edgeH>0) ? (W - (edgeH*2+2)) : W;
   r.edge_wide = edgeH * coreW * springH / 1000000 * edgeDensity;
 
-  // 胶水 K28-K30（与ET/QT/PT完全一致；5804的+0.02在ROW_DEFS的extraFixedQty里统一处理）
+  // 胶水 K28-K31（新版：面积×密度，与ET/QT/PT一致）
   r.pur_glue = W*L/10000*20/1000;
-  const C29 = W<140?4:6, I29 = W<140?0.019:0.017;
-  r.glue350a = ((W/100-0.02)+(L/100-0.02))*2*I29 + (L/100-0.16)*C29*I29 + 0.01;
-  const C30 = W<140?2:4, I30 = W<140?0.021:0.016;
-  r.glue5804 = ((W/100-0.08)+(L/100-0.08))*2*I30 + (L/100-0.18)*C30*I30 + 0.005;
+  const glue350aDensity1 = W<125 ? 115 : 80;
+  r.glue350a_1 = W*L/10000*glue350aDensity1/1000;
+  r.glue350a_2 = W*L/10000*25/1000;
+  const glue5804Density = W<145 ? 100 : 70;
+  r.glue5804 = W*L/10000*glue5804Density/1000;
 
   // 包材及辅料 K31-K49（与QT/PT完全一致）
   r.zipper = (L+W)/100*2+0.1;
@@ -1813,9 +1825,10 @@ const OT1_ROW_DEFS = [
   { key:'edge_wide',   stdKey:'edge_wide',   section:'床芯填充层', label:'宽护边',   unit:'公斤', loss:0, coef:2 },
 
   // === 胶水（K28-K30）===
-  { key:'pur_glue', stdKey:'pur_glue', section:'胶水', label:'PUR胶',       unit:'公斤', loss:0.02, coef:1, defaultMaterial:'PUR胶' },
-  { key:'glue350a', stdKey:'glue350a', section:'胶水', label:'热熔胶-350A', unit:'公斤', loss:0.02, coef:1, defaultMaterial:'热熔胶-350A' },
-  { key:'glue5804', stdKey:'glue5804', section:'胶水', label:'热熔胶-5804', unit:'公斤', loss:0.02, coef:1, defaultMaterial:'热熔胶-5804', extraFixedQty:0.02 },
+  { key:'pur_glue', stdKey:'pur_glue', section:'胶水', label:'PUR胶',           unit:'公斤', loss:0.02, coef:1, defaultMaterial:'PUR胶' },
+  { key:'glue350a_1', stdKey:'glue350a_1', section:'胶水', label:'热熔胶-350A(海绵粘合)', unit:'公斤', loss:0.02, coef:1, defaultMaterial:'热熔胶-350A' },
+  { key:'glue350a_2', stdKey:'glue350a_2', section:'胶水', label:'热熔胶-350A(裥绵面)',   unit:'公斤', loss:0.02, coef:0, defaultMaterial:'热熔胶-350A' },
+  { key:'glue5804', stdKey:'glue5804', section:'胶水', label:'热熔胶-5804',     unit:'公斤', loss:0.02, coef:1, defaultMaterial:'热熔胶-5804' },
 
   // === 包材及辅料（K31-K49）===
   { key:'zipper',     stdKey:'zipper',     section:'包材及辅料', label:'拉链', unit:'米', loss:0,    coef:1, needSelect:true },
@@ -1935,12 +1948,13 @@ function calcOT2_AllStandard(p) {
   const coreW = (edgeH>0) ? (W - (edgeH*2+2)) : W;
   r.edge_wide = edgeH * coreW * springH / 1000000 * edgeDensity;
 
-  // 胶水 K32-K34（与OT1完全一致；5804的+0.02在ROW_DEFS的extraFixedQty里统一处理）
+  // 胶水 K32-K35（新版：面积×密度，与OT1一致）
   r.pur_glue = W*L/10000*20/1000;
-  const C33 = W<140?4:6, I33 = W<140?0.019:0.017;
-  r.glue350a = ((W/100-0.02)+(L/100-0.02))*2*I33 + (L/100-0.16)*C33*I33 + 0.01;
-  const C34 = W<140?2:4, I34 = W<140?0.021:0.016;
-  r.glue5804 = ((W/100-0.08)+(L/100-0.08))*2*I34 + (L/100-0.18)*C34*I34 + 0.005;
+  const glue350aDensity1 = W<125 ? 115 : 80;
+  r.glue350a_1 = W*L/10000*glue350aDensity1/1000;
+  r.glue350a_2 = W*L/10000*25/1000;
+  const glue5804Density = W<145 ? 100 : 70;
+  r.glue5804 = W*L/10000*glue5804Density/1000;
 
   // 包材及辅料 K35-K53（与OT1完全一致）
   r.zipper = (L+W)/100*2+0.1;
@@ -2009,9 +2023,10 @@ const OT2_ROW_DEFS = [
   { key:'edge_wide',   stdKey:'edge_wide',   section:'床芯填充层', label:'宽护边',   unit:'公斤', loss:0, coef:2 },
 
   // === 胶水（K32-K34）===
-  { key:'pur_glue', stdKey:'pur_glue', section:'胶水', label:'PUR胶',       unit:'公斤', loss:0.02, coef:1, defaultMaterial:'PUR胶' },
-  { key:'glue350a', stdKey:'glue350a', section:'胶水', label:'热熔胶-350A', unit:'公斤', loss:0.02, coef:1, defaultMaterial:'热熔胶-350A' },
-  { key:'glue5804', stdKey:'glue5804', section:'胶水', label:'热熔胶-5804', unit:'公斤', loss:0.02, coef:1, defaultMaterial:'热熔胶-5804', extraFixedQty:0.02 },
+  { key:'pur_glue', stdKey:'pur_glue', section:'胶水', label:'PUR胶',           unit:'公斤', loss:0.02, coef:1, defaultMaterial:'PUR胶' },
+  { key:'glue350a_1', stdKey:'glue350a_1', section:'胶水', label:'热熔胶-350A(海绵粘合)', unit:'公斤', loss:0.02, coef:1, defaultMaterial:'热熔胶-350A' },
+  { key:'glue350a_2', stdKey:'glue350a_2', section:'胶水', label:'热熔胶-350A(裥绵面)',   unit:'公斤', loss:0.02, coef:0, defaultMaterial:'热熔胶-350A' },
+  { key:'glue5804', stdKey:'glue5804', section:'胶水', label:'热熔胶-5804',     unit:'公斤', loss:0.02, coef:1, defaultMaterial:'热熔胶-5804' },
 
   // === 包材及辅料（K35-K53）===
   { key:'zipper',     stdKey:'zipper',     section:'包材及辅料', label:'拉链', unit:'米', loss:0,    coef:1, needSelect:true },
@@ -2106,12 +2121,13 @@ function calcCover_AllStandard(p) {
   const coreW = (edgeH>0) ? (W - (edgeH*2+2)) : W;
   r.edge_wide = edgeH * coreW * springH / 1000000 * edgeDensity;
 
-  // 胶水 K17-K19（与其他款式完全一致；5804的+0.02在ROW_DEFS的extraFixedQty里统一处理）
+  // 胶水 K17-K20（新版：面积×密度，与其他款式一致）
   r.pur_glue = W*L/10000*20/1000;
-  const C18 = W<140?4:6, I18 = W<140?0.019:0.017;
-  r.glue350a = ((W/100-0.02)+(L/100-0.02))*2*I18 + (L/100-0.16)*C18*I18 + 0.01;
-  const C19 = W<140?2:4, I19 = W<140?0.021:0.016;
-  r.glue5804 = ((W/100-0.08)+(L/100-0.08))*2*I19 + (L/100-0.18)*C19*I19 + 0.005;
+  const glue350aDensity1 = W<125 ? 115 : 80;
+  r.glue350a_1 = W*L/10000*glue350aDensity1/1000;
+  r.glue350a_2 = W*L/10000*25/1000;
+  const glue5804Density = W<145 ? 100 : 70;
+  r.glue5804 = W*L/10000*glue5804Density/1000;
 
   // 包材及辅料 K20-K28（注意：没有拉链/边带/拉手/标签——这些都包含在外购"套子"成品本身的价格里了）
   const C21 = 0.8;
@@ -2151,9 +2167,10 @@ const COVER_ROW_DEFS = [
   { key:'edge_wide',   stdKey:'edge_wide',   section:'床芯填充层', label:'宽护边',   unit:'公斤', loss:0, coef:2 },
 
   // === 胶水（K17-K19）===
-  { key:'pur_glue', stdKey:'pur_glue', section:'胶水', label:'PUR胶',       unit:'公斤', loss:0.02, coef:1, defaultMaterial:'PUR胶' },
-  { key:'glue350a', stdKey:'glue350a', section:'胶水', label:'热熔胶-350A', unit:'公斤', loss:0.02, coef:1, defaultMaterial:'热熔胶-350A' },
-  { key:'glue5804', stdKey:'glue5804', section:'胶水', label:'热熔胶-5804', unit:'公斤', loss:0.02, coef:1, defaultMaterial:'热熔胶-5804', extraFixedQty:0.02 },
+  { key:'pur_glue', stdKey:'pur_glue', section:'胶水', label:'PUR胶',           unit:'公斤', loss:0.02, coef:1, defaultMaterial:'PUR胶' },
+  { key:'glue350a_1', stdKey:'glue350a_1', section:'胶水', label:'热熔胶-350A(海绵粘合)', unit:'公斤', loss:0.02, coef:1, defaultMaterial:'热熔胶-350A' },
+  { key:'glue350a_2', stdKey:'glue350a_2', section:'胶水', label:'热熔胶-350A(裥绵面)',   unit:'公斤', loss:0.02, coef:0, defaultMaterial:'热熔胶-350A' },
+  { key:'glue5804', stdKey:'glue5804', section:'胶水', label:'热熔胶-5804',     unit:'公斤', loss:0.02, coef:1, defaultMaterial:'热熔胶-5804' },
 
   // === 包材及辅料（K20-K28）：没有拉链/边带/拉手/标签 ===
   { key:'box_flat',     stdKey:'box_flat',     section:'包材及辅料', label:'黄卡纸箱（平卷）', unit:'件', loss:0,    coef:1, defaultMaterial:'黄卡纸箱（普通版面）' },
@@ -2617,7 +2634,9 @@ function onMattressTypeChange() {
     currentMattress._etRows = {}; // {rowKey: {sel, finalQtyOverride, src}}
     ET_ROW_DEFS.forEach(def => {
       // 海绵A/B行的初始系数=对应专属参数面板的厚度值，保持两边一致
-      const initCoef = def.thicknessParam ? currentMattress._etParams[def.thicknessParam] : def.coef;
+      let initCoef = def.thicknessParam ? currentMattress._etParams[def.thicknessParam] : def.coef;
+      // 隔层系数按真三边/假三边分支（Excel: M13=IF(A2="真三边",1,0)），假三边默认不计这层
+      if (def.key === 'interlayer') initCoef = (t === 'ET-真三边款') ? 1 : 0;
       currentMattress._etRows[def.key] = { sel:resolveDefaultMaterial(def), finalOverride:null, coef:initCoef };
     });
   } else if (GENERIC_PRECISE_ENGINES[t]) {
