@@ -1286,10 +1286,10 @@ const ET_ROW_DEFS = [
   { key:'bottom_nw',      stdKey:'bottom_nw',    section:'底部裥绵', label:'无纺布',   unit:'米', loss:0.05, coef:0 },
 
   // === 床芯填充层（K25-K38）===
-  { key:'fill_small1',    stdKey:'fill_small1',  section:'床芯填充层', label:'小边填充层1', unit:'公斤', loss:0, coef:1 },
-  { key:'fill_small2',    stdKey:'fill_small2',  section:'床芯填充层', label:'小边填充层2', unit:'公斤', loss:0, coef:1 },
-  { key:'fill_support1',  stdKey:'fill_support1',section:'床芯填充层', label:'支撑层填充1', unit:'公斤', loss:0, coef:1 },
-  { key:'fill_support2',  stdKey:'fill_support2',section:'床芯填充层', label:'支撑层填充2', unit:'公斤', loss:0, coef:1 },
+  { key:'fill_small1',    stdKey:'fill_small1',  section:'床芯填充层', label:'小边填充层1', unit:'公斤', loss:0, coef:1, densityParam:'smallFillDensity1' },
+  { key:'fill_small2',    stdKey:'fill_small2',  section:'床芯填充层', label:'小边填充层2', unit:'公斤', loss:0, coef:1, densityParam:'smallFillDensity2' },
+  { key:'fill_support1',  stdKey:'fill_support1',section:'床芯填充层', label:'支撑层填充1', unit:'公斤', loss:0, coef:1, densityParam:'supportFillDensity1' },
+  { key:'fill_support2',  stdKey:'fill_support2',section:'床芯填充层', label:'支撑层填充2', unit:'公斤', loss:0, coef:1, densityParam:'supportFillDensity2' },
   { key:'felt_top',       stdKey:'felt',         section:'床芯填充层', label:'棉毡(上)', unit:'公斤', loss:0, coef:0 },
   { key:'felt_bottom',    stdKey:'felt',         section:'床芯填充层', label:'棉毡(下)', unit:'公斤', loss:0, coef:0 },
   { key:'bottom_foam',    stdKey:'bottom_foam',  section:'床芯填充层', label:'底绵',     unit:'公斤', loss:0, coef:1 },
@@ -1459,9 +1459,9 @@ const QT_ROW_DEFS = [
   { key:'bottom_nw',       stdKey:'bottom_nw',    section:'底部裥绵', label:'无纺布',   unit:'米', loss:0.05, coef:0 },
 
   // === 床芯填充层（K21-K34，不含弹簧本体——弹簧走弹簧计算器）===
-  { key:'comfort1',  stdKey:'comfort1',  section:'床芯填充层', label:'舒适层填充1', unit:'公斤', loss:0, coef:1 },
-  { key:'comfort2',  stdKey:'comfort2',  section:'床芯填充层', label:'舒适层填充2', unit:'公斤', loss:0, coef:1 },
-  { key:'comfort3',  stdKey:'comfort3',  section:'床芯填充层', label:'舒适层填充3', unit:'公斤', loss:0, coef:1 },
+  { key:'comfort1',  stdKey:'comfort1',  section:'床芯填充层', label:'舒适层填充1', unit:'公斤', loss:0, coef:1, densityParam:'comfortDensity1' },
+  { key:'comfort2',  stdKey:'comfort2',  section:'床芯填充层', label:'舒适层填充2', unit:'公斤', loss:0, coef:1, densityParam:'comfortDensity2' },
+  { key:'comfort3',  stdKey:'comfort3',  section:'床芯填充层', label:'舒适层填充3', unit:'公斤', loss:0, coef:1, densityParam:'comfortDensity3' },
   { key:'felt_top',    stdKey:'felt',      section:'床芯填充层', label:'棉毡(上)', unit:'公斤', loss:0, coef:1 },
   { key:'felt_bottom', stdKey:'felt',      section:'床芯填充层', label:'棉毡(下)', unit:'公斤', loss:0, coef:0 },
   { key:'bottom_foam', stdKey:'bottom_foam',section:'床芯填充层', label:'底绵',     unit:'公斤', loss:0, coef:1 },
@@ -1653,10 +1653,10 @@ const PT_ROW_DEFS = [
   { key:'bottom_nw',        stdKey:'bottom_nw',     section:'底部裥绵', label:'无纺布', unit:'米', loss:0.05, coef:1 },
 
   // === 床芯填充层（K25-K37，不含弹簧本体——弹簧走弹簧计算器）===
-  { key:'fill1',       stdKey:'fill1',       section:'床芯填充层', label:'虎口填充1', unit:'公斤', loss:0, coef:1 },
-  { key:'fill2',       stdKey:'fill2',       section:'床芯填充层', label:'虎口填充2', unit:'公斤', loss:0, coef:1 },
-  { key:'support1',    stdKey:'support1',    section:'床芯填充层', label:'支撑层填充1', unit:'公斤', loss:0, coef:1 },
-  { key:'support2',    stdKey:'support2',    section:'床芯填充层', label:'支撑层填充2', unit:'公斤', loss:0, coef:1 },
+  { key:'fill1',       stdKey:'fill1',       section:'床芯填充层', label:'虎口填充1', unit:'公斤', loss:0, coef:1, densityParam:'fillDensity1' },
+  { key:'fill2',       stdKey:'fill2',       section:'床芯填充层', label:'虎口填充2', unit:'公斤', loss:0, coef:1, densityParam:'fillDensity2' },
+  { key:'support1',    stdKey:'support1',    section:'床芯填充层', label:'支撑层填充1', unit:'公斤', loss:0, coef:1, densityParam:'supportDensity1' },
+  { key:'support2',    stdKey:'support2',    section:'床芯填充层', label:'支撑层填充2', unit:'公斤', loss:0, coef:1, densityParam:'supportDensity2' },
   { key:'felt_top',    stdKey:'felt',        section:'床芯填充层', label:'棉毡(上)', unit:'公斤', loss:0, coef:1 },
   { key:'felt_bottom', stdKey:'felt',        section:'床芯填充层', label:'棉毡(下)', unit:'公斤', loss:0, coef:0 },
   { key:'bottom_foam', stdKey:'bottom_foam', section:'床芯填充层', label:'底绵',     unit:'公斤', loss:0, coef:1 },
@@ -1815,9 +1815,9 @@ const OT1_ROW_DEFS = [
     defaultMaterial: (W,L,H) => W<130 ? '全涤汗布内套门幅90/90g' : (W<160 ? '全涤汗布内套门幅115/90g' : '全涤汗布内套门幅150/90g') },
 
   // === 床芯填充层（K17-K30，不含弹簧本体——弹簧走弹簧计算器）===
-  { key:'comfort1',    stdKey:'comfort1',    section:'床芯填充层', label:'舒适层填充1', unit:'公斤', loss:0, coef:1 },
-  { key:'comfort2',    stdKey:'comfort2',    section:'床芯填充层', label:'舒适层填充2', unit:'公斤', loss:0, coef:1 },
-  { key:'comfort3',    stdKey:'comfort3',    section:'床芯填充层', label:'舒适层填充3', unit:'公斤', loss:0, coef:1 },
+  { key:'comfort1',    stdKey:'comfort1',    section:'床芯填充层', label:'舒适层填充1', unit:'公斤', loss:0, coef:1, densityParam:'comfortDensity1' },
+  { key:'comfort2',    stdKey:'comfort2',    section:'床芯填充层', label:'舒适层填充2', unit:'公斤', loss:0, coef:1, densityParam:'comfortDensity2' },
+  { key:'comfort3',    stdKey:'comfort3',    section:'床芯填充层', label:'舒适层填充3', unit:'公斤', loss:0, coef:1, densityParam:'comfortDensity3' },
   { key:'felt_top',    stdKey:'felt',        section:'床芯填充层', label:'棉毡(上)', unit:'公斤', loss:0, coef:0 },
   { key:'felt_bottom', stdKey:'felt',        section:'床芯填充层', label:'棉毡(下)', unit:'公斤', loss:0, coef:0 },
   { key:'bottom_foam', stdKey:'bottom_foam', section:'床芯填充层', label:'底绵',     unit:'公斤', loss:0, coef:1 },
@@ -2016,9 +2016,9 @@ const OT2_ROW_DEFS = [
     defaultMaterial: (W,L,H) => W<130 ? '全涤汗布内套门幅90/90g' : (W<160 ? '全涤汗布内套门幅115/90g' : '全涤汗布内套门幅150/90g') },
 
   // === 床芯填充层（K21-K34，不含弹簧本体——弹簧走弹簧计算器）===
-  { key:'comfort1',    stdKey:'comfort1',    section:'床芯填充层', label:'舒适层填充1', unit:'公斤', loss:0, coef:1 },
-  { key:'comfort2',    stdKey:'comfort2',    section:'床芯填充层', label:'舒适层填充2', unit:'公斤', loss:0, coef:1 },
-  { key:'comfort3',    stdKey:'comfort3',    section:'床芯填充层', label:'舒适层填充3', unit:'公斤', loss:0, coef:1 },
+  { key:'comfort1',    stdKey:'comfort1',    section:'床芯填充层', label:'舒适层填充1', unit:'公斤', loss:0, coef:1, densityParam:'comfortDensity1' },
+  { key:'comfort2',    stdKey:'comfort2',    section:'床芯填充层', label:'舒适层填充2', unit:'公斤', loss:0, coef:1, densityParam:'comfortDensity2' },
+  { key:'comfort3',    stdKey:'comfort3',    section:'床芯填充层', label:'舒适层填充3', unit:'公斤', loss:0, coef:1, densityParam:'comfortDensity3' },
   { key:'felt_top',    stdKey:'felt',        section:'床芯填充层', label:'棉毡(上)', unit:'公斤', loss:0, coef:0 },
   { key:'felt_bottom', stdKey:'felt',        section:'床芯填充层', label:'棉毡(下)', unit:'公斤', loss:0, coef:0 },
   { key:'bottom_foam', stdKey:'bottom_foam', section:'床芯填充层', label:'底绵',     unit:'公斤', loss:0, coef:1 },
@@ -2163,9 +2163,9 @@ const COVER_ROW_DEFS = [
     defaultMaterial: (W,L,H) => W<130 ? '全涤汗布内套门幅90/90g' : (W<160 ? '全涤汗布内套门幅115/90g' : '全涤汗布内套门幅150/90g') },
 
   // === 床芯填充层（K6-K19，不含弹簧本体——弹簧走弹簧计算器）===
-  { key:'comfort1',    stdKey:'comfort1',    section:'床芯填充层', label:'舒适层填充1', unit:'公斤', loss:0, coef:1 },
-  { key:'comfort2',    stdKey:'comfort2',    section:'床芯填充层', label:'舒适层填充2', unit:'公斤', loss:0, coef:1 },
-  { key:'comfort3',    stdKey:'comfort3',    section:'床芯填充层', label:'舒适层填充3', unit:'公斤', loss:0, coef:1 },
+  { key:'comfort1',    stdKey:'comfort1',    section:'床芯填充层', label:'舒适层填充1', unit:'公斤', loss:0, coef:1, densityParam:'comfortDensity1' },
+  { key:'comfort2',    stdKey:'comfort2',    section:'床芯填充层', label:'舒适层填充2', unit:'公斤', loss:0, coef:1, densityParam:'comfortDensity2' },
+  { key:'comfort3',    stdKey:'comfort3',    section:'床芯填充层', label:'舒适层填充3', unit:'公斤', loss:0, coef:1, densityParam:'comfortDensity3' },
   { key:'felt_top',    stdKey:'felt',        section:'床芯填充层', label:'棉毡(上)', unit:'公斤', loss:0, coef:1 },
   { key:'felt_bottom', stdKey:'felt',        section:'床芯填充层', label:'棉毡(下)', unit:'公斤', loss:0, coef:1 },
   { key:'bottom_foam', stdKey:'bottom_foam', section:'床芯填充层', label:'底绵',     unit:'公斤', loss:0, coef:0 },
@@ -2906,8 +2906,9 @@ function renderET_SectionCard(sectionName, rowsInSection, std, p) {
       : '系数（次数）';
     const coefBg = def.thicknessParam ? '#fff7e6' : '#f6ffed';
     const coefBorder = def.thicknessParam ? '#ffd591' : '#b7eb8f';
+    const detectedDensity = def.densityParam ? parseFoamDensity(rowState.sel) : null;
     html += `<tr>
-      <td style="padding:4px">${escHtml(def.label)}${def.thicknessParam?'<span style="font-size:9px;color:#fa8c16;display:block">系数=厚度cm</span>':''}</td>
+      <td style="padding:4px">${escHtml(def.label)}${def.thicknessParam?'<span style="font-size:9px;color:#fa8c16;display:block">系数=厚度cm</span>':''}${def.densityParam?'<span style="font-size:9px;color:#1890ff;display:block">密度自动识别</span>':''}</td>
       <td style="padding:4px">
         <div class="search-wrap" style="position:relative">
           <input type="text" class="search-input" style="font-size:11px;padding:3px 6px"
@@ -2916,6 +2917,7 @@ function renderET_SectionCard(sectionName, rowsInSection, std, p) {
             oninput="onSearchInput(this)" onfocus="onSearchFocus(this)" onblur="onSearchBlur(this)" autocomplete="off">
           <div class="search-dropdown" style="display:none"></div>
         </div>
+        ${detectedDensity!=null?`<div style="font-size:10px;color:#1890ff;margin-top:2px">✓ 已识别密度${detectedDensity}kg/m³（厚度请在上方参数面板里填）</div>`:(def.densityParam && rowState.sel?'<div style="font-size:10px;color:#fa8c16;margin-top:2px">⚠️ 没识别出密度，沿用参数面板里的当前值</div>':'')}
       </td>
       <td style="padding:4px;text-align:right;color:#999;background:#f5f5f5" title="自动计算，不可编辑">${stdVal.toFixed(4)}</td>
       <td style="padding:4px"><input type="number" value="${coef}" step="0.5" min="0" title="${coefTitle}" style="width:40px;background:${coefBg};border:1px solid ${coefBorder}" onchange="onETCoefChange('${def.key}',this.value)"></td>
@@ -3033,6 +3035,12 @@ function onETZipperChange(key, val) {
 
 function onETMaterialSelect(key, name) {
   currentMattress._etRows[key].sel = name;
+  // 海绵类材料：从名称自动识别密度（如P25175W→25，M4055B-Ge→40），同步进顶部参数面板
+  const def = ET_ROW_DEFS.find(d => d.key === key);
+  if (def && def.densityParam) {
+    const density = parseFoamDensity(name);
+    if (density != null) currentMattress._etParams[def.densityParam] = density;
+  }
   renderStructure();
   renderBOM();
 }
@@ -3188,8 +3196,9 @@ function renderGenericPreciseSectionCard(sectionName, rowsInSection, std, p) {
       : '系数（次数）';
     const coefBg = def.thicknessParam ? '#fff7e6' : '#f6ffed';
     const coefBorder = def.thicknessParam ? '#ffd591' : '#b7eb8f';
+    const detectedDensity = def.densityParam ? parseFoamDensity(rowState.sel) : null;
     html += `<tr>
-      <td style="padding:4px">${escHtml(def.label)}${def.thicknessParam?'<span style="font-size:9px;color:#fa8c16;display:block">系数=厚度cm</span>':''}</td>
+      <td style="padding:4px">${escHtml(def.label)}${def.thicknessParam?'<span style="font-size:9px;color:#fa8c16;display:block">系数=厚度cm</span>':''}${def.densityParam?'<span style="font-size:9px;color:#1890ff;display:block">密度自动识别</span>':''}</td>
       <td style="padding:4px">
         <div class="search-wrap" style="position:relative">
           <input type="text" class="search-input" style="font-size:11px;padding:3px 6px"
@@ -3198,6 +3207,7 @@ function renderGenericPreciseSectionCard(sectionName, rowsInSection, std, p) {
             oninput="onSearchInput(this)" onfocus="onSearchFocus(this)" onblur="onSearchBlur(this)" autocomplete="off">
           <div class="search-dropdown" style="display:none"></div>
         </div>
+        ${detectedDensity!=null?`<div style="font-size:10px;color:#1890ff;margin-top:2px">✓ 已识别密度${detectedDensity}kg/m³（厚度请在上方参数面板里填）</div>`:(def.densityParam && rowState.sel?'<div style="font-size:10px;color:#fa8c16;margin-top:2px">⚠️ 没识别出密度，沿用参数面板里的当前值</div>':'')}
       </td>
       <td style="padding:4px;text-align:right;color:#999;background:#f5f5f5" title="自动计算，不可编辑">${stdVal.toFixed(4)}</td>
       <td style="padding:4px"><input type="number" value="${coef}" step="0.5" min="0" title="${coefTitle}" style="width:40px;background:${coefBg};border:1px solid ${coefBorder}" onchange="onGenericPreciseCoefChange('${def.key}',this.value)"></td>
@@ -3312,6 +3322,13 @@ function onGenericPreciseZipperChange(key, val) {
 
 function onGenericPreciseMaterialSelect(key, name) {
   currentMattress._gpRows[key].sel = name;
+  // 海绵类材料：从名称自动识别密度（如P25175W→25，M4055B-Ge→40），同步进顶部参数面板
+  const eng = GENERIC_PRECISE_ENGINES[currentMattressType];
+  const def = eng && eng.ROW_DEFS.find(d => d.key === key);
+  if (def && def.densityParam) {
+    const density = parseFoamDensity(name);
+    if (density != null) currentMattress._gpParams[def.densityParam] = density;
+  }
   renderStructure();
   renderBOM();
 }
